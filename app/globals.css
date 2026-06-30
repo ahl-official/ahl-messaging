@@ -1,0 +1,510 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 158 80% 27%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 16% 96%;
+    --secondary-foreground: 0 0% 10%;
+
+    --muted: 210 16% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 158 60% 95%;
+    --accent-foreground: 158 80% 18%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 158 80% 27%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 0 0% 100%;
+  }
+
+  * {
+    @apply border-border;
+  }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Auth-page premium animations (login + signup hero panel)
+   ────────────────────────────────────────────────────────────── */
+
+@keyframes auth-blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(40px, -50px) scale(1.1); }
+  66%      { transform: translate(-30px, 30px) scale(0.95); }
+}
+
+@keyframes auth-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+
+@keyframes auth-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes auth-slide-up {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+@keyframes auth-slide-in-left {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes auth-slide-in-right {
+  from { opacity: 0; transform: translateX(24px) scale(0.92); }
+  to   { opacity: 1; transform: translateX(0)    scale(1); }
+}
+
+@keyframes auth-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes auth-pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(46, 109, 226, 0.5); }
+  70%  { box-shadow: 0 0 0 14px rgba(46, 109, 226, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(46, 109, 226, 0); }
+}
+
+@keyframes auth-gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+/* Springier, more visible "typing…" dot bounce. Each dot uses the same
+   keyframe — the staggered animation-delay below offsets them. */
+@keyframes auth-typing-dot {
+  0%, 80%, 100% { opacity: 0.35; transform: translateY(0)    scale(1); }
+  40%           { opacity: 1;    transform: translateY(-4px) scale(1.15); }
+}
+
+/* Used on the "Live inbox" badge — gentle vertical drift that kicks in
+   AFTER the badge has finished sliding into place. Decoupled from
+   auth-float so the entry animation isn't fighting the loop. */
+@keyframes auth-drift {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+/* Subtle continuous float for chat bubbles — kicks in after the entry
+   slide-up has resolved, gives the conversation a "breathing" feel
+   without ever displacing bubbles enough to look unstable. Smaller
+   amplitude than auth-drift on purpose. */
+@keyframes auth-bubble-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+
+/* Soft inner glow that sweeps across a bubble once on mount — adds the
+   "freshly arrived" sparkle without continuous animation noise. */
+@keyframes auth-shine-sweep {
+  0%   { transform: translateX(-100%); opacity: 0; }
+  20%  { opacity: 0.6; }
+  60%  { opacity: 0.6; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+.auth-blob {
+  animation: auth-blob 18s ease-in-out infinite;
+  filter: blur(60px);
+}
+
+/* Campaign live indicators ----------------------------------------- */
+@keyframes campaign-shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+@keyframes campaign-bump {
+  0%   { transform: scale(1); color: inherit; }
+  35%  { transform: scale(1.18); color: rgb(5 150 105); } /* emerald-600 */
+  100% { transform: scale(1); color: inherit; }
+}
+@keyframes campaign-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+  50%      { box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.18); }
+}
+.campaign-shimmer-bar {
+  position: relative;
+  overflow: hidden;
+}
+.campaign-shimmer-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 100%
+  );
+  animation: campaign-shimmer 1.6s linear infinite;
+}
+.campaign-bump {
+  animation: campaign-bump 0.6s ease-out;
+  display: inline-block;
+}
+.campaign-live-glow {
+  animation: campaign-glow 2s ease-in-out infinite;
+}
+.auth-float {
+  animation: auth-float 6s ease-in-out infinite;
+}
+/* Drift kicks in only AFTER its initial slide-in has finished — chained
+   via animation: <slide-in> 0.7s, <drift> 5s 0.7s infinite. Apply this
+   class to a wrapper that already runs the entry slide. */
+.auth-drift {
+  animation: auth-drift 5s ease-in-out infinite;
+  animation-delay: 1.4s;
+}
+.auth-slide-up {
+  animation: auth-slide-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+/* Chat-bubble specific: slide up to enter, then continuously float by
+   ±3px every 4.5s. Each bubble's entry delay is passed via the
+   `--entry-delay` custom property (set inline by the React component)
+   so the slide-up staggers naturally, but the float's own delay stays
+   at 1.6s — calibrated to be longer than the slowest bubble entry
+   (delay 0.95s + duration 0.65s = 1.6s) so the perpetual float never
+   fights the entry. */
+.auth-slide-up-floating {
+  animation:
+    auth-slide-up      0.65s cubic-bezier(0.22, 1, 0.36, 1) both,
+    auth-bubble-float  4.5s  ease-in-out                    infinite;
+  animation-delay: var(--entry-delay, 0s), 1.6s;
+}
+.auth-slide-in-left {
+  animation: auth-slide-in-left 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.auth-slide-in-right {
+  animation: auth-slide-in-right 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.auth-fade-in {
+  animation: auth-fade-in 0.9s ease-out both;
+}
+.auth-pulse-ring {
+  animation: auth-pulse-ring 2.4s ease-out infinite;
+}
+.auth-gradient-bg {
+  background: linear-gradient(120deg, rgb(46, 109, 226) 0%, #0693e3 35%, rgb(46, 109, 226) 65%, #0693e3 100%);
+  background-size: 200% 200%;
+  animation: auth-gradient-shift 16s ease infinite;
+}
+
+/* Login page — blue palette scoped to sign-in only */
+.login-page {
+  --primary: 219 76% 53%;
+  --ring: 219 76% 53%;
+  --accent: 199 95% 95%;
+  --accent-foreground: 219 76% 40%;
+}
+.auth-shimmer-button {
+  background-image: linear-gradient(
+    100deg,
+    hsl(var(--primary)) 0%,
+    hsl(var(--primary)) 40%,
+    rgba(255,255,255,0.25) 50%,
+    hsl(var(--primary)) 60%,
+    hsl(var(--primary)) 100%
+  );
+  background-size: 250% 100%;
+  background-position: -200% 0;
+  transition: background-position 0.6s ease, transform 0.15s ease;
+}
+.auth-shimmer-button:hover:not(:disabled) {
+  background-position: 200% 0;
+  transform: translateY(-1px);
+}
+.auth-typing span {
+  animation: auth-typing-dot 1.4s ease-in-out infinite;
+}
+.auth-typing span:nth-child(2) { animation-delay: 0.2s; }
+.auth-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+/* Right-edge soft fade — replaces .truncate's hard ellipsis with a smooth
+   alpha gradient. Used on contact-list rows where the preview / name text
+   would otherwise hit a sharp panel edge. */
+.text-fade-right {
+  white-space: nowrap;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 22px), transparent 100%);
+          mask-image: linear-gradient(to right, black calc(100% - 22px), transparent 100%);
+}
+
+/* Subtle dotted pattern for the hero panel */
+.auth-grid-pattern {
+  background-image:
+    radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+    radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 32px 32px, 32px 32px;
+  background-position: 0 0, 16px 16px;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Premium inbox surfaces — wallpaper, bubbles, contact list
+   ────────────────────────────────────────────────────────────── */
+
+/* WhatsApp-style chat wallpaper. Soft, low-contrast — never fights bubbles. */
+.chat-wallpaper {
+  background-color: hsl(150 20% 97%);
+  background-image:
+    radial-gradient(at 20% 20%, hsla(158, 60%, 40%, 0.04) 0, transparent 45%),
+    radial-gradient(at 80% 80%, hsla(158, 50%, 40%, 0.05) 0, transparent 50%),
+    radial-gradient(rgba(14,124,90,0.06) 1px, transparent 1px);
+  background-size: auto, auto, 24px 24px;
+}
+
+/* Outbound bubble — soft mint with a faint green tint. Subtle enough that
+   inbound (white) and outbound bubbles read as siblings rather than as the
+   old dark vs light contrast. Dark-emerald body text + sky-blue read ticks
+   stay legible against this near-white base. */
+.bubble-out {
+  background-image: linear-gradient(180deg, #F0FDF4 0%, #DCFCE7 100%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.6) inset,
+    0 1px 2px rgba(11,120,90,0.06),
+    0 4px 12px -10px rgba(11,120,90,0.18);
+  border: 1px solid rgba(16,185,129,0.32);
+}
+.bubble-in {
+  box-shadow:
+    0 1px 2px rgba(15,23,42,0.06),
+    0 6px 16px -10px rgba(15,23,42,0.18);
+}
+.bubble-failed {
+  background-image: linear-gradient(180deg, #fee2e2 0%, #fecaca 100%);
+  box-shadow:
+    0 1px 2px rgba(239,68,68,0.10),
+    0 6px 16px -10px rgba(239,68,68,0.30);
+}
+
+/* Day-separator chip — frosted, premium feel. */
+.day-chip {
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(15,23,42,0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+}
+
+/* Active conversation in the contact list — left accent + gradient row. */
+.contact-active {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--accent)) 0%,
+    hsl(var(--accent) / 0.45) 55%,
+    hsl(var(--accent) / 0.05) 100%
+  );
+  position: relative;
+}
+.contact-active::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 6px; bottom: 6px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.7) 100%);
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.15), 0 4px 8px hsl(var(--primary) / 0.15);
+}
+
+/* Stale-unreplied — customer message is >5 min old and the operator
+ * hasn't replied yet. Soft amber background pulse + a thin pulsing
+ * left accent strip so the row catches the eye without screaming. */
+@keyframes stale-unreplied-bg {
+  0%, 100% { background-color: rgba(245, 158, 11, 0.06); }
+  50%      { background-color: rgba(245, 158, 11, 0.18); }
+}
+@keyframes stale-unreplied-bar {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+.stale-unreplied {
+  animation: stale-unreplied-bg 1.6s ease-in-out infinite;
+  position: relative;
+}
+.stale-unreplied::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 6px; bottom: 6px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, #f59e0b 0%, #ef4444 100%);
+  animation: stale-unreplied-bar 1.6s ease-in-out infinite;
+}
+
+/* Compact filter-chip strip — keeps everything on one line, scrolls if needed. */
+.chip-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 2px;
+}
+.chip-strip::-webkit-scrollbar { display: none; }
+
+/* Hide the scrollbar on any horizontally-scrolled strip (e.g. the settings
+   tab bar) — scrolling is driven by chevron buttons instead. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Inbox list scrollbar — always visible + wide enough to grab with mouse.
+   macOS hides overlay scrollbars by default which makes click-drag flaky. */
+.inbox-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground) / 0.35) transparent;
+}
+.inbox-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+.inbox-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.inbox-scroll::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.30);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.inbox-scroll::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.55);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+
+/* Composer card focus glow — when the textarea or any inner control gains focus. */
+.composer-card {
+  transition: box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.composer-card:focus-within {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 4px hsl(var(--primary) / 0.10);
+}
+
+/* Send button — soft primary halo + lift on hover. */
+.btn-send {
+  position: relative;
+  background-image: linear-gradient(180deg, #10b981 0%, #0E7C5A 100%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.15) inset,
+    0 6px 18px -8px rgba(14,124,90,0.55),
+    0 1px 2px rgba(8,79,56,0.20);
+  transition: transform 0.12s ease, box-shadow 0.18s ease, filter 0.15s ease;
+}
+.btn-send:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.18) inset,
+    0 10px 24px -8px rgba(14,124,90,0.65),
+    0 2px 4px rgba(8,79,56,0.22);
+}
+.btn-send:disabled {
+  background-image: none;
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--muted-foreground));
+  box-shadow: none;
+}
+
+/* Top-bar global search — subtle, focus-rich. */
+.topbar-search {
+  transition: background 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.topbar-search:focus-within {
+  background: hsl(var(--background));
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 4px hsl(var(--primary) / 0.10);
+}
+
+/* Notice-banner marquee — applied only when the text overflows the
+ * pill. The track contains two copies of the same text separated by a
+ * fixed gap; we translate by exactly half the track's width so when
+ * the first copy slides off the left edge, the second is in the same
+ * position, making the loop seamless. Duration is set inline (per-
+ * instance) to keep scroll speed constant across short and long
+ * messages. */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation-name: marquee;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* ===========================================================
+   PageLoader — modern indeterminate progress + shimmer text.
+   Used by app/(dashboard)/loading.tsx during route transitions.
+   =========================================================== */
+
+/* Indeterminate top progress bar — slides a 30% gradient slab L→R. */
+@keyframes loader-progress {
+  0%   { transform: translateX(-100%); }
+  60%  { transform: translateX(220%); }
+  100% { transform: translateX(220%); }
+}
+.animate-loader-progress {
+  animation: loader-progress 1.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+/* Gradient text shimmer — sweeps a brighter band across "Loading". */
+@keyframes loader-shimmer {
+  0%   { background-position: -200% 50%; }
+  100% { background-position: 200% 50%; }
+}
+.animate-loader-shimmer {
+  background-size: 200% 100%;
+  animation: loader-shimmer 2.2s linear infinite;
+}
+
+/* Home AI assistant avatar — pulsing halo + spinning gradient orbit. */
+@keyframes qht-assistant-pulse {
+  0%, 100% { transform: scale(0.95); opacity: 0.5; }
+  50%      { transform: scale(1.08); opacity: 0.85; }
+}
+.qht-assistant-pulse { animation: qht-assistant-pulse 2.8s ease-in-out infinite; }
+
+@keyframes qht-assistant-spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.qht-assistant-spin-slow { animation: qht-assistant-spin 8s linear infinite; }
+.qht-assistant-spin-fast { animation: qht-assistant-spin 1.6s linear infinite; }
