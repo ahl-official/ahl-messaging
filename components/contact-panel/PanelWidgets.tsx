@@ -125,7 +125,7 @@ export function PanelWidgets({
           aria-expanded={aiOpen}
         >
           <Sparkles className="h-4 w-4 text-violet-500" />
-          <span className="text-sm font-semibold tracking-tight">QHT AI</span>
+          <span className="text-sm font-semibold tracking-tight">AHL AI</span>
           <ChevronDown
             className={cn(
               "ml-auto h-4 w-4 text-muted-foreground transition-transform",

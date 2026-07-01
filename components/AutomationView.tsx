@@ -150,7 +150,7 @@ interface LogRow {
   rag_chunks: RagChunkRef[] | null;
 }
 
-const DEFAULT_PROMPT = `You are a friendly support assistant at QHT Clinic, a hair restoration center based in Dehradun. Reply to customer queries in clear Hinglish.
+const DEFAULT_PROMPT = `You are a friendly support assistant at QHT Clinic, a hair restoration center based in Mumbai. Reply to customer queries in clear Hinglish.
 
 - Always be polite and helpful.
 - For cost questions, mention that exact pricing requires hair photos for graft estimation.
@@ -3934,10 +3934,10 @@ const COMMON_LSQ_FIELDS: Array<{ field: string; description: string }> = [
 
 // Static defaults the bot stamps on every lead from this number —
 // classic source-tracking shape. The operator picks one value per
-// preset (e.g. Source = "URoots" for the URoots number, "QHT" for the
+// preset (e.g. Source = "Alchemane" for the Alchemane number, "QHT" for the
 // clinic number) and it gets re-applied on every Lead.CreateOrUpdate.
 const LEAD_DEFAULT_PRESETS: Array<{ field: string; placeholder: string }> = [
-  { field: "Source",        placeholder: "e.g. URoots" },
+  { field: "Source",        placeholder: "e.g. Alchemane" },
   { field: "mx_Sub_source", placeholder: "e.g. Whatsapp Inbound" },
   { field: "SourceMedium",  placeholder: "e.g. WhatsApp" },
   { field: "mx_utm_source", placeholder: "e.g. FB Forms" },

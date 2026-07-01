@@ -2165,10 +2165,10 @@ function sampleValueFor(key: string): string {
   if (k.includes("date")) return "12 May 4PM";
   if (k.includes("time")) return "4:00 PM";
   if (k.includes("doctor") || k.includes("dr")) return "Dr. Mehta";
-  if (k.includes("clinic") || k.includes("city")) return "Dehradun";
+  if (k.includes("clinic") || k.includes("city")) return "Mumbai";
   if (k.includes("amount") || k.includes("price") || k.includes("cost")) return "5000";
   if (k.includes("code") || k.includes("otp")) return "482910";
-  if (k.includes("link") || k.includes("url")) return "https://qhtclinic.com/x";
+  if (k.includes("link") || k.includes("url")) return "https://americanhairline.com/x";
   return `Value${key}`;
 }
 

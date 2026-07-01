@@ -65,7 +65,7 @@ export default async function LoginPage({
             <div className="leading-tight">
               <div className="text-base font-semibold">AHL Messaging</div>
               <div className="text-[11px] uppercase tracking-[0.18em] text-white/70">
-                Patient engagement, reimagined
+                Hair care, reimagined
               </div>
             </div>
           </header>

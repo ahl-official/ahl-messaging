@@ -27,7 +27,7 @@ interface Props {
   /** Receive the generated text. The caller decides how to apply it
    *  (replace vs. append) — usually replace. */
   onApply: (text: string) => void;
-  /** Optional business context blurb (e.g. "QHT Clinic, hair transplants").
+  /** Optional business context blurb (e.g. "QHT Salon, hair services").
    *  Helps the model write specific copy instead of generic filler. */
   context?: string;
   /** Optional className for the trigger button so callers can pin it
@@ -40,7 +40,7 @@ interface Props {
 const PRESETS: Record<AssistKind, { title: string; placeholder: string; defaults: string[] }> = {
   persona: {
     title: "Generate persona",
-    placeholder: "e.g. Hindi-speaking hair-transplant counselor for QHT Clinic. Always asks for photos before quoting prices. Never reveals it's an AI. Reply <150 words.",
+    placeholder: "e.g. Hindi-speaking hair-service counselor for QHT Salon. Always asks for photos before quoting prices. Never reveals it's an AI. Reply <150 words.",
     defaults: [
       "Make it warmer and more conversational",
       "Add a hard rule to never give medical advice",
@@ -49,43 +49,43 @@ const PRESETS: Record<AssistKind, { title: string; placeholder: string; defaults
   },
   image_system_prompt: {
     title: "Generate image-mode prompt",
-    placeholder: "e.g. When patient sends scalp photos, acknowledge, ask for front/top/side angles, set expectation that doctor will call.",
+    placeholder: "e.g. When client sends scalp photos, acknowledge, ask for front/top/side angles, set expectation that doctor will call.",
     defaults: [
-      "Standard scalp-photo handling for hair clinic",
-      "Skin-condition photos for dermatology clinic",
+      "Standard scalp-photo handling for hair salon",
+      "Skin-condition photos for dermatology salon",
     ],
   },
   transcription_prompt: {
     title: "Generate transcription context",
-    placeholder: "e.g. Hair-transplant consultation calls in Hindi+English. Common terms: graft, FUE, DHT, telogen, donor area.",
+    placeholder: "e.g. Hair-service consultation calls in Hindi+English. Common terms: service, FUE, DHT, telogen, donor area.",
     defaults: [
-      "Hair-transplant consultations in Hinglish",
-      "Skin-clinic consultations with dermatology terms",
+      "Hair-service consultations in Hinglish",
+      "Skin-salon consultations with dermatology terms",
     ],
   },
   rag_core_prompt: {
     title: "Generate RAG core prompt",
-    placeholder: "e.g. QHT Clinic hair counselor. Hinglish. Use only RELEVANT KNOWLEDGE chunks. <150 words. Escalate to human when user mentions emergency.",
+    placeholder: "e.g. QHT Salon hair counselor. Hinglish. Use only RELEVANT KNOWLEDGE chunks. <150 words. Escalate to human when user mentions emergency.",
     defaults: [
-      "Short hair-clinic counselor that relies on knowledge base",
+      "Short hair-salon counselor that relies on knowledge base",
       "Customer-support agent that never invents pricing",
     ],
   },
   knowledge_chunk: {
     title: "Generate knowledge chunk",
-    placeholder: "e.g. Pricing block — hair transplant starts ₹65k for 1500 grafts, photo review required, includes 1 follow-up call.",
+    placeholder: "e.g. Pricing block — hair service starts ₹65k for 1500 services, photo review required, includes 1 follow-up call.",
     defaults: [
-      "Pricing for hair transplant procedures",
+      "Pricing for hair service procedures",
       "Refund + cancellation policy",
-      "Operating hours + clinic locations",
+      "Operating hours + salon locations",
     ],
   },
   magic_campaign_brief: {
     title: "Generate campaign brief",
-    placeholder: "e.g. Re-engage patients who stopped replying 30+ days ago. Mention we have new monsoon offer slots. Ask them to reply YES to book. Use {{name}} to greet them.",
+    placeholder: "e.g. Re-engage clients who stopped replying 30+ days ago. Mention we have new monsoon offer slots. Ask them to reply YES to book. Use {{name}} to greet them.",
     defaults: [
-      "Follow-up reminder for patients with upcoming appointments",
-      "Re-engage patients who went silent on the consultation flow",
+      "Follow-up reminder for clients with upcoming appointments",
+      "Re-engage clients who went silent on the consultation flow",
       "Diwali / festival offer announcement (no exact prices)",
       "Photo request — ask for front/top/side scalp shots",
       "Post-procedure check-in (1 week after)",
