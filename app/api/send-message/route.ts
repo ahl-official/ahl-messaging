@@ -278,43 +278,82 @@ export async function POST(request: NextRequest) {
   let waMessageId: string | null = null;
   try {
     if (isEvolution) {
-      // Evolution path. Templates are Meta-only — reject. Otherwise
-      // dispatch by kind. Evolution returns { key: { id } }; we map
-      // it onto waMessageId so the mirror insert below is unchanged.
       if (kind === "template") {
         throw new Error(
-          "Templates are not supported on Evolution (unofficial) numbers. Send a regular text or media message instead.",
+          "Templates are not supported on unofficial numbers. Use a Meta API number for templates.",
         );
       }
       const instance = providerRow!.evolution_instance_name!;
-      const apiKey = providerRow!.evolution_api_key!;
+      const apiKey = providerRow!.evolution_api_key ?? "";
       const number = waId.replace(/\D/g, "");
-      if (kind === "media") {
-        const mediaKind = body.media_kind!;
-        const mediaRef = body.media_id || body.media_url!;
-        // Audio goes through sendMedia (mediatype:"audio"), NOT
-        // sendWhatsAppAudio — the PTT path frequently fails with
-        // "rate-overlimit" while a plain playable audio file sends fine.
-        const r = await evolution.sendMedia({
-          instanceName: instance,
-          apiKey,
-          number,
-          mediatype:
-            mediaKind === "image" || mediaKind === "video" || mediaKind === "audio" ? mediaKind : "document",
-          media: mediaRef,
-          mimetype: body.media_mime ?? undefined,
-          caption: body.caption?.trim() || undefined,
-          fileName: body.filename ?? (mediaKind === "audio" ? "voice.ogg" : undefined),
-        });
-        waMessageId = r.key?.id ?? null;
+      const sendText =
+        kind === "interactive" ? interactiveFallbackText : payloadContent;
+      const replyToWaMessageId = body.reply_to_wa_message_id ?? undefined;
+
+      // Detect WAHA instances — they use WAHA_SERVER_URL, not Evolution API
+      const wahaServerUrl = process.env.WAHA_SERVER_URL ?? "";
+      const wahaApiKey = process.env.WAHA_API_KEY ?? "";
+      const isWaha = !!wahaServerUrl && !!wahaApiKey;
+
+      if (isWaha) {
+        const { wahaSendText, wahaSendImage, wahaSendFile, wahaSendVoice } =
+          await import("@/lib/waha");
+        if (kind === "media") {
+          const mediaRef = (body.media_url || body.media_id || "").trim();
+          if (!mediaRef.startsWith("http")) {
+            throw new Error(
+              "WAHA media send needs a public media_url (http/https link).",
+            );
+          }
+          const mime = mediaMime ?? body.media_mime ?? "";
+          const caption = body.caption?.trim() || undefined;
+          let result: { id?: string } | null = null;
+          if (body.media_kind === "image" || mime.startsWith("image/")) {
+            result = await wahaSendImage(instance, number, mediaRef, caption);
+          } else if (body.media_kind === "audio" || mime.startsWith("audio/")) {
+            result = await wahaSendVoice(instance, number, mediaRef);
+          } else {
+            result = await wahaSendFile(instance, number, mediaRef, caption);
+          }
+          waMessageId = result?.id ?? null;
+        } else {
+          const result = await wahaSendText(
+            instance,
+            number,
+            sendText,
+            replyToWaMessageId,
+          );
+          waMessageId = result?.id ?? null;
+        }
       } else {
-        const r = await evolution.sendText({
-          instanceName: instance,
-          apiKey,
-          number,
-          text: kind === "interactive" ? interactiveFallbackText : payloadContent,
-        });
-        waMessageId = r.key?.id ?? null;
+        if (kind === "media") {
+          const mediaKind = body.media_kind!;
+          const mediaRef = body.media_id || body.media_url!;
+          const r = await evolution.sendMedia({
+            instanceName: instance,
+            apiKey,
+            number,
+            mediatype:
+              mediaKind === "image" || mediaKind === "video" || mediaKind === "audio"
+                ? mediaKind
+                : "document",
+            media: mediaRef,
+            mimetype: body.media_mime ?? undefined,
+            caption: body.caption?.trim() || undefined,
+            fileName: body.filename ?? (mediaKind === "audio" ? "voice.ogg" : undefined),
+          });
+          waMessageId = r.key?.id ?? null;
+        } else {
+          const r = await evolution.sendText({
+            instanceName: instance,
+            apiKey,
+            number,
+            text: sendText,
+            quotedWaMessageId: replyToWaMessageId,
+            quotedText: body.reply_to_content ?? undefined,
+          });
+          waMessageId = r.key?.id ?? null;
+        }
       }
     } else if (isInterakt) {
       // ---- Interakt path ----
