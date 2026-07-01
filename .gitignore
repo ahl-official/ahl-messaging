@@ -10,6 +10,7 @@
 # env — never commit secrets
 .env
 .env*.local
+env.production.txt
 
 # debug
 npm-debug.log*

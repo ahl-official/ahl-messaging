@@ -93,19 +93,41 @@ export async function POST(
       // Skip messages sent by us (fromMe) unless it's message.any and we want outbound tracking
       if (event === "message" && fromMe) break;
 
-      // Determine the contact's phone number (the other party)
-      const contactWaId = fromMe
-        ? to.replace(/@.*$/, "")
-        : from.replace(/@.*$/, "");
-
       // Skip group messages, broadcasts, newsletters for now
       if (
-        from.includes("@g.us") ||
-        from.includes("@broadcast") ||
-        from.includes("@newsletter")
+        from?.includes("@g.us") ||
+        from?.includes("@broadcast") ||
+        from?.includes("@newsletter")
       ) {
         break;
       }
+
+      // WAHA sometimes sends @lid (Linked Device ID) instead of real phone number
+      // Real phone number is in _data.Info.SenderAlt for inbound
+      // or _data.Info.RecipientAlt for outbound
+      const rawData = payload._data as Record<string, unknown> | undefined;
+      const info = rawData?.Info as Record<string, unknown> | undefined;
+
+      function extractPhone(jid: string | undefined): string {
+        if (!jid) return "";
+        return jid.replace(/@.*$/, "").replace(/\D/g, "");
+      }
+
+      let contactWaId: string;
+      if (fromMe) {
+        // Outbound — the contact is the recipient
+        const recipientAlt = info?.RecipientAlt as string | undefined;
+        contactWaId = extractPhone(recipientAlt || to);
+      } else {
+        // Inbound — the contact is the sender
+        // Prefer SenderAlt (real phone) over from (which may be @lid)
+        const senderAlt = info?.SenderAlt as string | undefined;
+        const fromPhone = from?.includes("@lid") ? senderAlt : from;
+        contactWaId = extractPhone(fromPhone || from);
+      }
+
+      // Also get push name
+      const pushName = (payload.pushName || info?.PushName) as string | undefined;
 
       const now = new Date().toISOString();
       const msgTimestamp = timestamp
@@ -122,9 +144,7 @@ export async function POST(
             last_message_at: msgTimestamp,
             last_message_preview: body_text?.slice(0, 200) || "",
             last_message_direction: fromMe ? "outbound" : "inbound",
-            ...(payload.pushName
-              ? { profile_name: payload.pushName as string }
-              : {}),
+            ...(pushName ? { profile_name: pushName } : {}),
           },
           {
             onConflict: "wa_id,business_phone_number_id",
@@ -166,7 +186,7 @@ export async function POST(
           status: fromMe ? "sent" : null,
           timestamp: msgTimestamp,
           wa_id: contactWaId,
-          sender_name: (payload.pushName as string | undefined) || null,
+          sender_name: pushName || null,
           raw_payload: payload,
         },
         { onConflict: "wa_message_id", ignoreDuplicates: true },
