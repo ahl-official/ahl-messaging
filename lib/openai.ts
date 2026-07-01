@@ -38,6 +38,30 @@ interface OpenAIChatResponse {
   error?: { message?: string; type?: string; code?: string };
 }
 
+async function resolveChatApiConfig(): Promise<{
+  apiKey: string;
+  baseUrl: string;
+  extraHeaders: Record<string, string>;
+}> {
+  const openRouterKey = process.env.OPENROUTER_API_KEY?.trim();
+  if (openRouterKey) {
+    return {
+      apiKey: openRouterKey,
+      baseUrl: "https://openrouter.ai/api/v1",
+      extraHeaders: {
+        "HTTP-Referer": "https://wa.hairscalptradingco.com",
+        "X-Title": "AHL Messaging",
+      },
+    };
+  }
+  const apiKey = await requireCredential("openai_api_key", "OpenAI API key");
+  return {
+    apiKey,
+    baseUrl: "https://api.openai.com/v1",
+    extraHeaders: {},
+  };
+}
+
 export async function chatCompletion(opts: {
   messages: ChatMessage[];
   model: string;
@@ -49,9 +73,7 @@ export async function chatCompletion(opts: {
    *  pipeline so we never get markdown-fenced or chatty replies. */
   jsonMode?: boolean;
 }): Promise<ChatCompletionResponse> {
-  // Pulled from app_credentials (with .env.local fallback) so admins can
-  // rotate the key from Settings → Credentials without redeploying.
-  const apiKey = await requireCredential("openai_api_key", "OpenAI API key");
+  const { apiKey, baseUrl, extraHeaders } = await resolveChatApiConfig();
 
   const startedAt = Date.now();
   const body: Record<string, unknown> = {
@@ -63,11 +85,12 @@ export async function chatCompletion(opts: {
   if (opts.jsonMode) {
     body.response_format = { type: "json_object" };
   }
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  const res = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
+      ...extraHeaders,
     },
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(opts.timeoutMs ?? 30_000),
