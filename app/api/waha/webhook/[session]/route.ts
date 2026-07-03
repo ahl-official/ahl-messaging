@@ -164,6 +164,42 @@ export async function POST(
           .eq("id", contact.id);
       }
 
+      // Auto-create lead in AHL Firebase CRM for new inbound contacts
+      if (!fromMe && contact) {
+        try {
+          const { data: contactRecord } = await supabase
+            .from("contacts")
+            .select("lsq_lead_number, lsq_prospect_id")
+            .eq("id", contact.id)
+            .single();
+
+          // Only create if no existing CRM lead linked
+          if (!contactRecord?.lsq_lead_number && !contactRecord?.lsq_prospect_id) {
+            const { ahlEnsureLead } = await import("@/lib/ahl-crm");
+            const leadId = await ahlEnsureLead({
+              mobileNo: contactWaId,
+              clientName: pushName || undefined,
+              platform: "WhatsApp",
+              callType: "Incoming",
+              leadStatus: "New Lead",
+              assignmentStatus: "pending",
+              syncStatus: "needs_assignment",
+              actor: "system",
+            });
+
+            if (leadId) {
+              await supabase
+                .from("contacts")
+                .update({ lsq_lead_number: leadId })
+                .eq("id", contact.id);
+            }
+          }
+        } catch (crmErr) {
+          // CRM errors must never block WhatsApp message processing
+          console.error("[WAHA webhook] CRM lead creation failed:", crmErr);
+        }
+      }
+
       // Determine message type
       let msgType = "text";
       if (hasMedia) {
