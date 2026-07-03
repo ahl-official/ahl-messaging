@@ -2,12 +2,10 @@
 //   mode=history → delete all messages for this contact, keep the contact row
 //   mode=contact → delete the contact entirely (cascades messages + notes + logs)
 //
-// PATCH  /api/contacts/[id]   body: { status: 'open' | 'closed' }
-//   Toggle the conversation open/closed flag. Any logged-in operator
-//   who can see the contact can flip it — closed chats drop out of the
-//   "Open" inbox tab and live under "Closed". A fresh inbound auto-
-//   reopens the chat (webhook sets status='open'), so closing is
-//   reversible without operator intervention.
+// PATCH  /api/contacts/[id]   body: { status?: 'open' | 'closed', lsq_stage?: string | null }
+//   Toggle open/closed and/or update the cached pipeline stage on the
+//   contact row. Any logged-in operator who can see the contact may
+//   update these fields.
 //
 // Owner-only DELETE. Logged to console for the audit trail. Used by the
 // Settings → Data page.
@@ -15,6 +13,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentMember } from "@/lib/team";
 import { createServiceRoleClient } from "@/lib/supabase/server";
+import { ALL_LEAD_STAGES } from "@/lib/lead-stages";
+
+const ALLOWED_STAGES = new Set<string>(ALL_LEAD_STAGES);
 
 export const runtime = "nodejs";
 
@@ -28,30 +29,56 @@ export async function PATCH(
   const { id } = await params;
   if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 });
 
-  let body: { status?: string };
+  let body: { status?: string; lsq_stage?: string | null };
   try {
-    body = (await request.json()) as { status?: string };
+    body = (await request.json()) as { status?: string; lsq_stage?: string | null };
   } catch {
     return NextResponse.json({ error: "Bad JSON" }, { status: 400 });
   }
-  const status = body.status?.trim();
-  if (status !== "open" && status !== "closed") {
-    return NextResponse.json(
-      { error: "status must be 'open' or 'closed'" },
-      { status: 400 },
-    );
+
+  const updates: Record<string, string | null> = {};
+
+  if (body.status !== undefined) {
+    const status = body.status.trim();
+    if (status !== "open" && status !== "closed") {
+      return NextResponse.json(
+        { error: "status must be 'open' or 'closed'" },
+        { status: 400 },
+      );
+    }
+    updates.status = status;
+  }
+
+  if (body.lsq_stage !== undefined) {
+    if (body.lsq_stage === null || body.lsq_stage === "") {
+      updates.lsq_stage = null;
+    } else {
+      const stage = String(body.lsq_stage).trim();
+      if (!ALLOWED_STAGES.has(stage)) {
+        return NextResponse.json({ error: "Invalid lsq_stage" }, { status: 400 });
+      }
+      updates.lsq_stage = stage;
+    }
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
   }
 
   const admin = createServiceRoleClient();
   const { data, error } = await admin
     .from("contacts")
-    .update({ status })
+    .update(updates)
     .eq("id", id)
-    .select("id, status")
+    .select("id, status, lsq_stage")
     .maybeSingle();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!data) return NextResponse.json({ error: "Contact not found" }, { status: 404 });
-  return NextResponse.json({ ok: true, status: data.status });
+  return NextResponse.json({
+    ok: true,
+    status: data.status,
+    lsq_stage: data.lsq_stage,
+  });
 }
 
 export async function DELETE(

@@ -8,88 +8,15 @@
 // LSQ tenant evolves.
 
 export const LSQ_DEFAULT_STAGES: string[] = [
-  // Top-of-funnel
-  "Prospect",
-  "Engaged",
-  "Pending First Contact",
-
-  // Photo flow
-  "Photo Awaited",
-  "Photos Received",
-  "Photo Approved",
-  "Photo Disapproved",
-
-  // Graft / consult
-  "Graft Evaluation",
-  "Graft Evaluation Awaited",
-  "Graft Evaluation Completed",
-  "Call Back",
+  "New Lead",
+  "Contacted",
   "Follow Up",
-  "Package Shared",
-  "Consultation",
-  "Consultation Done",
-  "Follow up for Booking",
-  "Booking Done",
-
-  // Refunds
-  "Refund Requested",
-  "Refund Initiated",
-  "Refund Rescued",
-  "Refunded Done",
-
-  // Buckets / branches
-  "Lead Bucket",
-  "Other Services",
-  "Hyderabad leads",
-  "DNP",
-
-  // Surgery scheduling
-  "Surgery Date Awaited",
-  "Surgery Date Confirmed",
-  "Surgery Date Aligned",
-  "Surgery Date Postponed",
-  "Not Eligible for HT",
-  "Hairloss Treatment/Medication",
-  "Backlog",
-  "Planning for Second Session",
-
-  // Post-surgery
-  "Happy Patient",
-  "HT Done",
-  "HT Done/Medicine",
-  "HT Care Follow Up",
-  "HT Care & Medicine",
-
-  // Medicine / Uroots flow
-  "Follow_Up for Medicine",
-  "Call Back for Medicine",
-  "Interested To Buy for Medicine",
-  "Consultation for Medicine",
-  "DNP_Medicine",
-  "Medicine Suggested",
-  "Order Confirmed",
-  "Order Received",
-  "Order Placed",
-  "Order Confirmed by Bot",
-  "Order Conformed by WA Bot",
-  "Order Discussion",
-  "Order Fulfillment",
-  "Repeated Order",
-  "Abandoned Cart",
-
-  // Drop reasons / cold states
-  "Location Constraint",
-  "Pricing Concern",
-  "Invalid Number",
-  "Not Enquired",
-  "Hung Up",
-  "Call Back Time",
-  "Future Follow Up",
-  "Wrong Number",
-  "Language barrier",
-  "L1 Fall Out",
-  "Interested in HT",
-  "Surgery Discussion",
+  "NBD Booked",
+  "NBD Not Visited",
+  "NBD Done",
+  "Not Booked",
+  "Order Booked",
+  "Lost Lead",
 ];
 
 export const LSQ_DEFAULT_SOURCES: string[] = [

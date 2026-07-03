@@ -46,6 +46,7 @@ import { usePermissions } from "@/components/PermissionsContext";
 import { maskEmail } from "@/lib/mask";
 import { cn } from "@/lib/utils";
 import { toneForStage } from "@/lib/chip-tones";
+import { ALL_LEAD_STAGES } from "@/lib/lead-stages";
 
 // Lazy — the location editor pulls the 7.7MB country-state-city dataset,
 // which we don't want in the always-loaded inbox bundle. It only mounts
@@ -313,6 +314,12 @@ export function ContactDetailsPanel({
                     aka {contact.profile_name}
                   </div>
                 ) : null}
+                {!DEMO_MODE ? (
+                  <ContactStageSelector
+                    contactId={contact.id}
+                    stage={contact.lsq_stage}
+                  />
+                ) : null}
                 <InlineEmailEditor
                   email={lsq.lead?.email ?? null}
                   contactId={contact.id}
@@ -371,7 +378,7 @@ export function ContactDetailsPanel({
 
       {/* Package Shared + Lead Details — one tab row, one open at a
           time. Package Shared pulls the quoted package from LSQ notes;
-          Lead Details shows the CRM record + editable patient info. */}
+          Lead Details shows the CRM record + editable client info. */}
       <div className="space-y-3 border-b p-4">
         <div className="flex items-center gap-3">
           {!DEMO_MODE ? (
@@ -514,14 +521,14 @@ export function ContactDetailsPanel({
               </div>
             ) : null}
 
-        {/* Primary CRM — editable Patient info on top, read-only CRM
+        {/* Primary CRM — editable Client Info on top, read-only CRM
             record below, split by a hairline. */}
         {activeCrm === "primary" || !showCrmToggle ? (
         <div className="overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm">
           <div className="flex items-center gap-2 px-3.5 pt-3 pb-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
             <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
-              Patient info
+              Client Info
             </span>
           </div>
           <div className="space-y-0.5 px-2 pb-2">
@@ -1660,3 +1667,71 @@ function LsqSyncStatus({
   );
 }
 
+function ContactStageSelector({
+  contactId,
+  stage,
+}: {
+  contactId: string;
+  stage: string | null | undefined;
+}) {
+  const [localStage, setLocalStage] = useState(stage ?? "");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setLocalStage(stage ?? "");
+  }, [contactId, stage]);
+
+  const onChange = async (nextRaw: string) => {
+    const prev = localStage;
+    setLocalStage(nextRaw);
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/contacts/${contactId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lsq_stage: nextRaw.trim() ? nextRaw.trim() : null,
+        }),
+      });
+      const json = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+      };
+      if (!res.ok || !json.ok) {
+        setLocalStage(prev);
+        return;
+      }
+    } catch {
+      setLocalStage(prev);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const tone = localStage ? toneForStage(localStage) : null;
+
+  return (
+    <div className="mt-1.5 flex items-center gap-1.5">
+      <select
+        value={localStage}
+        onChange={(e) => void onChange(e.target.value)}
+        disabled={saving}
+        aria-label="Pipeline stage"
+        className={cn(
+          "h-7 min-w-0 flex-1 max-w-full truncate rounded-md border bg-background/90 px-2 text-[11px] font-medium outline-none transition focus:border-primary focus:ring-1 focus:ring-primary/20 disabled:opacity-60",
+          tone ? cn(tone.bg, tone.text, tone.ring, "ring-1 ring-inset") : "border-border/80 text-foreground",
+        )}
+      >
+        <option value="">No stage</option>
+        {ALL_LEAD_STAGES.map((s) => (
+          <option key={s} value={s}>
+            {s}
+          </option>
+        ))}
+      </select>
+      {saving ? (
+        <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-muted-foreground" />
+      ) : null}
+    </div>
+  );
+}

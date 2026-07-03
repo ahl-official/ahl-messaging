@@ -2977,10 +2977,15 @@ function FieldLabel({ icon: Icon, children }: { icon: typeof Bot; children: Reac
 // ===========================================================================
 
 const STAGE_PRESETS = [
-  "Prospect",
-  "Engaged",
-  "Pending First Contact",
-  "Photo Awaited",
+  "New Lead",
+  "Contacted",
+  "Follow Up",
+  "NBD Booked",
+  "NBD Not Visited",
+  "NBD Done",
+  "Not Booked",
+  "Order Booked",
+  "Lost Lead",
 ];
 
 function StageAllowList({
