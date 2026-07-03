@@ -104,7 +104,7 @@ export async function updateSession(request: NextRequest) {
     pathname === "/forgot-password" ||
     pathname === "/reset-password" ||
     pathname.startsWith("/auth/") ||
-    // Patient-facing booking page — opened from a shared link, no login.
+    // Client-facing booking page — opened from a shared link, no login.
     pathname.startsWith("/book/") ||
     // CRM iframe embed — must NOT redirect to /login (the login page can't
     // be framed); the page renders its own minimal sign-in screen instead.

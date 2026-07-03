@@ -1,4 +1,4 @@
-// Shared LSQ lead-pull core — used by the /api/lsq/pull-leads route (campaign
+// Shared CRM lead-pull core — used by the /api/lsq/pull-leads route (campaign
 // preview) AND the recurring-campaign daily job. Hits LeadManagement.svc/
 // Leads.Get directly, runs one criterion as the LSQ query and the rest
 // client-side, and normalises phones to wa_id form.
@@ -75,7 +75,7 @@ export async function pullLeadsFromLsq(
     fetched: 0,
     truncated_at_cap: false,
   };
-  if (!cfg.configured) return { ...empty, error: "LSQ not configured" };
+  if (!cfg.configured) return { ...empty, error: "CRM not configured" };
 
   const cap = Math.max(100, Math.min(10000, body.max ?? 5000));
 
@@ -172,7 +172,7 @@ export async function pullLeadsFromLsq(
         cfg,
       );
       if (!resp.ok) {
-        if (page === 1 && collected.length === 0) return { ...empty, error: resp.error ?? "LSQ search failed" };
+        if (page === 1 && collected.length === 0) return { ...empty, error: resp.error ?? "CRM search failed" };
         break;
       }
       const data = resp.data;

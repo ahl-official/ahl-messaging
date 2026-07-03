@@ -43,7 +43,7 @@ export function parseUtm(text: string | null | undefined): UtmParams | null {
 }
 
 // Meta ad-attribution values that can be mapped to LSQ schema fields
-// (Settings → LeadSquared → Facebook Ads fields). `key` is the
+// (Settings → CRM → Facebook Ads fields). `key` is the
 // contacts.utm_params key; `label` is what the operator sees.
 export const FB_AD_SOURCES = [
   { key: "source_id", label: "Source ID" },
@@ -64,7 +64,7 @@ export interface FbAdFieldMapping {
   source: string;
 }
 
-/** Resolve the configured Facebook-ad → LSQ field mappings against a
+/** Resolve the configured Facebook-ad → CRM field mappings against a
  *  contact's utm_params. Returns LSQ {Attribute, Value} pairs, skipping
  *  any whose source value isn't present yet (e.g. campaign names before
  *  ad-attribution has resolved). */

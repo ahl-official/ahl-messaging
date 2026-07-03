@@ -3,7 +3,7 @@
 //   POST /api/lsq/webhook/<secret>
 //
 // The secret sits in the path so LSQ only needs a static URL. Configure
-// the URL under Settings → Data → LeadSquared. Any LSQ lead/activity
+// the URL under Settings → Data → CRM. Any CRM lead/activity
 // push lands here; we mirror the lead's stage/owner/number onto the
 // matching contact row(s) so the inbox reflects it in real time (the
 // dashboard already subscribes to `contacts` via Supabase Realtime).
@@ -36,7 +36,7 @@ export async function GET(
   if (!(await authorize(params.secret))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  return NextResponse.json({ ok: true, message: "LSQ webhook is live" });
+  return NextResponse.json({ ok: true, message: "CRM webhook is live" });
 }
 
 export async function POST(

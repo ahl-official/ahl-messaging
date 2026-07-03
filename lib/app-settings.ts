@@ -40,7 +40,7 @@ export async function setAutomationTestWhitelist(
   );
 }
 
-/** app_settings.key — JSON array of patient wa_ids (digits-only) the
+/** app_settings.key — JSON array of client wa_ids (digits-only) the
  *  bot is allowed to reply to. Empty / unset = bot replies to everyone
  *  on every enabled number. When set, the bot replies ONLY to messages
  *  from these specific patient numbers — used to safely test a freshly
@@ -115,7 +115,7 @@ Rules:
 - Keep it concise — 2 to 5 short sentences, natural for WhatsApp.
 - Never invent prices, medical claims, or guarantees that are not in the conversation.`;
 
-/** app_settings.key — global gate for LSQ lead creation from Evolution
+/** app_settings.key — global gate for CRM lead creation from Evolution
  *  (Baileys / unofficial) WhatsApp numbers. Default 'true' (preserves
  *  current behaviour). When 'false', /api/lsq/ensure-lead skips every
  *  inbound whose business number's provider is 'evolution'. Use when
@@ -168,7 +168,7 @@ export async function getAiSummaryPrompt(): Promise<string> {
 // ---------------------------------------------------------------------------
 // Date Align — booking confirmation WhatsApp template. When a name is set, the
 // confirmation goes out as an approved UTILITY template (punches through the
-// 24h window) with {{1}} = patient name, {{2}} = date. Unset → plain text
+// 24h window) with {{1}} = client name, {{2}} = date. Unset → plain text
 // (only delivers inside the 24h window). Configurable in Settings → AI so the
 // template can be swapped/removed without a code change.
 // ---------------------------------------------------------------------------
@@ -233,9 +233,9 @@ export const AI_PACKAGE_PROMPT_KEY = "ai_package_prompt";
 /** Shipped default — drives the "Package Shared" section in the contact
  *  panel. Pulls only the quoted hair-transplant package out of the LSQ
  *  lead notes. */
-export const DEFAULT_AI_PACKAGE_PROMPT = `You are a CRM assistant for QHT Clinic, a hair-transplant clinic. You are given the package-related fields of one lead from the LeadSquared CRM — the hair-transplant package quoted to this patient.
+export const DEFAULT_AI_PACKAGE_PROMPT = `You are a CRM assistant for American Hairline, a hair care salon. You are given the package-related fields of one lead from the CRM — the hair treatment package quoted to this client.
 
-Lay out the COMPLETE package exactly as quoted. Present EVERY field given — do not omit, merge, shorten or skip anything. Cover graft count, price per graft, total package price, inclusions (GST, PRP, medicines, post-op kit, follow-ups), technique, surgery / booking details, offers and payment terms — whatever fields are present.
+Lay out the COMPLETE package exactly as quoted. Present EVERY field given — do not omit, merge, shorten or skip anything. Cover service count, price per unit, total package price, inclusions (GST, PRP, medicines, post-op kit, follow-ups), technique, booking details, offers and payment terms — whatever fields are present.
 
 Rules:
 - One clear line per field. Include every field — the answer can be as long as needed.

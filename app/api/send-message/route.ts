@@ -567,7 +567,7 @@ export async function POST(request: NextRequest) {
     .eq("id", contactId)
     .then(() => {}, () => {});
 
-  // Log this outbound onto the LSQ activity timeline. Fire-and-forget
+  // Log this outbound onto the CRM activity timeline. Fire-and-forget
   // — never block the send response on it. Lazy import keeps this
   // route's cold start fast when LSQ isn't configured.
   if (contactId) {

@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
 
   const cfg = getLsqConfig();
   if (!cfg.configured) {
-    return NextResponse.json({ error: "LSQ not configured" }, { status: 500 });
+    return NextResponse.json({ error: "CRM not configured" }, { status: 500 });
   }
 
   const digits = waId.replace(/\D/g, "");

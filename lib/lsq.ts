@@ -1,7 +1,7 @@
-// LeadSquared (LSQ) CRM integration. Server-only — never import from
+// CRM (LSQ) CRM integration. Server-only — never import from
 // a client component (would leak the secret key into the bundle).
 //
-// LeadSquared authenticates every request with two query params:
+// CRM authenticates every request with two query params:
 //   ?accessKey=<LSQ_ACCESS_KEY>&secretKey=<LSQ_SECRET_KEY>
 // The host varies by region — Indian tenants are usually
 // `https://api-in21.leadsquared.com` (or similar) — set LSQ_HOST in
@@ -14,7 +14,7 @@ export interface LsqConfig {
   secretKey: string;
   /** True when all three required env vars are present. */
   configured: boolean;
-  /** Human label for this CRM ("Delhi/Haridwar", "Hyderabad/Gurgaon").
+  /** Human label for this CRM ("Khar West/Mumbai", "Mumbai/Khar West").
    *  Shown in the contact panel so an operator knows which CRM a lead
    *  came from. */
   label: string;
@@ -47,11 +47,11 @@ export function getLsqConfig(): LsqConfig {
     accessKey,
     secretKey,
     configured: !!(host && accessKey && secretKey),
-    label: (process.env.LSQ_LABEL || "Haridwar/Delhi").trim(),
+    label: (process.env.LSQ_LABEL || "Mumbai/Khar West").trim(),
   };
 }
 
-/** Secondary (read-only) LeadSquared account — separate env vars so a
+/** Secondary (read-only) CRM account — separate env vars so a
  *  tenant running two LSQ CRMs (e.g. Delhi/Haridwar + Hyderabad/Gurgaon)
  *  can surface both leads in the contact panel. Only used for lead
  *  lookups; no writes / webhook / backfill go to this account. */
@@ -64,7 +64,7 @@ export function getLsqConfig2(): LsqConfig {
     accessKey,
     secretKey,
     configured: !!(host && accessKey && secretKey),
-    label: (process.env.LSQ2_LABEL || "Hyderabad/Gurgaon").trim(),
+    label: (process.env.LSQ2_LABEL || "Mumbai/Khar West").trim(),
   };
 }
 
@@ -162,7 +162,7 @@ export async function lsqFetch<T = unknown>(
       ok: false,
       status: 0,
       data: null,
-      error: "LeadSquared not configured. Set LSQ_HOST + LSQ_ACCESS_KEY + LSQ_SECRET_KEY in .env.local.",
+      error: "CRM not configured. Set LSQ_HOST + LSQ_ACCESS_KEY + LSQ_SECRET_KEY in .env.local.",
     };
   }
 
@@ -247,12 +247,12 @@ export async function lsqPing(): Promise<LsqResponse> {
 }
 
 // ---------------------------------------------------------------------------
-// Lead lookup by mobile number. LSQ leads are usually stored with a
+// Lead lookup by mobile number. CRM leads are usually stored with a
 // "+91…" prefix; our wa_id is "91…" (no + or zero). We try a couple of
 // common shapes so the UI doesn't miss matches.
 // ---------------------------------------------------------------------------
 
-/** Subset of LSQ lead fields the dashboard surfaces. There are 100+
+/** Subset of CRM lead fields the dashboard surfaces. There are 100+
  *  fields on a real LSQ record — we pick the human-relevant ones for
  *  the contact-details panel. ProspectAutoId comes back as a string
  *  (not a number) from this endpoint despite the name. */
@@ -265,11 +265,11 @@ export interface LsqLead {
   Phone: string | null;
   Mobile: string | null;
   DOB: string | null;
-  /** Patient/lead age — appears in `mx_Age` / `Age` fields depending on
+  /** Client/lead age — appears in `mx_Age` / `Age` fields depending on
    *  tenant config. Both common shapes are tried client-side. */
   Age: string | null;
   mx_Age: string | null;
-  /** Some QHT tenants store age under "Patient Age" custom column. */
+  /** Some QHT tenants store age under "Client Age" custom column. */
   mx_Patient_Age: string | null;
   /** Standard LSQ `City` — many tenants leave this empty and write to
    *  custom field `mx_Lead_City` instead (matches what the field-
@@ -448,7 +448,7 @@ const LEAD_LOOKUP_PATH = "/v2/LeadManagement.svc/RetrieveLeadByPhoneNumber";
 // Lead update — POST /v2/LeadManagement.svc/Lead.Update?leadId=<id>
 // Body is an array of { Attribute, Value } pairs. Used by the AI
 // pipeline to push extracted fields (name, email, age, pincode) onto
-// the matching LSQ lead.
+// the matching CRM lead.
 // ---------------------------------------------------------------------------
 
 export interface LsqUpdateField {
@@ -491,7 +491,7 @@ export async function lsqUpdateLead(
   }
   const cfg = getLsqConfig();
   if (!cfg.configured) {
-    return { ok: false, status: 0, error: "LSQ not configured", lead_id: null };
+    return { ok: false, status: 0, error: "CRM not configured", lead_id: null };
   }
 
   const doUpdate = async (body: LsqUpdateField[]) =>
@@ -605,7 +605,7 @@ export async function lsqUpsertLeadByPhone(
     return {
       ok: false,
       status: 0,
-      error: "LSQ not configured",
+      error: "CRM not configured",
       lead_id: null,
       prospect_id: null,
       created: false,
@@ -666,7 +666,7 @@ export async function lsqCreateLeadByPhone(
     return {
       ok: false,
       status: 0,
-      error: "LSQ not configured",
+      error: "CRM not configured",
       lead_id: null,
       prospect_id: null,
     };
@@ -801,7 +801,7 @@ export async function lsqCreateActivity(
 ): Promise<LsqActivityCreateResult> {
   const cfg = getLsqConfig();
   if (!cfg.configured) {
-    return { ok: false, status: 0, activity_id: null, error: "LSQ not configured" };
+    return { ok: false, status: 0, activity_id: null, error: "CRM not configured" };
   }
   if (!input.prospectId) {
     return { ok: false, status: 0, activity_id: null, error: "prospectId is required" };
@@ -852,7 +852,7 @@ export async function lsqCreateActivity(
 // WhatsApp activities, calls, tasks, etc.
 // ---------------------------------------------------------------------------
 
-/** Raw LSQ activity row as returned by /v2/ProspectActivity.svc/Retrieve.
+/** Raw CRM activity row as returned by /v2/ProspectActivity.svc/Retrieve.
  *  The shape was reverse-engineered from a working n8n workflow against
  *  this tenant — the field names differ from older LSQ docs. `Data` is
  *  an array of `{Key, Value}` records, NOT a flat object. */
@@ -1010,7 +1010,7 @@ export async function lsqGetLeadById(
   cfg: LsqConfig = getLsqConfig(),
 ): Promise<LsqLeadFields> {
   if (!cfg.configured) {
-    return { ok: false, fields: {}, error: "LSQ not configured" };
+    return { ok: false, fields: {}, error: "CRM not configured" };
   }
   const res = await lsqFetch<
     Record<string, unknown> | Array<Record<string, unknown>>
@@ -1052,7 +1052,7 @@ export async function lsqGetLeadActivities(
   cfg: LsqConfig = getLsqConfig(),
 ): Promise<LsqActivityResult> {
   if (!cfg.configured) {
-    return { ok: false, activities: [], error: "LSQ not configured" };
+    return { ok: false, activities: [], error: "CRM not configured" };
   }
 
   const res = await lsqFetch<ActivityResponse>(
@@ -1086,7 +1086,7 @@ export async function lsqGetLeadByMobile(
   cfg: LsqConfig = getLsqConfig(),
 ): Promise<LsqLeadLookup> {
   if (!cfg.configured) {
-    return { ok: false, found: false, lead: null, error: "LSQ not configured", matched_variant: null };
+    return { ok: false, found: false, lead: null, error: "CRM not configured", matched_variant: null };
   }
 
   // Single API call — `cc-last10` phone format against the canonical
@@ -1199,7 +1199,7 @@ export async function lsqGetLeadByLeadNumber(
       ok: false,
       found: false,
       lead: null,
-      error: "LSQ not configured",
+      error: "CRM not configured",
       matched_variant: null,
     };
   }
@@ -1276,7 +1276,7 @@ export async function lsqUploadFile(
 ): Promise<{ ok: boolean; path: string | null; name: string | null; error: string | null }> {
   const cfg = getLsqConfig();
   if (!cfg.configured) {
-    return { ok: false, path: null, name: null, error: "LSQ not configured" };
+    return { ok: false, path: null, name: null, error: "CRM not configured" };
   }
 
   // Files host is a sibling of the API host: api-in21 → files-in21.
@@ -1388,7 +1388,7 @@ export async function lsqAttachToActivity(
 ): Promise<{ ok: boolean; error: string | null }> {
   const cfg = getLsqConfig();
   if (!cfg.configured) {
-    return { ok: false, error: "LSQ not configured" };
+    return { ok: false, error: "CRM not configured" };
   }
 
   const params = new URLSearchParams({
@@ -1471,7 +1471,7 @@ export async function lsqGetProspectStage(
 ): Promise<{ ok: boolean; stage: string | null; error: string | null }> {
   const cfg = getLsqConfig();
   if (!cfg.configured) {
-    return { ok: false, stage: null, error: "LSQ not configured" };
+    return { ok: false, stage: null, error: "CRM not configured" };
   }
   const res = await lsqFetch<{ ProspectStage?: string } | LsqLead>({
     method: "GET",

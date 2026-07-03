@@ -180,7 +180,7 @@ export async function handleMessageUpsert(
         last_message_preview: (content || `[${type}]`).slice(0, 120),
         last_message_direction: direction,
         last_message_status: status,
-        // Opens/extends the 24h window — only on inbound (patient) messages.
+        // Opens/extends the 24h window — only on inbound (client) messages.
         ...(direction === "inbound" ? { last_inbound_at: tsIso } : {}),
       })
       .eq("id", contact.id);

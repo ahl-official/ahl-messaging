@@ -1,5 +1,5 @@
 // GET /api/book/[token] — public. Returns the booking's state + the list of
-// available dates so the patient page can render a date picker. No auth.
+// available dates so the client page can render a date picker. No auth.
 
 import { NextResponse, type NextRequest } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/server";
@@ -36,8 +36,8 @@ export async function GET(
     return NextResponse.json({ status: "expired", patient_name: booking.patient_name });
   }
 
-  // Clinic label for the page header.
-  let clinic = "our clinic";
+  // Salon label for the page header.
+  let clinic = "our salon";
   if (booking.business_phone_number_id) {
     const { data: bn } = await admin
       .from("business_numbers")

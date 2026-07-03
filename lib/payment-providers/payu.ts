@@ -156,16 +156,16 @@ export const payuProvider: PaymentProvider = {
       const raw = (input.customer.email ?? "").trim();
       const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw);
       if (ok) return raw.slice(0, 100);
-      const digits = phoneDigits.slice(-10) || "patient";
+      const digits = phoneDigits.slice(-10) || "client";
       return `${digits}@qhtclinic.in`;
     })();
 
     // Description: strip pipes (some PayU validators reject), collapse
     // whitespace, cap at 255.
-    const description = ((input.description ?? "QHT Clinic payment")
+    const description = ((input.description ?? "QHT Salon payment")
       .replace(/\|/g, " ")
       .replace(/\s+/g, " ")
-      .trim() || "QHT Clinic payment").slice(0, 255);
+      .trim() || "QHT Salon payment").slice(0, 255);
 
     // invoiceNumber: PayU caps at 16 chars (error [137]). Build a short
     // unique id: base36 timestamp (~8 chars) + 4 random base36 chars

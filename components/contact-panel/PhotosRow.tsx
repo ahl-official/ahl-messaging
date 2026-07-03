@@ -1,7 +1,7 @@
 "use client";
 
 // Inbound-photos strip for the contact-details panel. Pulls every
-// patient-sent image from /api/contacts/[id]/photos, renders them as
+// client-sent image from /api/contacts/[id]/photos, renders them as
 // a horizontally-scrollable thumbnail row, and opens a fullscreen
 // lightbox on click. Lightbox supports keyboard nav (←/→/Esc) and a
 // "Set as profile" action that calls PUT /api/contacts/[id]/avatar.
@@ -21,9 +21,9 @@ import { emitAvatarChanged } from "@/lib/avatar-events";
 
 interface Photo {
   id: string;
-  /** Who sent it — inbound = patient, outbound = our team. Drives the
+  /** Who sent it — inbound = client, outbound = our team. Drives the
    *  tiny "Sent" badge on outbound thumbnails so the operator can tell
-   *  team-shared images apart from patient-shared ones at a glance. */
+   *  team-shared images apart from client-shared ones at a glance. */
   direction?: "inbound" | "outbound";
   kind?: "image" | "audio";
   url: string;
@@ -291,7 +291,7 @@ function PhotoLightbox({
 
       {/* Media area — image OR audio depending on kind. Same nav
           chrome (←/→/Esc) wraps both so the operator can flip
-          through the patient's photos and voice notes uniformly. */}
+          through the client's photos and voice notes uniformly. */}
       <div
         className="relative flex flex-1 items-center justify-center overflow-hidden"
         onClick={(e) => e.stopPropagation()}

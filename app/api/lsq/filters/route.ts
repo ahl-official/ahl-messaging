@@ -3,7 +3,7 @@
 // Surface distinct lsq_stage values, owner names, and the contact-count
 // per stage so the campaign-create UI can render a multi-select with
 // counts ("Prospect · 412", "Photo Received · 87") instead of a free
-// text field. Cheap aggregate over public.contacts; no LSQ API hit.
+// text field. Cheap aggregate over public.contacts; no CRM API hit.
 
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentMember, isAtLeast } from "@/lib/team";

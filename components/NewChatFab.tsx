@@ -103,7 +103,7 @@ export function NewChatFab() {
 // =====================================================================
 // Dialog
 // =====================================================================
-// Most-common country codes for QHT clinic's patient base. Operator
+// Most-common country codes for QHT salon's client base. Operator
 // can still type any code by picking "Other" and editing the field —
 // but 95% of inputs are India / Gulf so prioritise those at the top.
 const COUNTRY_CODES: Array<{ code: string; flag: string; label: string }> = [
@@ -129,9 +129,9 @@ function NewChatDialog({ onClose }: { onClose: () => void }) {
   const [phone, setPhone] = useState("");
   const [bpid, setBpid] = useState("");
   const [numbers, setNumbers] = useState<BusinessNumber[]>([]);
-  // Lead-number lookup state. Operator types an LSQ lead #, we resolve
+  // Lead-number lookup state. Operator types an CRM lead #, we resolve
   // it to a phone via /api/lsq/lookup, ask "yeh number hai, add karun?",
-  // and auto-fill the patient-number fields on confirm.
+  // and auto-fill the client-number fields on confirm.
   const [leadNum, setLeadNum] = useState("");
   const [leadLooking, setLeadLooking] = useState(false);
   const [leadHit, setLeadHit] = useState<
@@ -269,7 +269,7 @@ function NewChatDialog({ onClose }: { onClose: () => void }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: leadHit?.leadName?.trim() || "Patient",
+            name: leadHit?.leadName?.trim() || "Client",
             phone: normalizedWa,
             business_phone_number_id: bpid,
             dry_run: true,
@@ -320,7 +320,7 @@ function NewChatDialog({ onClose }: { onClose: () => void }) {
         ? "normal"
         : "magic";
 
-  // Resolve the typed Lead # OR mobile number to a patient phone via
+  // Resolve the typed Lead # OR mobile number to a client phone via
   // /api/lsq/lookup. Extracted so both the Find button and the "Find
   // again" retry (shown on an unauthorized / rate-limited lookup) reuse
   // it. The endpoint accepts either: >=10 digits = phone number, shorter
@@ -368,7 +368,7 @@ function NewChatDialog({ onClose }: { onClose: () => void }) {
       }
       if (!j.resolved || !j.wa_id) {
         setLeadErr(
-          "Is Lead # / mobile number ka lead nahi mila. Number sahi hai to patient ne kam-se-kam ek baar kisi connected number par message kiya ho, ya LSQ me lead hona chahiye.",
+          "Is Lead # / mobile number ka lead nahi mila. Number sahi hai to client ne kam-se-kam ek baar kisi connected number par message kiya ho, ya CRM me lead hona chahiye.",
         );
         setLeadErrRetryable(false);
         return;
@@ -438,15 +438,15 @@ function NewChatDialog({ onClose }: { onClose: () => void }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // Name comes from LSQ lead lookup (when applicable). Falls
-          // back to a generic "Lead #..." / "Patient" placeholder — NOT
+          // Name comes from CRM lead lookup (when applicable). Falls
+          // back to a generic "Lead #..." / "Client" placeholder — NOT
           // the phone — so the Magic Message greeting doesn't read
           // "Hi +91-XXXXXXXXXX". Operator can rename from the panel.
           name:
             leadHit?.leadName?.trim() ||
             (leadHit?.leadNumberDisplay
               ? `Lead #${leadHit.leadNumberDisplay}`
-              : "Patient"),
+              : "Client"),
           phone: normalizedWa,
           business_phone_number_id: bpid,
         }),
@@ -504,7 +504,7 @@ function NewChatDialog({ onClose }: { onClose: () => void }) {
             leadHit?.leadName?.trim() ||
             (leadHit?.leadNumberDisplay
               ? `Lead #${leadHit.leadNumberDisplay}`
-              : "Patient"),
+              : "Client"),
           phone: normalizedWa,
           business_phone_number_id: bpid,
         }),
@@ -603,7 +603,7 @@ function NewChatDialog({ onClose }: { onClose: () => void }) {
 
         <div className="space-y-4 px-5 py-4">
           {/* Look up by LSQ Lead # — resolves to a wa_id via the cached
-              column. Confirm → auto-fills the patient-number fields
+              column. Confirm → auto-fills the client-number fields
               below. Sits at the top because lead-first lookup is the
               most common entry point for the clinic's manual outreach. */}
           <Field label="Look up by Lead # or mobile number">
@@ -757,7 +757,7 @@ function NewChatDialog({ onClose }: { onClose: () => void }) {
             </div>
           ) : null}
 
-          {/* First-message composer. Appears once a patient is loaded. The
+          {/* First-message composer. Appears once a client is loaded. The
               channel auto-switches by provider + 24h window (badge below):
               empty → just "Open chat"; typed → "Send" via the right path. */}
           {leadHit ? (

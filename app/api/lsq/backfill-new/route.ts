@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
   }
   const cfg = getLsqConfig();
   if (!cfg.configured) {
-    return NextResponse.json({ error: "LSQ not configured" }, { status: 400 });
+    return NextResponse.json({ error: "CRM not configured" }, { status: 400 });
   }
 
   let reset = false;

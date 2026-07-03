@@ -2,7 +2,7 @@
 //
 // Also used as the surl/furl placeholder on PayU DBQR (UPI QR) calls,
 // which require a redirect URL even though the QR flow never actually
-// redirects the patient.
+// redirects the client.
 
 import { NextResponse } from "next/server";
 

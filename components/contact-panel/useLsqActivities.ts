@@ -1,6 +1,6 @@
 "use client";
 
-// Fetches the LSQ activity timeline for a given prospect, with built-in
+// Fetches the CRM activity timeline for a given prospect, with built-in
 // polling so the chat thread stays live while a contact is open. Pauses
 // the poll when the tab is backgrounded (Page Visibility API) and fires
 // an immediate refresh when the user comes back, so inactive tabs

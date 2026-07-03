@@ -8,7 +8,7 @@ import { uploadMediaBytes } from "@/lib/storage";
 import { sendMedia } from "@/lib/whatsapp";
 import type { Clinic } from "@/lib/payment-accounts";
 
-/** Per-clinic app_settings keys for the operator's auto-receipt
+/** Per-salon app_settings keys for the operator's auto-receipt
  *  toggle: when 'true', the gateway webhook auto-sends the PDF receipt
  *  to the patient as soon as payment lands. When 'false' (default),
  *  the operator hits "Send receipt" manually from the contact panel.
@@ -21,13 +21,13 @@ export function paymentsAutoReceiptKey(clinic: Clinic): string {
  *  pre-multi-clinic key. New code should call `paymentsAutoReceiptKey`. */
 export const PAYMENTS_AUTO_RECEIPT_KEY = "payments_auto_receipt";
 
-/** app_settings.key — clinic's UPI VPA (e.g. `qht@hdfcbank`) used to
+/** app_settings.key — salon's UPI VPA (e.g. `qht@hdfcbank`) used to
  *  build the UPI deeplink QR sent to the patient. Set once from
  *  Settings → Payments; the chat dialog no longer asks per-payment. */
 export const PAYMENTS_UPI_VPA_KEY = "payments_upi_vpa";
 
-/** app_settings.key — payee name displayed in the patient's UPI app
- *  when they scan the QR (e.g. "QHT Clinic"). */
+/** app_settings.key — payee name displayed in the client's UPI app
+ *  when they scan the QR (e.g. "QHT Salon"). */
 export const PAYMENTS_UPI_PAYEE_KEY = "payments_upi_payee_name";
 
 /** Generates a branded QHT receipt PDF for the payment, uploads it to
@@ -44,7 +44,7 @@ export async function sendReceiptInternal(
   // retries the same notification within seconds; without this guard
   // two concurrent webhook hits both pass handler.ts's pre-check
   // (receipt_sent_at IS NULL at read-time), both call us, and the
-  // patient gets the PDF twice. By stamping receipt_sent_at with a
+  // client gets the PDF twice. By stamping receipt_sent_at with a
   // conditional update that requires it to currently be NULL, the
   // second caller's update affects 0 rows and we silently skip.
   const claimTs = new Date().toISOString();
@@ -154,7 +154,7 @@ export async function sendReceiptInternal(
   const caption =
     `${firstName ? `Hi ${firstName},` : "Hi,"} ` +
     `we have received your payment of ₹${rupeesPretty}. ` +
-    `Your receipt is attached.\n\nThank you — QHT Clinic team.`;
+    `Your receipt is attached.\n\nThank you — QHT Salon team.`;
 
   let waMessageId: string | null = null;
   try {
@@ -178,7 +178,7 @@ export async function sendReceiptInternal(
   const nowIso = new Date().toISOString();
 
   // Persist the outbound message bubble so the dashboard renders the
-  // same document attachment the patient sees.
+  // same document attachment the client sees.
   await admin.from("messages").insert({
     contact_id: contact.id,
     wa_message_id: waMessageId,

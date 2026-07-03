@@ -1,7 +1,7 @@
 // Post-confirmation side-effects for a booking. Best-effort: a failure here
 // never undoes the confirmed booking. For the demo this delivers a plain text
 // (works for Meta numbers inside the 24h window) and records it in the chat
-// thread. Out-of-window template delivery + LSQ push land in the next stage.
+// thread. Out-of-window template delivery + CRM push land in the next stage.
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { sendTextMessage, sendTemplate } from "@/lib/whatsapp";
@@ -11,7 +11,7 @@ import { resolveTemplateCreds } from "@/lib/template-creds";
 import { renderTemplatePreview } from "@/lib/template-preview";
 import type { BookingRow } from "@/lib/bookings";
 
-/** The ACTUAL approved template text the patient received (header + body +
+/** The ACTUAL approved template text the client received (header + body +
  *  footer, with {{1}}/{{2}} filled), so the dashboard bubble matches WhatsApp
  *  instead of showing a generic line. Null if it can't be fetched. */
 async function renderSentTemplateText(
@@ -52,7 +52,7 @@ function formatDate(ymd: string): string {
   });
 }
 
-/** Send the public booking link to the patient on WhatsApp + record it in the
+/** Send the public booking link to the client on WhatsApp + record it in the
  *  thread. Best-effort (Meta + open window). */
 export async function sendBookingLink(
   admin: SupabaseClient,
@@ -117,7 +117,7 @@ export async function notifyBookingConfirmed(
   const name = booking.patient_name?.trim() || "there";
   const text = `✅ Your appointment is confirmed for ${dateStr}. Thank you! — American Hairline`;
 
-  // 1. Deliver to the patient. Prefer the configured UTILITY template (works
+  // 1. Deliver to the client. Prefer the configured UTILITY template (works
   //    OUTSIDE the 24h window with {{1}}=name, {{2}}=date); fall back to plain
   //    text (only delivers inside the window). The chat record below happens
   //    either way.
@@ -147,7 +147,7 @@ export async function notifyBookingConfirmed(
         wamid = res?.messages?.[0]?.id ?? null;
         if (wamid) {
           msgType = "template";
-          // Show the patient's ACTUAL template text in the thread, not a
+          // Show the client's ACTUAL template text in the thread, not a
           // generic line; fall back to a neutral note if the fetch fails.
           content =
             (await renderSentTemplateText(

@@ -48,7 +48,7 @@ export function generateWebhookSecret(): string {
   return "whsec_" + crypto.randomBytes(24).toString("hex");
 }
 
-/** LeadSquared's WhatsApp ("haptik"/Interakt) inbound connector. It does
+/** CRM's WhatsApp ("haptik"/Interakt) inbound connector. It does
  *  NOT understand our generic event shape — it reads
  *  `data.customer.channel_phone_number` + `data.message`, so a raw event
  *  POST 400s with "Cannot read properties of undefined". We detect these

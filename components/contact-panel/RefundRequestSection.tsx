@@ -1,7 +1,7 @@
 "use client";
 
 // Refund-request form mounted under "QHT AI" in the contact-details panel.
-// Pre-fills agent (from session) + lead / patient (from LSQ) so the
+// Pre-fills agent (from session) + lead / client (from LSQ) so the
 // operator only types the package + amount fields and uploads a payment
 // screenshot. Submission inserts a row in refund_requests + uploads the
 // screenshot to the private `refund-screenshots` bucket.
@@ -14,7 +14,7 @@ import { useLsqLead } from "@/components/contact-panel/useLsqLead";
 import { useMemberNameByUserId } from "@/components/MembersContext";
 
 const REASONS: Array<{ value: string; label: string }> = [
-  { value: "cancelled_by_patient", label: "Cancelled by patient" },
+  { value: "cancelled_by_patient", label: "Cancelled by client" },
   { value: "medical_reasons", label: "Medical reasons" },
   { value: "surgery_rescheduled", label: "Surgery rescheduled" },
   { value: "duplicate_payment", label: "Duplicate payment" },
@@ -41,7 +41,7 @@ export function RefundRequestSection({
   const agentName = useMemberNameByUserId(currentUserId);
   const lsq = useLsqLead(open ? waId : null);
 
-  // Patient name + Lead ID are EDITABLE — pre-filled from LSQ when the
+  // Client name + Lead ID are EDITABLE — pre-filled from LSQ when the
   // lookup finds a match, else from the contact's stored fields, else
   // empty so the operator can type. Auto-fill only overwrites empty
   // values so we don't clobber whatever the operator just typed.
@@ -62,13 +62,13 @@ export function RefundRequestSection({
   const [autofillNote, setAutofillNote] = useState<string | null>(null);
 
   // GPT auto-fill — pulls structured refund fields from the LSQ package
-  // fields when the patient has a "Package Shared" lead. Falls back
+  // fields when the client has a "Package Shared" lead. Falls back
   // gracefully when there's no lead / no package data.
   async function handleAutofill() {
     if (autofilling) return;
     const pid = lsq.lead?.prospect_id;
     if (!pid) {
-      setAutofillNote("No LSQ lead found for this contact — type the values manually.");
+      setAutofillNote("No CRM lead found for this contact — type the values manually.");
       return;
     }
     setAutofilling(true);
@@ -141,7 +141,7 @@ export function RefundRequestSection({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contactId]);
 
-  // When LSQ resolves, replace the lead ID + patient name with LSQ's
+  // When LSQ resolves, replace the lead ID + client name with LSQ's
   // canonical values (overrides the contact-side fallback which is
   // often the ugly auto-generated label like "88958_Sonu_31Dec25").
   // We only do this once per contact so a subsequent operator edit
@@ -171,7 +171,7 @@ export function RefundRequestSection({
       return;
     }
     if (!file) {
-      setError("Upload the patient's payment screenshot.");
+      setError("Upload the client's payment screenshot.");
       return;
     }
 
@@ -233,7 +233,7 @@ export function RefundRequestSection({
         <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-rose-100 text-[10px] font-bold text-rose-700">
           ₹
         </span>
-        <span className="text-sm font-semibold tracking-tight">Booking Amount Refund</span>
+        <span className="text-sm font-semibold tracking-tight">Service Refund Request</span>
         <ChevronDown
           className={cn(
             "ml-auto h-4 w-4 text-muted-foreground transition-transform",
@@ -268,7 +268,7 @@ export function RefundRequestSection({
               {/* Agent — read-only, from session. */}
               <ReadField label="Agent name" value={agentName || "—"} />
 
-              {/* Lead ID + Patient name — editable, pre-filled from LSQ
+              {/* Lead ID + Client name — editable, pre-filled from LSQ
                   when available, else from the contact's stored fields. */}
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <Field label={lsq.phase === "loading" ? "Lead ID (looking up…)" : "Lead ID"}>
@@ -280,12 +280,12 @@ export function RefundRequestSection({
                     className="w-full rounded-md border bg-background px-2 py-1.5 text-[12px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
                   />
                 </Field>
-                <Field label="Patient name">
+                <Field label="Client name">
                   <input
                     type="text"
                     value={patientName}
                     onChange={(e) => setPatientName(e.target.value)}
-                    placeholder="Patient's full name"
+                    placeholder="Client's full name"
                     className="w-full rounded-md border bg-background px-2 py-1.5 text-[12px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
                   />
                 </Field>
@@ -299,8 +299,8 @@ export function RefundRequestSection({
                 className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-violet-200 bg-violet-50 px-2.5 py-1.5 text-[11px] font-semibold text-violet-700 hover:bg-violet-100 disabled:opacity-60"
                 title={
                   lsq.lead
-                    ? "Pull booking date / grafts / amounts from LSQ via AI"
-                    : "Connect an LSQ lead first"
+                    ? "Pull booking date / units / amounts from CRM via AI"
+                    : "Connect an CRM lead first"
                 }
               >
                 {autofilling ? (
@@ -324,7 +324,7 @@ export function RefundRequestSection({
                     className="w-full rounded-md border bg-background px-2 py-1.5 text-[12px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
                   />
                 </Field>
-                <Field label="Per graft (₹)">
+                <Field label="Per unit (₹)">
                   <input
                     type="number"
                     inputMode="decimal"
@@ -334,7 +334,7 @@ export function RefundRequestSection({
                     className="w-full rounded-md border bg-background px-2 py-1.5 text-[12px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
                   />
                 </Field>
-                <Field label="Estimated grafts">
+                <Field label="Estimated units">
                   <input
                     type="number"
                     inputMode="numeric"

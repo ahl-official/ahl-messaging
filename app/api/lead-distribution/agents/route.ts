@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
   const fields = clean(body);
   if (!fields.agent_name) return NextResponse.json({ error: "Name required" }, { status: 400 });
   if (!fields.agent_email) return NextResponse.json({ error: "Email required" }, { status: 400 });
-  // lsq_id is the PK. Use the supplied LSQ user id, else a placeholder uuid
+  // lsq_id is the PK. Use the supplied CRM user id, else a placeholder uuid
   // (operator can paste the real LSQ id later).
   fields.lsq_id = (body.lsq_id ?? "").trim() || randomUUID();
   const admin = createServiceRoleClient();

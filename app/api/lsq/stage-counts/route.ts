@@ -1,6 +1,6 @@
 // GET /api/lsq/stage-counts
 //
-// Live contact-count per LSQ stage, for the inbox stage-filter strip.
+// Live contact-count per CRM stage, for the inbox stage-filter strip.
 // Scoped to the caller's allowed numbers (owner sees everything) so a
 // teammate's funnel reflects only what they can open. Paginates past
 // the PostgREST 1000-row cap so the totals are real.

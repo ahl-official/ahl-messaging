@@ -102,7 +102,7 @@ export function ChatSummaryWidget({ contactId }: { contactId: string }) {
         </div>
       ) : (
         <p className="text-[11.5px] leading-relaxed text-muted-foreground">
-          Instant AI recap of the whole conversation — what the patient
+          Instant AI recap of the whole conversation — what the client
           wants, what was promised, and the next step.
         </p>
       )}

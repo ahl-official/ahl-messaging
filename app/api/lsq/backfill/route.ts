@@ -1,4 +1,4 @@
-// Resumable LSQ stage backfill — bulk export engine.
+// Resumable CRM stage backfill — bulk export engine.
 //
 //   GET  /api/lsq/backfill  → current progress
 //   POST /api/lsq/backfill  → process the next chunk of LSQ pages
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Owners only" }, { status: 403 });
   }
   if (!getLsqConfig().configured) {
-    return NextResponse.json({ error: "LSQ not configured" }, { status: 400 });
+    return NextResponse.json({ error: "CRM not configured" }, { status: 400 });
   }
 
   let restart = false;
@@ -197,7 +197,7 @@ export async function POST(request: NextRequest) {
           lsq_owner_name: lead.owner_name,
           lsq_owner_email: lead.owner_email?.trim().toLowerCase() ?? null,
           lsq_prospect_id: lead.prospect_id,
-          // Fill a blank contact name from the LSQ lead — so number-only
+          // Fill a blank contact name from the CRM lead — so number-only
           // cards in the inbox get a real name. Never overwrite a name
           // the contact already has.
           ...(lsqName && !(c.name ?? "").trim() ? { name: lsqName } : {}),

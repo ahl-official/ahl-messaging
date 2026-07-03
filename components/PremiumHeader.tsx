@@ -1,7 +1,7 @@
 "use client";
 
 // Shared top-of-page hero used across non-Settings top-level pages
-// (Contacts, Templates, Automation, Call history, LeadSquared). Same
+// (Contacts, Templates, Automation, Call history, CRM). Same
 // emerald-on-dark gradient as Settings + Home so the whole product
 // reads as one family.
 //

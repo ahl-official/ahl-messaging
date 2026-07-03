@@ -26,7 +26,7 @@ interface ApiResponse {
 const ACCEPT = "image/jpeg,image/png";
 const MAX_BYTES = 5 * 1024 * 1024; // 5MB
 
-// Pre-fills the patient-name input with whatever we already know about the
+// Pre-fills the client-name input with whatever we already know about the
 // contact. Falls back to an empty string for phone-only contacts so the
 // agent has to type a name in (no awkward "Hi +91…" sends).
 function deriveDefaultName(name: string): string {
@@ -171,7 +171,7 @@ export function MagicMessageImageDialog({
         <div className="space-y-3 p-4">
           <div>
             <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              Patient name <span className="text-rose-600">*</span>
+              Client name <span className="text-rose-600">*</span>
             </label>
             <input
               type="text"

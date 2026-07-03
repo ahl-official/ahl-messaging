@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
   const result = await pullLeadsFromLsq(body);
   if (!result.ok) {
-    return NextResponse.json({ error: result.error ?? "LSQ search failed" }, { status: 502 });
+    return NextResponse.json({ error: result.error ?? "CRM search failed" }, { status: 502 });
   }
   return NextResponse.json({
     ok: true,

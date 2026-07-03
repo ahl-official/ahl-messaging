@@ -1,5 +1,5 @@
 // GET /api/lsq/webhook-events?form=1&webhook_id=&limit=
-//   Recent LSQ webhook events with their FULL payloads. `form=1` filters to
+//   Recent CRM webhook events with their FULL payloads. `form=1` filters to
 //   form-submission events. Admin/owner only.
 
 import { NextResponse, type NextRequest } from "next/server";

@@ -71,19 +71,19 @@ interface LeadNodeData {
 
 const WAIT_UNITS = ["Seconds", "Minutes", "Hours", "Days"];
 
-// LSQ lead fields for the condition builder. Shown in a real dropdown so the
+// CRM lead fields for the condition builder. Shown in a real dropdown so the
 // full list is always visible (like LSQ's Select Criteria).
 const CONDITION_FIELDS = [
   // Most used
   "Brand", "Lead Source", "Sub Source", "Lead Stage",
-  // Standard LSQ lead fields
+  // Standard CRM lead fields
   "Lead Activity", "Lead Number", "Lead Origin", "Lead Quality", "Lead Score",
   "Lead Status", "Owner", "Sales Group", "Task", "Created On", "Modified On",
   // Contact
   "First Name", "Last Name", "Email", "Mobile Number", "Phone Number",
   "Company", "City", "State", "Country", "Pincode", "Address",
-  // Clinic / custom
-  "Patient Age", "Treatment Goal", "Appointment Date", "Appointment Time",
+  // Salon / custom
+  "Client Age", "Treatment Goal", "Appointment Date", "Appointment Time",
   "Actual Grafts", "Adhaar No", "Agent Code", "Prospect Id",
   "Any ongoing hair loss medication", "AIDS or HIV", "Follow Up Reminder",
 ];
@@ -177,7 +177,7 @@ function defaults(t: LeadNodeType): { title: string; subtitle: string } {
   }
 }
 
-// ---- Node card (LSQ style) -------------------------------------------------
+// ---- Node card (CRM style) -------------------------------------------------
 function LeadNode({ data }: NodeProps<LeadNodeData>) {
   const isTrigger = data.node_type === "trigger";
   const isCond = data.node_type === "if_else" || data.node_type === "multi_if_else";

@@ -1,7 +1,7 @@
 // GET /api/lsq/lead-detail?lead=<ProspectAutoId>  (or ?prospect=<ProspectID>)
-//   → the full LSQ lead for the side panel: all fields + the activity
+//   → the full CRM lead for the side panel: all fields + the activity
 //     timeline (calls, notes, source changes, WhatsApp …). Mirrors the
-//     LeadSquared lead page (Leads Details + Activity History tabs). Notes
+//     CRM lead page (Leads Details + Activity History tabs). Notes
 //     and Call tabs are derived from the same activity list on the client.
 
 import { NextResponse, type NextRequest } from "next/server";
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   if (!me) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const cfg = getLsqConfig();
-  if (!cfg.configured) return NextResponse.json({ error: "LSQ not configured" }, { status: 400 });
+  if (!cfg.configured) return NextResponse.json({ error: "CRM not configured" }, { status: 400 });
 
   const lead = request.nextUrl.searchParams.get("lead")?.trim();
   let prospectId = request.nextUrl.searchParams.get("prospect")?.trim() || "";

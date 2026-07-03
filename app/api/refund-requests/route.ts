@@ -3,7 +3,7 @@
 // Operator submits a refund request from the contact-details panel.
 // The screenshot has already been uploaded to the `refund-screenshots`
 // bucket by the browser client; this endpoint just stamps the metadata
-// row + cached agent / lead / patient info so a later LSQ change
+// row + cached agent / lead / client info so a later LSQ change
 // doesn't rewrite history.
 
 import { NextResponse, type NextRequest } from "next/server";

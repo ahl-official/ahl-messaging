@@ -1,6 +1,6 @@
 "use client";
 
-// Failed LSQ pushes — leads whose Source/Sub-source push hit an LSQ rate limit.
+// Failed CRM pushes — leads whose Source/Sub-source push hit an LSQ rate limit.
 // A 2-minute heartbeat retries them automatically; this panel shows the queue
 // + whether the retry eventually pushed, and offers a manual "Retry now".
 

@@ -1,9 +1,9 @@
 "use client";
 
 // CRM-style lead table view for the inbox. A full-screen grid of contacts
-// with LSQ fields (stage, owner, source, sub-source, campaign, medium…) and a
+// with CRM fields (stage, owner, source, sub-source, campaign, medium…) and a
 // column picker so the operator chooses which columns show. Mirrors the
-// LeadSquared "Manage Lead" list. Data comes from /api/contacts (same scope
+// CRM "Manage Lead" list. Data comes from /api/contacts (same scope
 // the inbox uses) — no extra LSQ calls; we render the cached lead fields.
 
 import { useEffect, useMemo, useState } from "react";

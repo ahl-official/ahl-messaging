@@ -1,6 +1,6 @@
 "use client";
 
-// LSQ activity rendered inline in the chat thread, between WhatsApp
+// CRM activity rendered inline in the chat thread, between WhatsApp
 // messages and internal notes. Mirrors the LSQ Activity History card
 // — header with icon + name + timestamp, primary preview, and a
 // collapsible Field/Value table showing every Data key/value LSQ

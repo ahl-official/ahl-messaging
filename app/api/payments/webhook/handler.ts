@@ -86,7 +86,7 @@ export async function handleProviderWebhook(
   if (event.kind === "paid") {
     // Note: receipt_url is intentionally NOT set here — we used to
     // store the gateway's one-time checkout URL, but that URL becomes
-    // "Payment Link Closed" the moment the patient finishes paying.
+    // "Payment Link Closed" the moment the client finishes paying.
     // sendReceiptInternal generates a real branded PDF and stamps
     // receipt_url with the Supabase public URL of that PDF.
     const update: Record<string, unknown> = {
@@ -96,7 +96,7 @@ export async function handleProviderWebhook(
     if (row.status !== "paid") update.paid_at = ts;
     await admin.from("payments").update(update).eq("id", row.id);
 
-    // Per-clinic auto-receipt toggle (falls back to the legacy global
+    // Per-salon auto-receipt toggle (falls back to the legacy global
     // key so deployments that haven't migrated app_settings yet keep
     // working).
     const perClinic = await getAppSetting(paymentsAutoReceiptKey(clinic));

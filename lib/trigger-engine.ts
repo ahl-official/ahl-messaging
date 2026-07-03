@@ -4,14 +4,14 @@
 // match the text, and run the first matching flow node-by-node by
 // following EDGES (trigger_edges) out of each node. Nodes send messages
 // (text / image / video / buttons), assign the chat, update tags/fields,
-// branch on a condition, ask-a-question and wait for the patient's reply
+// branch on a condition, ask-a-question and wait for the client's reply
 // (interactive buttons), fire a webhook, or delay. Sends reuse
 // /api/send-message so provider routing (Meta / Evolution / Interakt) is
 // automatic.
 //
 // Edges carry an optional branch_label:
 //   condition node      → 'true' | 'false'
-//   buttons/ask node    → the button label the patient picked
+//   buttons/ask node    → the button label the client picked
 //   everything else     → no label (the single default out-edge)
 
 import { createServiceRoleClient } from "@/lib/supabase/server";
@@ -67,7 +67,7 @@ function textMatches(text: string, cfg: FlowRow["trigger_config"]): boolean {
 }
 
 /** Match the inbound against the number's keyword flows and run the first
- *  hit — OR resume a flow that's waiting for this patient's reply. Returns
+ *  hit — OR resume a flow that's waiting for this client's reply. Returns
  *  true if a flow handled the message (so the caller can skip the AI reply). */
 export async function matchAndRunTriggers(params: {
   contactId: string;
@@ -88,18 +88,18 @@ export async function matchAndRunTriggers(params: {
 
   const admin = createServiceRoleClient();
 
-  // 1) A flow waiting on this patient's reply takes precedence over new triggers.
+  // 1) A flow waiting on this client's reply takes precedence over new triggers.
   const resumed = await resumeWaitingRun(admin, { contactId, waId, bpid, inboundText, reply });
   if (resumed) return { matched: true };
 
   // 1.5) Don't STACK a second flow on a contact who is already mid-flow. If a
   //      recent run is still running/waiting (e.g. parked on a buttons node and
-  //      the patient typed something off-script), leave it be instead of
+  //      the client typed something off-script), leave it be instead of
   //      starting a fresh flow from a keyword / new-contact / template trigger.
   if (await hasActiveRun(admin, contactId)) return { matched: false };
 
   // 2) Template-reply flows — fire when this inbound is the first reply right
-  //    after a template was sent to the patient (optionally a named template).
+  //    after a template was sent to the client (optionally a named template).
   if (await runTemplateReplyFlow(admin, { contactId, waId, bpid, inboundText })) return { matched: true };
 
   // 2.5) New-contact flows — fire once when a brand-new number messages us for
@@ -133,7 +133,7 @@ export async function matchAndRunTriggers(params: {
   //      NEW conversation: the message right before this inbound was more than a
   //      session-window ago (or there is none). The recency check naturally
   //      makes it fire once per session (the next message's previous is now
-  //      recent), so it re-fires only when the patient comes back after a gap.
+  //      recent), so it re-fires only when the client comes back after a gap.
   {
     const { data: ncFlows } = await admin
       .from("trigger_flows")
@@ -212,7 +212,7 @@ async function runTemplateReplyFlow(
     if (want && want !== prevName) continue;
 
     // If the entry node mirrors the template's buttons, route directly on the
-    // button the patient tapped (Hindi → Hindi branch) instead of re-asking.
+    // button the client tapped (Hindi → Hindi branch) instead of re-asking.
     const { nodes, edges } = await loadGraph(admin, flow.id);
     const start = nodes.get(flow.start_node_id);
     if (start && start.node_type === "message_buttons") {
@@ -355,7 +355,7 @@ async function runFlow(
       const result = await executeNode(admin, node, ctx);
 
       if (result === AWAIT_REPLY) {
-        // Park the run; the patient's next message resumes it. If the node
+        // Park the run; the client's next message resumes it. If the node
         // has a timeout configured, also stamp resume_at so the tick worker
         // can fire the "timeout" branch when no reply arrives in time.
         const ms = durationMs((node.config ?? {}).timeout_value, (node.config ?? {}).timeout_unit);
@@ -459,14 +459,14 @@ export async function resumeDueWaits(admin: Admin): Promise<{ resumed: number }>
   return { resumed };
 }
 
-/** Derive the branch/condition variables describing a patient's reply, so a
+/** Derive the branch/condition variables describing a client's reply, so a
  *  "Wait for reply" → "Set a Condition" pair can check whether they actually
  *  sent what we asked for (e.g. images). Exposed as run vars:
  *    images_received  "yes" | "no"
  *    media_received   "yes" | "no"   (any image/video/audio/document)
  *    last_reply_type  "image" | "video" | "audio" | "document" | "text"
  *    last_reply_text  the raw text (empty for media-only replies) */
-// Variables that describe the patient's reply (set by buildReplyVars). A
+// Variables that describe the client's reply (set by buildReplyVars). A
 // condition reading any of these auto-waits for a reply if none captured yet.
 const REPLY_VAR_NAMES = [
   "images_received",
@@ -552,7 +552,7 @@ async function hasActiveRun(admin: Admin, contactId: string): Promise<boolean> {
   return (count ?? 0) > 0;
 }
 
-/** If a run is parked waiting for THIS patient's reply, match the reply to a
+/** If a run is parked waiting for THIS client's reply, match the reply to a
  *  branch and resume from there. Returns true if a run was resumed. */
 async function resumeWaitingRun(
   admin: Admin,
@@ -583,7 +583,7 @@ async function resumeWaitingRun(
 
   // A condition node that was parked waiting for a reply (because it reads a
   // reply-variable like images_received) re-runs ITSELF with the reply vars
-  // now seeded — so it evaluates against what the patient just sent, then
+  // now seeded — so it evaluates against what the client just sent, then
   // follows its True/False branch.
   if (node.node_type === "condition") {
     await runFlow(
@@ -607,14 +607,14 @@ async function resumeWaitingRun(
 
   // A "Wait for reply" node resumes on ANY message — text or media — and
   // hands the reply vars to the downstream condition. A buttons node still
-  // requires the patient to pick one of its options.
+  // requires the client to pick one of its options.
   let label: string | null;
   if (node.node_type === "wait_reply") {
     label = null; // follow the single default out-edge
   } else {
     const chosen = pickButton(node, base.inboundText);
     if (chosen == null) {
-      // Patient typed something instead of tapping a button. If the node
+      // Client typed something instead of tapping a button. If the node
       // has the "remind to use a button" toggle on, nudge them with the
       // configured message and stay parked on this node. Otherwise leave
       // it waiting silently (old behaviour).
@@ -658,7 +658,7 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
   switch (node.node_type) {
     case "message_text": {
       await sendText(ctx, interpolate(String(cfg.text ?? ""), ctx));
-      // We just asked the patient something — discard any earlier reply
+      // We just asked the client something — discard any earlier reply
       // descriptors so a following condition waits for a FRESH reply, not the
       // one captured before this message.
       clearReplyVars(ctx);
@@ -720,13 +720,13 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
       return hasBranch ? AWAIT_REPLY : null;
     }
     case "wait_reply": {
-      // Park until the patient's next message (any type). On resume,
+      // Park until the client's next message (any type). On resume,
       // resumeWaitingRun follows the default out-edge with the reply vars
       // (images_received, last_reply_type, …) seeded for a condition.
       return AWAIT_REPLY;
     }
     case "message_buttons": {
-      // Buttons can be branch buttons (no URL → patient taps, flow branches) or
+      // Buttons can be branch buttons (no URL → client taps, flow branches) or
       // LINK buttons (URL set → tap opens the link, no branch). WhatsApp can't
       // mix a real link button with reply buttons, so we degrade gracefully.
       const buttons = Array.isArray(cfg.buttons)
@@ -796,7 +796,7 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
       // config: { var?, op, value } → branch 'true' | 'false' via edges.
       const varName = String(cfg.var ?? "");
       // If the condition reads a reply-descriptor (images_received, …) but no
-      // reply has been captured in this run yet, wait for the patient's next
+      // reply has been captured in this run yet, wait for the client's next
       // message first — so the operator doesn't need a separate "Wait for
       // reply" node before the condition. resumeWaitingRun re-runs this node
       // once a reply arrives.
@@ -884,7 +884,7 @@ async function sendMedia(
 
 async function sendButtons(ctx: RunContext, bodyText: string, labels: string[]): Promise<void> {
   // Meta interactive reply buttons: max 3, title ≤ 20 chars. When the flow
-  // exceeds that we fall back to a numbered text list so the patient can
+  // exceeds that we fall back to a numbered text list so the client can
   // still reply "1"/"2" and pickButton resolves the branch.
   const fits = labels.length <= 3 && labels.every((l) => l.length <= 20);
   if (fits) {

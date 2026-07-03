@@ -130,7 +130,7 @@ export async function DELETE(
   // operator clears a chat they're starting that contact fresh, so the next
   // inbound msg should re-run ensure-lead and pick up whatever lead exists
   // (or create a new one) rather than trusting potentially stale state from
-  // before. This also covers the case where the LSQ lead was deleted in the
+  // before. This also covers the case where the CRM lead was deleted in the
   // CRM separately and the operator is "resetting" this end too.
   await admin
     .from("contacts")

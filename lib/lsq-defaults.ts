@@ -1,5 +1,5 @@
 // Authoritative fallback lists for the LSQ campaign filter UI. Merged
-// with whatever master-data the LSQ API returns — defaults render first
+// with whatever master-data the CRM API returns — defaults render first
 // (in operator-curated order), then any extra values the API surfaces
 // get appended below. If LSQ is unreachable / rate-limited, the UI
 // still has the full set to filter against.

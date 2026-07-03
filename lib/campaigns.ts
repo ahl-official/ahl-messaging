@@ -197,7 +197,7 @@ export async function runCampaignTick(): Promise<CampaignTickResult> {
           .eq("id", r.id);
         // Log the send into `messages` (creating the contact if needed) so
         // the campaign shows up in the chat AND a template-reply trigger
-        // can see the preceding outbound template when the patient taps a
+        // can see the preceding outbound template when the client taps a
         // button. Without this, campaign templates exist only on
         // campaign_recipients — invisible to the chat and the trigger engine.
         if (result.wa_message_id) {

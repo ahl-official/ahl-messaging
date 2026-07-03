@@ -2,10 +2,10 @@
 // auth with ZERO new npm deps (RS256 JWT signed via Node's built-in crypto,
 // exchanged for an access token, then the Calendar REST API over fetch).
 //
-// Setup (clinic does this once):
+// Setup (salon does this once):
 //   1. Google Cloud Console → enable "Google Calendar API".
 //   2. Create a Service Account → create a JSON key.
-//   3. Share the clinic's Google Calendar with the service-account email,
+//   3. Share the salon's Google Calendar with the service-account email,
 //      giving it "Make changes to events".
 //   4. Set env: GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
 //      (the PEM, newlines escaped as \n), GOOGLE_CALENDAR_ID (usually the

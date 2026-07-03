@@ -1,6 +1,6 @@
 // POST /api/lsq/bulk-fill-source
 //
-// One-off operational backfill: for a list of LSQ leads (given by Lead
+// One-off operational backfill: for a list of CRM leads (given by Lead
 // Number / ProspectAutoId), stamp Source / Sub Source ONLY where the
 // lead's Source is currently blank — never overwrite an existing
 // attribution ("create, not update").
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 
   const cfg = getLsqConfig();
   if (!cfg.configured) {
-    return NextResponse.json({ error: "LSQ not configured" }, { status: 400 });
+    return NextResponse.json({ error: "CRM not configured" }, { status: 400 });
   }
 
   const leadNumbers = [...new Set(

@@ -29,7 +29,7 @@ const PACKAGE_RE =
   /graft|package|\bprp\b|inclus|technique|surgery|booking|\boffer\b|discount|quotation|installment|payment/i;
 const EXCLUDE_RE = /disposition|screenshot|stage|status|date_align/i;
 
-const NOTES_PROMPT = `You are a CRM assistant for QHT Clinic, a hair-transplant clinic. You are given a lead's activity / notes log from the LeadSquared CRM (newest first).
+const NOTES_PROMPT = `You are a CRM assistant for American Hairline, a hair care salon. You are given a lead's activity / notes log from the CRM (newest first).
 
 Give an ULTRA-SHORT status — only what an agent must know right now.
 
@@ -38,7 +38,7 @@ Rules:
 - Cover the current stage and the single next step. Skip history and detail.
 - No preamble, no closing line. Use only what is in the log.`;
 
-/** "mx_Number_Of_Graft" → "Number Of Graft" */
+/** "mx_Number_Of_Graft" → "Number Of Service" */
 function humanise(key: string): string {
   return key.replace(/^mx_/i, "").replace(/_/g, " ").trim();
 }
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
     pkgFields.length > 0
       ? runAi(
           packagePrompt + langInstr,
-          `LeadSquared lead — package fields:\n\n${pkgFields
+          `CRM lead — package fields:\n\n${pkgFields
             .map(([k, v]) => `${humanise(k)}: ${v}`)
             .join("\n")}`,
         )
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
     noteLines.length > 0
       ? runAi(
           NOTES_PROMPT + langInstr,
-          `LeadSquared activity / notes log:\n\n${noteLines.join("\n")}`,
+          `CRM activity / notes log:\n\n${noteLines.join("\n")}`,
         )
       : Promise.resolve(null),
   ]);

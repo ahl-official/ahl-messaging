@@ -1,7 +1,7 @@
 // POST /api/cron/lsq-refresh
 //
 // Background job: incrementally refresh each LSQ-linked contact's cached lead
-// data (lead number, stage, owner) from LeadSquared so the local cache — which
+// data (lead number, stage, owner) from CRM so the local cache — which
 // powers lead-id / name search — stays current. Processes the STALEST batch
 // each run (oldest lsq_synced_at first), then re-stamps lsq_synced_at so the
 // cursor rolls forward across runs. Fired by the instrumentation heartbeat.

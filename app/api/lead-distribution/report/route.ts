@@ -1,5 +1,5 @@
 // GET /api/lead-distribution/report
-//   → per-agent assigned-lead counts, broken down by LSQ stage.
+//   → per-agent assigned-lead counts, broken down by CRM stage.
 //
 // Source: lead_distribution_pending — every webhook lead lands there with
 // its assigned_agent (once the engine assigns it) and the raw lead payload

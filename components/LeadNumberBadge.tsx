@@ -1,6 +1,6 @@
 "use client";
 
-// LSQ lead number chip with a copy button. Shown next to the patient's mobile
+// CRM lead number chip with a copy button. Shown next to the client's mobile
 // in the inbox + bird's-eye chat headers.
 
 import { useState } from "react";

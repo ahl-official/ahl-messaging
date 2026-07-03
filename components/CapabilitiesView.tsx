@@ -73,7 +73,7 @@ const FEATURES: Feature[] = [
     group: "LSQ",
     title: "Field extraction (name / age / email / etc.)",
     short: "After the AI reply, a 2nd LLM pass pulls structured fields and updates LSQ",
-    how: "Triggered by lib/automation.ts post-reply. Reads field_mappings (description → LSQ schema field), runs an extraction LLM call against the recent chat history, then Lead.Update on the matching prospect. Off = LSQ lead never gets updated from chat content.",
+    how: "Triggered by lib/automation.ts post-reply. Reads field_mappings (description → LSQ schema field), runs an extraction LLM call against the recent chat history, then Lead.Update on the matching prospect. Off = CRM lead never gets updated from chat content.",
     icon: ScrollText,
   },
   {
@@ -88,7 +88,7 @@ const FEATURES: Feature[] = [
     key: "lsq_photo_stage_enabled",
     group: "LSQ",
     title: "Auto-stage transition on photo received",
-    short: "Patient sends a photo → lead stage moves to the configured target",
+    short: "Client sends a photo → lead stage moves to the configured target",
     how: "Webhook detects an inbound image → /api/lsq/photo-received uploads to LSQ + creates an activity + (if current stage ∈ allow-list) updates ProspectStage to the configured target. Off = no automatic stage move.",
     icon: ImageIcon,
   },
@@ -127,7 +127,7 @@ const GROUP_META: Record<
   { label: string; icon: LucideIcon; tone: string }
 > = {
   AI: { label: "AI auto-reply", icon: Sparkles, tone: "from-violet-500 to-violet-700" },
-  LSQ: { label: "LeadSquared", icon: Database, tone: "from-emerald-500 to-emerald-700" },
+  LSQ: { label: "CRM", icon: Database, tone: "from-emerald-500 to-emerald-700" },
   Calls: { label: "WhatsApp calls", icon: Headphones, tone: "from-sky-500 to-sky-700" },
 };
 

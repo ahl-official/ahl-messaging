@@ -1,6 +1,6 @@
 // POST /api/lsq/bulk-fill-fields
 //
-// Per-field "create, not update" backfill. For a list of LSQ leads (by Lead
+// Per-field "create, not update" backfill. For a list of CRM leads (by Lead
 // Number / ProspectAutoId) and a set of {schema: value} fields, stamp EACH
 // field ONLY where the lead's current value for that field is blank — never
 // overwrite an existing value. Different from /bulk-fill-source (which gates
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
   }
 
   const cfg = getLsqConfig();
-  if (!cfg.configured) return NextResponse.json({ error: "LSQ not configured" }, { status: 400 });
+  if (!cfg.configured) return NextResponse.json({ error: "CRM not configured" }, { status: 400 });
 
   const target = Object.entries(body.fields ?? {})
     .map(([Attribute, Value]) => ({ Attribute: Attribute.trim(), Value: String(Value).trim() }))

@@ -83,7 +83,7 @@ const TRIGGER_DEFS: { type: string; label: string; icon: React.ComponentType<{ c
 // by a preceding "Wait for reply" node (engine: buildReplyVars). `value` is the
 // suggested match value clicked-in from the chip.
 const CONDITION_VARS: { name: string; desc: string; value?: string }[] = [
-  { name: "images_received", desc: "patient ne image bheji? (yes/no)", value: "yes" },
+  { name: "images_received", desc: "client ne image bheji? (yes/no)", value: "yes" },
   { name: "video_received", desc: "video bheji? (yes/no)", value: "yes" },
   { name: "audio_received", desc: "audio/voice bheji? (yes/no)", value: "yes" },
   { name: "document_received", desc: "file/document bheji? (yes/no)", value: "yes" },
@@ -113,7 +113,7 @@ function summarise(type: string, config: Record<string, unknown>): string {
       return `${imgs} image(s)${b.length ? ` · ${b.length} button(s)` : ""}`;
     }
     case "wait_reply":
-      return "Patient ke reply ka intezaar";
+      return "Client ke reply ka intezaar";
     case "condition":
       return `if ${config.var || "stage"} ${config.op || "contains"} "${config.value ?? ""}"`;
     case "webhook":
@@ -176,7 +176,7 @@ function TriggerNode({ data }: NodeProps<TriggerData>) {
           </div>
         ) : isFirstMessage ? (
           <div className="rounded-md bg-white px-2 py-1.5 text-[10px] text-muted-foreground ring-1 ring-inset ring-emerald-100">
-            Fires on the first message of a new conversation — when ANY patient (new or returning) messages after a quiet gap (24h+). No keywords needed.
+            Fires on the first message of a new conversation — when ANY client (new or returning) messages after a quiet gap (24h+). No keywords needed.
           </div>
         ) : isTemplate ? (
           <select
@@ -216,7 +216,7 @@ function TriggerNode({ data }: NodeProps<TriggerData>) {
             </div>
             {data.match === "any" ? (
               <div className="rounded-md bg-white px-2 py-1.5 text-[10px] text-muted-foreground ring-1 ring-inset ring-emerald-100">
-                Fires on ANY message from the patient — keywords ignored.
+                Fires on ANY message from the client — keywords ignored.
               </div>
             ) : null}
             <div className="flex flex-wrap gap-1">
@@ -931,7 +931,7 @@ export function FlowCanvas({
 }
 
 function defaultConfig(type: string): Record<string, unknown> {
-  // Every new message pre-fills with the patient's name greeting — the engine
+  // Every new message pre-fills with the client's name greeting — the engine
   // replaces {{name}} with the contact's name at send time.
   const greeting = "Hi {{name}},\n\n";
   if (type === "message_text") return { text: greeting };
@@ -967,7 +967,7 @@ function NodeConfig({
       const setBtns = (next: Array<{ label?: string; url?: string }>) => onSet({ buttons: next });
       return (
         <div className="space-y-3">
-          <Field label="Question" hint="Patient ko bheja jayega; options ke neeche se branch nikalo">
+          <Field label="Question" hint="Client ko bheja jayega; options ke neeche se branch nikalo">
             <textarea value={String(c.text ?? "")} onChange={(e) => onSet({ text: e.target.value })} rows={3} className={cn(inputCls, "resize-y")} placeholder="Please select language" />
           </Field>
           <div>
@@ -1016,7 +1016,7 @@ function NodeConfig({
             </p>
           </div>
 
-          {/* If the patient types instead of tapping a button, optionally
+          {/* If the client types instead of tapping a button, optionally
               nudge them to use a button (run stays parked on this node). */}
           <div className="rounded-md border bg-secondary/30 p-2">
             <label className="flex cursor-pointer items-center justify-between gap-2">
@@ -1160,7 +1160,7 @@ function NodeConfig({
       return (
         <div className="space-y-3">
           <p className="text-[11px] text-muted-foreground">Match hone par <strong>True</strong> handle, warna <strong>False</strong> handle se aage jata hai.</p>
-          <Field label="Variable" hint="khaali = LSQ stage. Reply ke variables ke liye pehle ek 'Wait for reply' node lagao.">
+          <Field label="Variable" hint="khaali = CRM stage. Reply ke variables ke liye pehle ek 'Wait for reply' node lagao.">
             <input
               value={String(c.var ?? "")}
               onChange={(e) => onSet({ var: e.target.value })}
@@ -1205,7 +1205,7 @@ function NodeConfig({
       return (
         <div className="space-y-3">
           <p className="text-[11px] text-muted-foreground">
-            Patient ke <strong>agle message</strong> ka intezaar karta hai (text ho ya image/file). Iske baad ek <strong>Set a Condition</strong> node lagao jo ye variables padh sake.
+            Client ke <strong>agle message</strong> ka intezaar karta hai (text ho ya image/file). Iske baad ek <strong>Set a Condition</strong> node lagao jo ye variables padh sake.
           </p>
           <Field label="Wait time (timeout)" hint="Itni der me reply na aaye to 'Timeout' handle se aage jata hai. 0 = hamesha intezaar.">
             <div className="flex gap-2">
@@ -1265,7 +1265,7 @@ function NodeConfig({
     case "update_field_tag":
       return (
         <div className="space-y-3">
-          <Field label="LSQ stage">
+          <Field label="CRM stage">
             <input value={String(c.lsq_stage ?? "")} onChange={(e) => onSet({ lsq_stage: e.target.value })} className={inputCls} placeholder="(optional)" />
           </Field>
           <Field label="Status">
@@ -1290,7 +1290,7 @@ function NodeConfig({
 
 const inputCls = "w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary";
 
-// WhatsApp-style preview of how a message node will look in the patient's chat.
+// WhatsApp-style preview of how a message node will look in the client's chat.
 function NodePreview({ node_type, config }: { node_type: string; config: Record<string, unknown> }) {
   const MSG = ["message_text", "message_image", "message_image_buttons", "message_video", "message_buttons"];
   if (!MSG.includes(node_type)) return null;

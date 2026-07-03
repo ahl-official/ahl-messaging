@@ -66,7 +66,7 @@ const seedContacts: Contact[] = [
 
 const seedMessages: Record<string, Message[]> = {
   c1: [
-    msg("c1", "in",  "Hi, I had a question about the hair transplant consultation", days(1)),
+    msg("c1", "in",  "Hi, I had a question about the hair treatment consultation", days(1)),
     msg("c1", "out", "Hello Aarav! Sure, happy to help. What would you like to know?", minutes(60 * 23)),
     msg("c1", "in",  "Is the consultation free? And how long does it take?", minutes(60 * 22)),
     msg("c1", "out", "Yes, the first consultation is complimentary. It usually takes 30–45 minutes.", minutes(60 * 22), "read"),

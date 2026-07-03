@@ -21,7 +21,7 @@ export async function GET() {
   if (!me) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const admin = createServiceRoleClient();
   // Denormalised columns only — never the heavy `lead` jsonb (kept the list
-  // fast). The click-to-expand detail fetches full LSQ fields on demand.
+  // fast). The click-to-expand detail fetches full CRM fields on demand.
   const { data, error } = await admin
     .from("lead_distribution_pending")
     .select("id, created_at, mobile, region, status, assigned_agent, prospect_id, brand, stage, lead_name, owner_email, lead_number")

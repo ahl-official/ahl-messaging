@@ -11,7 +11,7 @@
 // every consumer (contact list, chat header, contact-details panel)
 // can render <img src=...> without a signed-URL round trip.
 //
-// Auth: any signed-in team member (operators routinely add patient
+// Auth: any signed-in team member (operators routinely add client
 // photos during triage). Service-role client used for storage + DB
 // writes; we validate role at the request boundary.
 
@@ -21,7 +21,7 @@ import { getCurrentMember } from "@/lib/team";
 
 export const runtime = "nodejs";
 
-const MAX_BYTES = 5 * 1024 * 1024; // 5 MB ceiling — patient face shots fit easily.
+const MAX_BYTES = 5 * 1024 * 1024; // 5 MB ceiling — client face shots fit easily.
 const ALLOWED_MIME = new Set([
   "image/jpeg",
   "image/jpg",

@@ -3,7 +3,7 @@
 // PATCH  /api/lead-distribution/groups?id=<id>  — update a group
 // DELETE /api/lead-distribution/groups?id=<id>  — delete a group
 //
-// A group maps LSQ stages → agents (haridwar_sales_agents.lsq_id) so a
+// A group maps CRM stages → agents (haridwar_sales_agents.lsq_id) so a
 // stage's leads route only to that group's agents.
 
 import { NextResponse, type NextRequest } from "next/server";

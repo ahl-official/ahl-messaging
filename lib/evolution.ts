@@ -543,7 +543,7 @@ export async function fetchEvolutionInstanceTotals(opts: {
 }): Promise<{ messages: number; contacts: number }> {
   // We compare CHAT THREADS, not saved phonebook entries.
   // findContacts (Evolution's address-book list) was a poor proxy:
-  // a clinic talks to lots of unsaved customers, so Evolution's
+  // a salon talks to lots of unsaved customers, so Evolution's
   // "saved" count is structurally smaller than our `contacts` table
   // (one row per chat partner). findChats returns one entry per
   // conversation thread — same semantics as our local table — so the

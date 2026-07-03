@@ -1,5 +1,5 @@
 // Active-provider + active-account resolver. /api/payments/create-link
-// asks "who's minting for clinic X today?" and gets back the provider
+// asks "who's minting for salon X today?" and gets back the provider
 // + the keys it should use. Webhook routes look up adapters by id +
 // account id directly.
 
@@ -25,7 +25,7 @@ export function getProvider(id: ProviderId): PaymentProvider {
   return PROVIDERS[id];
 }
 
-/** Resolves the active account + provider for a given clinic. */
+/** Resolves the active account + provider for a given salon. */
 export async function getActiveProviderBinding(
   clinic: Clinic = "americanhairline",
 ): Promise<{

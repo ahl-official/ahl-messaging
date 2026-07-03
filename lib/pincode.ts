@@ -1,6 +1,6 @@
 // Pincode → city/state resolver + phone-prefix → country mapping.
 // Used by the LSQ pipeline to auto-fill location fields without
-// asking the LLM (or the patient) — pincode and country code already
+// asking the LLM (or the client) — pincode and country code already
 // uniquely identify the geography.
 
 export interface PincodeLookup {
@@ -21,7 +21,7 @@ export interface PincodeLookup {
  *   [{
  *     "Status": "Success",
  *     "PostOffice": [
- *       { "Name": "...", "District": "Dehradun", "State": "Uttarakhand",
+ *       { "Name": "...", "District": "Mumbai", "State": "Uttarakhand",
  *         "Country": "India", ... },
  *       ...
  *     ]

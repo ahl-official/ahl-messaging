@@ -1,7 +1,7 @@
 "use client";
 
-// LeadSquared-style lead detail panel. Opens when a lead is clicked in the
-// CRM table. Mirrors the LSQ lead page: a summary card on the left and tabs
+// CRM-style lead detail panel. Opens when a lead is clicked in the
+// CRM table. Mirrors the CRM lead page: a summary card on the left and tabs
 // (Leads Details, Activity History, Notes, Call, Tasks, Documents, Audit
 // Trail). Details + Activity come live from LSQ; Notes and Call are derived
 // from the same activity feed. Tasks / Documents / Audit need their own LSQ
@@ -25,7 +25,7 @@ interface DetailResp {
   fields_error: string | null;
   activities: Activity[];
   activities_error: string | null;
-  /** Patient's preferred reply language — from OUR DB (set by the bot), not LSQ. */
+  /** Client's preferred reply language — from OUR DB (set by the bot), not LSQ. */
   preferred_language: string | null;
 }
 
@@ -40,7 +40,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: "audit", label: "Audit Trail" },
 ];
 
-// LSQ field keys → readable labels; internal/ID keys are hidden.
+// CRM field keys → readable labels; internal/ID keys are hidden.
 const HIDE_KEYS = new Set([
   "ProspectID", "OwnerId", "CreatedBy", "ModifiedBy", "StatusCode", "StatusReason",
   "DeletionStatusCode", "IsLead", "ProspectActivityId_Max", "ProspectActivityId_Min",

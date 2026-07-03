@@ -1,6 +1,6 @@
 // GET /api/lsq/debug-activities?prospect_id=<id>[&token=<webhook_token>]
 //
-// Owner-only diagnostic. Probes ~20 different LSQ activity endpoint
+// Owner-only diagnostic. Probes ~20 different CRM activity endpoint
 // shapes (path × HTTP method × auth strategy) and reports the HTTP
 // status + body preview for each. The output tells us exactly which
 // shape this LSQ tenant actually accepts so we can pin the production
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
 
   const cfg = getLsqConfig();
   if (!cfg.configured) {
-    return NextResponse.json({ error: "LSQ not configured" }, { status: 500 });
+    return NextResponse.json({ error: "CRM not configured" }, { status: 500 });
   }
 
   const baseAuth = `accessKey=${cfg.accessKey}&secretKey=${cfg.secretKey}`;

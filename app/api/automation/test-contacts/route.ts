@@ -1,10 +1,10 @@
 // GET  /api/automation/test-contacts  → { wa_ids: string[] }
 // PUT  /api/automation/test-contacts  { wa_ids: string[] }
 //
-// Workspace-wide list of patient WhatsApp numbers (digits-only wa_ids)
+// Workspace-wide list of client WhatsApp numbers (digits-only wa_ids)
 // the bot is allowed to reply to. Empty list = no gate (bot replies to
-// every patient on every enabled number, i.e. production). When set,
-// the bot replies ONLY to messages from these patient phones —
+// every client on every enabled number, i.e. production). When set,
+// the bot replies ONLY to messages from these client phones —
 // real customers on the same connected numbers stay quiet. This is the
 // safe way to live-test a freshly trained bot on your own phone + a
 // couple of testers before going live to everyone.

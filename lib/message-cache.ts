@@ -8,7 +8,7 @@ import type { Message } from "@/lib/types";
 // Two tiers:
 //   1. In-memory Map — fast, survives SPA navigation between chats.
 //   2. sessionStorage — survives a full F5 refresh. NOT localStorage:
-//      message bodies are patient PII, so we keep them off disk and let
+//      message bodies are client PII, so we keep them off disk and let
 //      them clear when the tab closes.
 
 const MEM = new Map<string, Message[]>();

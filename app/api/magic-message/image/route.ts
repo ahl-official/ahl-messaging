@@ -355,7 +355,7 @@ export async function POST(request: NextRequest) {
     })
     .eq("id", contactId);
 
-  // Log Magic Message (image branch) to LSQ activity timeline.
+  // Log Magic Message (image branch) to CRM activity timeline.
   void import("@/lib/lsq-message-logger").then(({ logWhatsappActivityToLSQ }) =>
     logWhatsappActivityToLSQ({
       contactId,

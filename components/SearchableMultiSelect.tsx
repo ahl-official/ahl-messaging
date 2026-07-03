@@ -6,13 +6,13 @@
 //   • Inline "Add custom" affordance when the search query doesn't
 //     match any existing option (so the operator can add a new LSQ
 //     stage / source on the fly without leaving the wizard)
-//   • Item counts (optional) — the LSQ filter UI passes contact-count
+//   • Item counts (optional) — the CRM filter UI passes contact-count
 //     overlays so chips read "Photo Awaited · 87"
 //   • Keyboard: ESC closes, Enter on the search input adds the typed
 //     value as a custom selection
 //   • Click outside to close
 //
-// Used by the campaign-create wizard LSQ filter panel.
+// Used by the campaign-create wizard CRM filter panel.
 
 import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, Plus, Search, X } from "lucide-react";

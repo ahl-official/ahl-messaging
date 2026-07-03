@@ -1,14 +1,14 @@
 "use client";
 
-// Resumable LSQ stage backfill — progress card.
+// Resumable CRM stage backfill — progress card.
 //
-// Drives /api/lsq/backfill, which bulk-exports LSQ leads (1000 per call)
+// Drives /api/lsq/backfill, which bulk-exports CRM leads (1000 per call)
 // and matches them against local contacts — a full account syncs in a
 // few minutes instead of hours. The card loops POSTs until done and
 // shows leads scanned + contacts updated. Resumable: progress is
 // persisted server-side, so closing the tab and reopening continues.
 //
-// Used both on the LeadSquared page and in Settings → Data.
+// Used both on the CRM page and in Settings → Data.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Loader2, Pause, Play, RotateCcw, Users } from "lucide-react";

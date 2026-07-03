@@ -96,7 +96,7 @@ export function PaymentsSection({ contactId }: { contactId: string }) {
   async function handleMarkPaid(paymentId: string) {
     if (
       !window.confirm(
-        "Patient ne payment kar di hai confirm? Status 'Paid' ho jayega aur (auto-receipt ON hai to) receipt PDF chat mein chala jayega.",
+        "Client ne payment kar di hai confirm? Status 'Paid' ho jayega aur (auto-receipt ON hai to) receipt PDF chat mein chala jayega.",
       )
     ) {
       return;

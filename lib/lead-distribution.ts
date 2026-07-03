@@ -1,6 +1,6 @@
 // Lead Distribution engine (Phase 2).
 //
-// Flow per incoming LSQ lead (from the webhook):
+// Flow per incoming CRM lead (from the webhook):
 //   1. Classify by phone country code → national / hindi_intl / english_intl
 //      (mirrors the n8n country-code lists).
 //   2. Build the candidate agent set:
@@ -260,7 +260,7 @@ export async function assignPendingLead(pendingId: string): Promise<AssignOutcom
   return { ok: true, status: "assigned", agent_email: agent.agent_email, agent_name: agent.agent_name, category, reason: null };
 }
 
-/** Record an incoming LSQ lead into the distribution queue and try to assign
+/** Record an incoming CRM lead into the distribution queue and try to assign
  *  it. Deduped by ProspectID so the SAME lead arriving via multiple webhooks
  *  / events (Lead Creation + Stage Change, or the inbox webhook too) becomes
  *  one row — refreshed in place, assigned once. Best-effort; never throws. */

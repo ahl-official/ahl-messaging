@@ -1,7 +1,7 @@
 // POST /api/triggers/tick
 //
 // Periodic worker — resumes trigger-flow runs whose timeout has elapsed:
-//   • Wait-for-reply nodes where the patient never replied in time → fire
+//   • Wait-for-reply nodes where the client never replied in time → fire
 //     the node's "timeout" branch (or end the run if it isn't wired).
 //   • Delay nodes whose wait has passed → continue down the default edge.
 //

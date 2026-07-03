@@ -1,4 +1,4 @@
-// The full canonical LSQ stage funnel, in display order. Single source of
+// The full canonical CRM stage funnel, in display order. Single source of
 // truth for the stage strip (LeadStageStrip), the drip-step stage picker, and
 // the /api/lsq/stages fallback — so EVERY stage shows in the strip even when
 // no contact currently sits in it (the API used to hide zero-count stages).

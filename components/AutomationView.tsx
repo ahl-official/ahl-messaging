@@ -150,12 +150,12 @@ interface LogRow {
   rag_chunks: RagChunkRef[] | null;
 }
 
-const DEFAULT_PROMPT = `You are a friendly support assistant at QHT Clinic, a hair restoration center based in Mumbai. Reply to customer queries in clear Hinglish.
+const DEFAULT_PROMPT = `You are a friendly support assistant at American Hairline, a hair care salon based in Mumbai. Reply to customer queries in clear Hinglish.
 
 - Always be polite and helpful.
-- For cost questions, mention that exact pricing requires hair photos for graft estimation.
+- For cost questions, mention that exact pricing requires hair photos for service estimation.
 - Keep replies concise (under 200 words).
-- Never mention you are an AI; speak naturally as a clinic representative.`;
+- Never mention you are an AI; speak naturally as a salon representative.`;
 
 interface ModelOption {
   value: string;
@@ -608,9 +608,9 @@ function computeStats(rows: NumberRow[] | null, logs: LogRow[] | null): Stats {
   return { active, total, runs: logs.length, successRate, avgDurationMs };
 }
 
-// Test-mode patient whitelist — operator pastes 1-2 of THEIR OWN
+// Test-mode client whitelist — operator pastes 1-2 of THEIR OWN
 // phone numbers here. While the list is non-empty, the bot replies
-// ONLY to messages from these patient numbers — real customers stay
+// ONLY to messages from these client numbers — real customers stay
 // quiet across every connected WhatsApp number. Safe live testing.
 function TestPatientsCard() {
   const [waIds, setWaIds] = useState<string[] | null>(null);
@@ -696,7 +696,7 @@ function TestPatientsCard() {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-[14px] font-semibold leading-tight">
-              {active ? "Test mode — bot replies only to these patients" : "Live testing — patient numbers"}
+              {active ? "Test mode — bot replies only to these patients" : "Live testing — client numbers"}
             </h3>
             <span
               className={cn(
@@ -712,7 +712,7 @@ function TestPatientsCard() {
                   active ? "bg-amber-500" : "bg-emerald-500",
                 )}
               />
-              {active ? `${waIds.length} patient${waIds.length === 1 ? "" : "s"}` : "Production · everyone"}
+              {active ? `${waIds.length} client${waIds.length === 1 ? "" : "s"}` : "Production · everyone"}
             </span>
           </div>
           <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
@@ -767,7 +767,7 @@ function TestPatientsCard() {
               )}
             >
               {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
-              Add patient
+              Add client
             </button>
             {active ? (
               <button
@@ -2173,7 +2173,7 @@ function NumberConfigCard({
 
           {/* Inbound debounce — wait this many seconds after each
               inbound before the LLM fires. Every new inbound resets the
-              timer, so 3 quick messages from the patient produce ONE
+              timer, so 3 quick messages from the client produce ONE
               combined reply instead of 3 racing ones. */}
           <NumberInput
             icon={Clock}
@@ -2296,7 +2296,7 @@ function NumberConfigCard({
 
       {/* Transcription context — fed to Whisper as `prompt` so call
           recordings get transcribed with the right domain terminology
-          (graft / FUE / DHT / etc.). Per-number, like the AI persona.
+          (service / FUE / DHT / etc.). Per-number, like the AI persona.
           Lead defaults moved out — they live on the LSQ page now since
           leads get created regardless of whether AI is enabled. */}
       <TranscriptionPromptEditor
@@ -2324,7 +2324,7 @@ function NumberConfigCard({
         onChange={setGuardrails}
       />
 
-      {/* Stage-based personas — per LSQ stage, an extra persona appended to
+      {/* Stage-based personas — per CRM stage, an extra persona appended to
           the base prompt when the contact is at that stage. */}
       <StagePersonasSection
         stages={lsqStages}
@@ -2332,7 +2332,7 @@ function NumberConfigCard({
         onChange={setStagePersonas}
       />
 
-      {/* LSQ field mappings — runs a 2nd LLM call after the reply to
+      {/* CRM field mappings — runs a 2nd LLM call after the reply to
           pull structured info (name, age, email…) out of the chat and
           push it onto the matching LSQ lead. Empty by default. */}
       <FieldMappingsEditor
@@ -3343,7 +3343,7 @@ function TriggerImagePicker({
 // ===========================================================================
 // Transcription prompt editor — Whisper's `prompt` parameter accepts a
 // short context blurb that biases the model toward domain-specific
-// terminology. Per-number so each clinic / brand can describe its own
+// terminology. Per-number so each salon / brand can describe its own
 // jargon. Plain textarea, max 4000 chars.
 // ===========================================================================
 
@@ -3371,17 +3371,17 @@ function TranscriptionPromptEditor({
           </div>
         </div>
         <p className="mb-2 rounded-md border border-sky-200 bg-sky-50/60 px-3 py-1.5 text-[10px] text-sky-900">
-          Describe what the calls are about + common terms the patient or
+          Describe what the calls are about + common terms the client or
           agent might say. e.g.{" "}
           <span className="font-mono">
-            &quot;Hair-transplant consultation in Hindi+English. Common
-            terms: graft, FUE, DHT, telogen, donor area.&quot;
+            &quot;Hair-treatment consultation in Hindi+English. Common
+            terms: service, FUE, DHT, telogen, donor area.&quot;
           </span>
         </p>
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value.slice(0, 4000))}
-          placeholder="Hair-transplant consultation. Hindi+English code-switching. Common terms: graft, FUE, DHT, donor area, baldness pattern…"
+          placeholder="Hair-treatment consultation. Hindi+English code-switching. Common terms: service, FUE, DHT, donor area, baldness pattern…"
           rows={4}
           className="w-full resize-y rounded-lg border bg-background px-3 py-2 text-[13px] leading-relaxed outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
         />
@@ -3532,7 +3532,7 @@ function KnowledgeBaseSection({
             onChange={(e) => onCorePromptChange(e.target.value)}
             rows={5}
             placeholder={
-              "You are Diksha, QHT Clinic medical counselor. Reply in Hinglish, short + warm. Use only the facts in RELEVANT KNOWLEDGE below. If unsure, say you'll get back to them."
+              "You are Diksha, QHT Salon medical counselor. Reply in Hinglish, short + warm. Use only the facts in RELEVANT KNOWLEDGE below. If unsure, say you'll get back to them."
             }
             className="w-full resize-y rounded-md border bg-background px-3 py-2 text-[12px] leading-relaxed outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
           />
@@ -3791,7 +3791,7 @@ function ChunkEditor({
 
 // ===========================================================================
 // Lead defaults editor — preserved here as a reusable component because
-// LsqView (Settings → LeadSquared) imports it. Lives on the LSQ page now,
+// LsqView (Settings → CRM) imports it. Lives on the LSQ page now,
 // not on the AI / Automation page, since leads get created regardless of
 // whether the AI auto-reply is enabled.
 // ===========================================================================
@@ -3861,7 +3861,7 @@ export function LeadDefaultsEditor({
                     <input
                       value={d.lsq_field}
                       onChange={(e) => update(idx, { lsq_field: e.target.value })}
-                      placeholder="LSQ field (e.g. Source)"
+                      placeholder="CRM field (e.g. Source)"
                       title="Change this to any LSQ column name — e.g. mx_CustomField"
                       className="rounded-md border bg-background px-2.5 py-1.5 font-mono text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
                     />
@@ -3917,9 +3917,9 @@ export function LeadDefaultsEditor({
 }
 
 // ===========================================================================
-// LSQ field-mappings editor — list of {description, lsq_field} rows the
+// CRM field-mappings editor — list of {description, lsq_field} rows the
 // post-reply pipeline reads to know what to extract from the chat and
-// where to push it on the LSQ lead. Description is what the LLM looks
+// where to push it on the CRM lead. Description is what the LLM looks
 // for; lsq_field is the schema column we update.
 // ===========================================================================
 
@@ -3928,19 +3928,19 @@ export function LeadDefaultsEditor({
 // attributes live in LEAD_DEFAULT_PRESETS instead — those are
 // per-number constants, not extracted from chat.
 const COMMON_LSQ_FIELDS: Array<{ field: string; description: string }> = [
-  { field: "FirstName",       description: "patient's full name" },
+  { field: "FirstName",       description: "client's full name" },
   { field: "EmailAddress",    description: "email address" },
-  { field: "mx_Lead_City",    description: "city the patient lives in" },
-  { field: "mx_Lead_State",   description: "state the patient lives in" },
+  { field: "mx_Lead_City",    description: "city the client lives in" },
+  { field: "mx_Lead_State",   description: "state the client lives in" },
   { field: "Country",         description: "country" },
-  { field: "mx_Patient_Age",  description: "patient's age in years (number only)" },
+  { field: "mx_Patient_Age",  description: "client's age in years (number only)" },
   { field: "mx_Zip",          description: "6-digit Indian pincode / ZIP code" },
 ];
 
 // Static defaults the bot stamps on every lead from this number —
 // classic source-tracking shape. The operator picks one value per
 // preset (e.g. Source = "Alchemane" for the Alchemane number, "QHT" for the
-// clinic number) and it gets re-applied on every Lead.CreateOrUpdate.
+// salon number) and it gets re-applied on every Lead.CreateOrUpdate.
 const LEAD_DEFAULT_PRESETS: Array<{ field: string; placeholder: string }> = [
   { field: "Source",        placeholder: "e.g. Alchemane" },
   { field: "mx_Sub_source", placeholder: "e.g. Whatsapp Inbound" },
@@ -3956,7 +3956,7 @@ const LEAD_DEFAULT_PRESETS: Array<{ field: string; placeholder: string }> = [
 // them as non-negotiable. Free-form text; one rule per line works well.
 // =====================================================================
 // =====================================================================
-// Stage personas — per LSQ stage, an extra persona block appended to the
+// Stage personas — per CRM stage, an extra persona block appended to the
 // base prompt when the contact is currently at that stage. Lets one number
 // run different "scenarios" (Prospect, Photos Received, HT Done, …).
 // =====================================================================
@@ -4094,7 +4094,7 @@ function GuardrailsSection({
             "• Never quote prices on WhatsApp — say a counselor will share them on a call.\n" +
             "• Never claim a guaranteed result or 100% success rate.\n" +
             "• Never mention competitor clinics by name.\n" +
-            "• If patient mentions cardiac / pregnancy / minors, do not answer — say a doctor will reach out."
+            "• If client mentions cardiac / pregnancy / minors, do not answer — say a doctor will reach out."
           }
           className="w-full resize-y rounded-lg border border-rose-200/70 bg-background px-3 py-2 font-mono text-[12px] leading-relaxed outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-200/50"
         />
@@ -4138,7 +4138,7 @@ function FieldMappingsEditor({
     <section className="border-t bg-secondary/20">
       <div className="px-5 py-4">
         <div className="mb-2 flex items-center justify-between gap-2">
-          <FieldLabel icon={Database}>LSQ field mappings</FieldLabel>
+          <FieldLabel icon={Database}>CRM field mappings</FieldLabel>
           <span className="text-[10px] text-muted-foreground">
             Bot extracts these from chat → updates the LSQ lead
           </span>
@@ -4165,7 +4165,7 @@ function FieldMappingsEditor({
                   <input
                     value={m.description}
                     onChange={(e) => update(idx, { description: e.target.value })}
-                    placeholder="What to extract (e.g. patient's age)"
+                    placeholder="What to extract (e.g. client's age)"
                     className="rounded-md border bg-background px-2.5 py-1.5 text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
                   />
                   <input
@@ -4545,7 +4545,7 @@ function ActivityRow({ log }: { log: LogRow }) {
             ) : ragWasOn ? (
               <span
                 className="inline-flex items-center gap-1 rounded-full bg-amber-50/60 px-2 py-0.5 font-mono text-[10px] font-semibold text-amber-700/70 ring-1 ring-amber-200/60"
-                title="RAG was on but no chunks matched the patient's message — add a relevant chunk to the knowledge base."
+                title="RAG was on but no chunks matched the client's message — add a relevant chunk to the knowledge base."
               >
                 <Database className="h-2.5 w-2.5" />
                 RAG · 0 matched
@@ -4752,7 +4752,7 @@ function QualityReviewView({
           : "(no recent inbound)");
       const chunkText = [
         "PAST CORRECTION — operator-verified answer.",
-        `Patient said: "${inbound}"`,
+        `Client said: "${inbound}"`,
         `Correct reply: "${correction}"`,
         "Use this answer (or a close paraphrase) when a similar message arrives.",
       ].join("\n");
@@ -5153,7 +5153,7 @@ function ReviewRow({
       <div className="space-y-2 text-[13px]">
         <div className="rounded-lg border-l-4 border-l-slate-300 bg-secondary/40 px-3 py-2">
           <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Patient said
+            Client said
           </div>
           <p className="mt-0.5 whitespace-pre-wrap leading-snug">{inboundText}</p>
         </div>

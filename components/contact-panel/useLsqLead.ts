@@ -1,6 +1,6 @@
 "use client";
 
-// Tiny hook the contact-details panel uses to fetch the LSQ lead that
+// Tiny hook the contact-details panel uses to fetch the CRM lead that
 // matches a given wa_id. Returns the lead payload (or null), a loading
 // flag, and refresh helper. State machine kept intentionally simple —
 // any failure becomes "no lead", rather than putting an error pill in
@@ -38,7 +38,7 @@ export type LsqCrm = "primary" | "secondary";
 interface State {
   phase: LsqLeadPhase;
   lead: LsqLeadView | null;
-  /** CRM display label from the server (e.g. "Delhi/Haridwar"). */
+  /** CRM display label from the server (e.g. "Khar West/Mumbai"). */
   label: string;
   /** LSQ-side error when the lookup call itself failed (bad host /
    *  keys / rate-limit) — distinct from a clean "0 matches". */

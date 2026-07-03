@@ -1,5 +1,5 @@
 // GET /api/lsq/status
-// Returns whether LeadSquared env vars are configured (booleans only —
+// Returns whether CRM env vars are configured (booleans only —
 // never sends the actual keys to the browser).
 
 import { NextResponse } from "next/server";

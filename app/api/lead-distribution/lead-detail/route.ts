@@ -1,5 +1,5 @@
 // GET /api/lead-distribution/lead-detail?prospectId=<id>
-//   → the lead's full LSQ field set (mx_utm_source, mx_NDR_Reason, mx_Brand…).
+//   → the lead's full CRM field set (mx_utm_source, mx_NDR_Reason, mx_Brand…).
 // The webhook payload only carries a subset (no mx_utm_source / mx_NDR_Reason),
 // so the Executions expand view fetches the authoritative values here.
 
@@ -16,6 +16,6 @@ export async function GET(request: NextRequest) {
   if (!prospectId) return NextResponse.json({ error: "prospectId required" }, { status: 400 });
 
   const res = await lsqGetLeadById(prospectId);
-  if (!res.ok) return NextResponse.json({ error: res.error ?? "LSQ fetch failed", fields: {} }, { status: 502 });
+  if (!res.ok) return NextResponse.json({ error: res.error ?? "CRM fetch failed", fields: {} }, { status: 502 });
   return NextResponse.json({ fields: res.fields });
 }

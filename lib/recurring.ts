@@ -1,5 +1,5 @@
 // Recurring (dynamic) campaign engine. Once a day per campaign:
-//   pull rolling-window LSQ leads → upsert into contacts → send the template
+//   pull rolling-window CRM leads → upsert into contacts → send the template
 //   to leads NOT already sent (dedup ledger) → log + record.
 //
 // The template-reply workflow fires on tap via the normal trigger engine

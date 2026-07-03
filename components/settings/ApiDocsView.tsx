@@ -329,7 +329,7 @@ const ENDPOINTS: Endpoint[] = [
   "type": "image",
   "image": {
     "id": "{MEDIA_ID}",
-    "caption": "Sample photo from clinic"
+    "caption": "Sample photo from salon"
   }
 }`,
     response: `{ "messages": [{ "id": "wamid.HBgM..." }] }`,
@@ -447,21 +447,21 @@ const ENDPOINTS: Endpoint[] = [
   "type": "interactive",
   "interactive": {
     "type": "list",
-    "body": { "text": "Pick a clinic to book at:" },
+    "body": { "text": "Pick a salon to book at:" },
     "action": {
-      "button": "Choose clinic",
+      "button": "Choose salon",
       "sections": [
         {
           "title": "North India",
           "rows": [
-            { "id": "delhi", "title": "Delhi" },
-            { "id": "haridwar", "title": "Haridwar" }
+            { "id": "delhi", "title": "Khar West" },
+            { "id": "haridwar", "title": "Mumbai" }
           ]
         },
         {
           "title": "South India",
           "rows": [
-            { "id": "hyderabad", "title": "Hyderabad" }
+            { "id": "hyderabad", "title": "Mumbai" }
           ]
         }
       ]
@@ -505,8 +505,8 @@ const ENDPOINTS: Endpoint[] = [
   "location": {
     "latitude": 28.6139,
     "longitude": 77.2090,
-    "name": "QHT Delhi Clinic",
-    "address": "Connaught Place, New Delhi"
+    "name": "AHL Khar West Salon",
+    "address": "Khar West, Mumbai"
   }
 }`,
     response: `{ "messages": [{ "id": "wamid.HBgM..." }] }`,

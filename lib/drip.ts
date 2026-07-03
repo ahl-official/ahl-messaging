@@ -1,11 +1,11 @@
-// Drip engine — LSQ lead-event triggered message sequences.
+// Drip engine — CRM lead-event triggered message sequences.
 //
-//   • enrollDripsForLead()  — called from the LSQ webhook. Matches a lead's
+//   • enrollDripsForLead()  — called from the CRM webhook. Matches a lead's
 //     (stage, source) against enabled drips and enrolls the matching
 //     contact(s) into a drip_run.
 //   • runDripTick()         — called every 30s by the in-process scheduler.
 //     Drains due runs: sends the current step, schedules the next, and stops
-//     a run if the contact's LSQ stage has moved off the enrolled stage.
+//     a run if the contact's CRM stage has moved off the enrolled stage.
 //
 // Only WhatsApp-Cloud sends here (sendTemplate / sendTextMessage). The drip's
 // business_phone_number_id picks the sending number + portfolio token.
@@ -62,7 +62,7 @@ function renderVars(s: string | null | undefined, name: string | null): string {
 }
 
 // ---------------------------------------------------------------------------
-// Enrollment — called from the LSQ webhook after the lead is mirrored.
+// Enrollment — called from the CRM webhook after the lead is mirrored.
 // ---------------------------------------------------------------------------
 export async function enrollDripsForLead(lead: ParsedLsqLead): Promise<number> {
   const stage = norm(lead.stage);
@@ -93,7 +93,7 @@ export async function enrollDripsForLead(lead: ParsedLsqLead): Promise<number> {
     return out;
   };
 
-  // Field values: start with the push, then enrich from a single LSQ lead
+  // Field values: start with the push, then enrich from a single CRM lead
   // fetch if any condition needs a field the push didn't include (mx_Brand
   // etc. rarely ride along on the webhook).
   let fields: Record<string, string> = { ...(lead.fields ?? {}) };

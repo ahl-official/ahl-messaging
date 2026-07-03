@@ -1,6 +1,6 @@
 // Deterministic colour mapping for the inbox chat-card chips.
 //
-// Both the LSQ stage pill and the WhatsApp-number pill used to render
+// Both the CRM stage pill and the WhatsApp-number pill used to render
 // in the same violet tone, which made the row a wall of identical
 // chips when an operator scrolled. Each label now gets its own
 // distinct tone — same input always picks the same colour, so the
@@ -182,7 +182,7 @@ export function toneForKey(input: string | null | undefined): ChipTone {
   return CHIP_TONES[CHIP_TONE_KEYS[idx]];
 }
 
-/** The tone KEY for an LSQ stage — curated override first, else hash.
+/** The tone KEY for an CRM stage — curated override first, else hash.
  *  Shared by the pastel `toneForStage` and the vivid `solidToneForStage`
  *  so a stage keeps the same hue in both. */
 export function stageToneKey(stage: string | null | undefined): ChipToneKey {
@@ -193,13 +193,13 @@ export function stageToneKey(stage: string | null | undefined): ChipToneKey {
   return CHIP_TONE_KEYS[hashKey(stage) % CHIP_TONE_KEYS.length];
 }
 
-/** Pick a tone for an LSQ stage. Uses the curated overrides first,
+/** Pick a tone for an CRM stage. Uses the curated overrides first,
  *  falls back to the hash. */
 export function toneForStage(stage: string | null | undefined): ChipTone {
   return CHIP_TONES[stageToneKey(stage)];
 }
 
-/** Vivid solid fill for an LSQ stage — same hue as `toneForStage`. */
+/** Vivid solid fill for an CRM stage — same hue as `toneForStage`. */
 export function solidToneForStage(stage: string | null | undefined): SolidTone {
   return SOLID_TONES[stageToneKey(stage)];
 }

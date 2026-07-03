@@ -1,7 +1,7 @@
 // GET /api/lead-distribution/find-lead?q=<phone | lead number | name>
-//   → find leads (contacts) by phone / LSQ lead number / name and show who
+//   → find leads (contacts) by phone / CRM lead number / name and show who
 //     they're currently assigned to in LSQ. Backs the lead search on the
-//     LSQ assignment tab.
+//     CRM assignment tab.
 
 import { NextResponse, type NextRequest } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/server";

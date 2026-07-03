@@ -27,7 +27,7 @@ export function BookingCalendar({
   busyDate?: string | null;
   /** Agent-only: per-date appointment count (app bookings + calendar events).
    *  When set, each day shows how many are already booked. Omit on the
-   *  patient-facing page so internal load stays private. */
+   *  client-facing page so internal load stays private. */
   load?: Record<string, number>;
   /** Agent-only: per-date event titles (what's written on the calendar that
    *  day). Shown as a preview + hover list. */

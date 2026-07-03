@@ -167,14 +167,14 @@ export async function POST(
       mime,
       waCallId,
     }).catch((e) => {
-      console.warn("[recording] LSQ push failed:", e instanceof Error ? e.message : e);
+      console.warn("[recording] CRM push failed:", e instanceof Error ? e.message : e);
     });
   }
 
   return NextResponse.json({ ok: true, recording_url: upload.publicUrl });
 }
 
-// ---------- LSQ push: create activity + upload audio + attach ----------
+// ---------- CRM push: create activity + upload audio + attach ----------
 //
 // Mirrors the photo-received pipeline (create → upload → attach) so the
 // recording shows up as a real LSQ attachment with an inline player,

@@ -426,7 +426,7 @@ export async function POST(request: NextRequest) {
     })
     .eq("id", contactId);
 
-  // Log Magic Message to LSQ activity timeline.
+  // Log Magic Message to CRM activity timeline.
   void import("@/lib/lsq-message-logger").then(({ logWhatsappActivityToLSQ }) =>
     logWhatsappActivityToLSQ({
       contactId,

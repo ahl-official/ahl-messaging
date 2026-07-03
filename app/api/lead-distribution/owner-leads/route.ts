@@ -1,6 +1,6 @@
 // GET /api/lead-distribution/owner-leads?email=<owner>&stage=<stage>
 //   → the actual contacts owned by an LSQ owner (optionally filtered to one
-//     stage) — backs the click-to-expand lead list on the LSQ assignment tab.
+//     stage) — backs the click-to-expand lead list on the CRM assignment tab.
 
 import { NextResponse, type NextRequest } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/server";

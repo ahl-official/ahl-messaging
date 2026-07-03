@@ -10,7 +10,7 @@ import { useCallback, useEffect, useState } from "react";
 
 const STORAGE_KEY = "qht.lsq.activities_in_chat";
 // Default OFF — opt-in by design. When OFF the hook in ChatWindow
-// also skips polling, so a quiet inbox costs zero LSQ API calls until
+// also skips polling, so a quiet inbox costs zero CRM API calls until
 // the operator explicitly asks to see activities.
 const DEFAULT_VALUE = false;
 

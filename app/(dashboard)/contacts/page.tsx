@@ -49,7 +49,7 @@ export default async function ContactsPage({ searchParams }: Props) {
   const permsBundle = await getCurrentEffectivePermissions();
   const allowedNumbers = permsBundle?.perms.allowed_number_ids ?? null;
 
-  // After migration 0016, the same patient can have one contact row per
+  // After migration 0016, the same client can have one contact row per
   // business number they've messaged — so a search for "9045454045"
   // returns N rows (one per bpid). That's correct in the DB but very
   // confusing in the Contact Hub: the operator sees 13 identical-looking
@@ -58,7 +58,7 @@ export default async function ContactsPage({ searchParams }: Props) {
   // show "× N numbers" on the row. To keep this O(1) RPC instead of
   // window-functions, we over-fetch a window (PAGE_SIZE * OVERFETCH),
   // dedupe in JS, and slice the requested page out of the result.
-  const OVERFETCH = 6; // 6× page = plenty even when every patient has many bpid duplicates
+  const OVERFETCH = 6; // 6× page = plenty even when every client has many bpid duplicates
   const fetchLimit = PAGE_SIZE * OVERFETCH;
   const fetchFrom = (page - 1) * PAGE_SIZE * OVERFETCH;
   const fetchTo = fetchFrom + fetchLimit - 1;

@@ -546,14 +546,14 @@ function CallButton({ contact, windowOpen }: { contact: Contact; windowOpen: boo
                   Call permission expired — calling re-asks Allow (7-day window).
                 </span>
               ) : callWindow.state === "denied" ? (
-                <span className="text-rose-700">Patient denied call permission.</span>
+                <span className="text-rose-700">Client denied call permission.</span>
               ) : callWindow.state === "pending" ? (
                 <span className="text-muted-foreground">
                   Permission requested — waiting for Allow.
                 </span>
               ) : (
                 <span className="text-muted-foreground">
-                  No call permission yet — calling asks the patient to Allow
+                  No call permission yet — calling asks the client to Allow
                   (7-day window).
                 </span>
               )}

@@ -2,7 +2,7 @@
 // POST /api/lsq/push-failures { retry: true } → retry all pending NOW (ignores
 //                                              the 2-min schedule)
 //
-// Powers the "Failed lead pushes" panel in LSQ settings. Admin-only.
+// Powers the "Failed lead pushes" panel in CRM settings. Admin-only.
 
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentMember, isAtLeast } from "@/lib/team";

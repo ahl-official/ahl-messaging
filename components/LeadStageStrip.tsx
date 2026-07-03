@@ -1,6 +1,6 @@
 "use client";
 
-// Full-width LSQ lead-stage funnel above the inbox. Each stage is an
+// Full-width CRM lead-stage funnel above the inbox. Each stage is an
 // arrow/chevron segment carrying a LIVE contact count; clicking one
 // filters the conversation list to chats whose `lsq_stage` matches.
 // Clicking the active segment again (or "All") clears the filter.

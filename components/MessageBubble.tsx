@@ -183,13 +183,13 @@ function MediaContent({
     // customer's message (failed media upload, encryption miss,
     // unknown sticker, etc.). Image type with no URL means our
     // download from Meta failed even after 3× retry. Either way the
-    // useful operator action is the same — ask the patient to
+    // useful operator action is the same — ask the client to
     // resend — so we render one friendly placeholder instead of the
     // literal type tag.
     if (message.type === "unsupported" || message.type === "image") {
       return (
         <p className="whitespace-pre-wrap break-words italic text-muted-foreground/80">
-          Photo couldn&apos;t be downloaded — ask the patient to resend.
+          Photo couldn&apos;t be downloaded — ask the client to resend.
         </p>
       );
     }
@@ -285,7 +285,7 @@ export function MessageBubble({
   message: Message;
   /** Optional — when set, a Reply hover-action appears on the bubble.
    *  Edit + Delete were removed: WhatsApp Cloud API supports neither
-   *  (edit was silently treated as a new send → patient saw duplicates;
+   *  (edit was silently treated as a new send → client saw duplicates;
    *  delete always errored). */
   onReply?: (msg: Message) => void;
   /** True when the whole conversation came in via chat-import. Inbound
@@ -613,7 +613,7 @@ export function MessageBubble({
             {message.content || "WhatsApp call permission requested."}
           </p>
           <div className="mt-2 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-[11px] text-emerald-800">
-            The patient sees an &quot;Allow&quot; button on their WhatsApp. Once they tap it, the call rings on this device.
+            The client sees an &quot;Allow&quot; button on their WhatsApp. Once they tap it, the call rings on this device.
           </div>
         </div>
         <div
@@ -643,7 +643,7 @@ export function MessageBubble({
   }
 
   // ---------- Call Permission Reply bubble ----------
-  // Inbound row the webhook synthesizes when the patient taps "Allow"
+  // Inbound row the webhook synthesizes when the client taps "Allow"
   // (or "Decline") on a WhatsApp Call Permission Request. Mirrors the
   // request bubble but accept = green, reject = rose.
   if (message.type === "call_permission_reply") {
@@ -672,8 +672,8 @@ export function MessageBubble({
           <p className="whitespace-pre-wrap break-words leading-relaxed text-foreground">
             {message.content ||
               (granted
-                ? "Patient granted call permission."
-                : "Patient denied call permission.")}
+                ? "Client granted call permission."
+                : "Client denied call permission.")}
           </p>
         </div>
         <div className="flex items-center justify-end gap-1 border-t bg-secondary/40 px-3 py-1 text-[10px] text-muted-foreground">
@@ -785,7 +785,7 @@ export function MessageBubble({
         </div>
       ) : null}
       {/* Interactive reply buttons (non-template sends) — show the same
-          tappable-button look the patient received on WhatsApp. */}
+          tappable-button look the client received on WhatsApp. */}
       {!isTemplate && message.template_buttons && message.template_buttons.length > 0 ? (
         <div className="mt-1.5 space-y-1 border-t border-emerald-100/70 pt-1.5">
           {message.template_buttons.map((b, idx) => (

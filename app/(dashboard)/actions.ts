@@ -33,7 +33,7 @@ export async function updateContactNameAction(
 
   if (error) return { error: error.message };
 
-  // Mirror the new name onto the LSQ lead's FirstName so CRM and inbox
+  // Mirror the new name onto the CRM lead's FirstName so CRM and inbox
   // never drift apart. Fire-and-forget — operator already saw the local
   // save succeed, and an LSQ outage shouldn't block the inbox edit.
   if (contact?.lsq_prospect_id && trimmed) {
@@ -50,7 +50,7 @@ export async function updateContactNameAction(
         }
       } catch (e) {
         console.warn(
-          "[contacts] name → LSQ push threw:",
+          "[contacts] name → CRM push threw:",
           e instanceof Error ? e.message : e,
         );
       }
@@ -281,9 +281,9 @@ export async function autoCloseStaleConversationsAction(): Promise<{
     Date.now() - WHATSAPP_WINDOW_HOURS * 60 * 60 * 1000,
   ).toISOString();
 
-  // The 24h customer-service window only OPENS on an inbound (patient)
+  // The 24h customer-service window only OPENS on an inbound (client)
   // message — an outbound (incl. marketing templates) never does. So a
-  // chat's window is open iff the patient messaged in the last 24h.
+  // chat's window is open iff the client messaged in the last 24h.
   // Pull just the recent inbound slice (cheap) → the set of "open window"
   // contacts. Applies to ALL providers (Meta + Evolution + Interakt).
   const { data: recent, error: inErr } = await admin

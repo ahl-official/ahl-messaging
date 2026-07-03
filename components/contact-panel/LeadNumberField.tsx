@@ -4,7 +4,7 @@
 // a tiny action menu with two operator-friendly options:
 //   • Copy   → puts the bare number on the clipboard (no `#` prefix
 //              so it pastes cleanly into LSQ's search bar)
-//   • Visit  → opens the LSQ lead detail page in a new tab
+//   • Visit  → opens the CRM lead detail page in a new tab
 // Auto-closes on selection or outside-click. No menu shows when the
 // lead isn't loaded yet.
 

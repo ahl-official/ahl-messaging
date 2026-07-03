@@ -1,6 +1,6 @@
 "use client";
 
-// LSQ activity timeline — same data LSQ shows on the lead detail page,
+// CRM activity timeline — same data LSQ shows on the lead detail page,
 // rendered inline in the contact-details panel. Auto-fetches when the
 // prospect ID changes, groups activities by date (Today / Yesterday /
 // Earlier this week / older), and uses iconography per event type so

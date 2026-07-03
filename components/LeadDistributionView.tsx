@@ -149,7 +149,7 @@ export function LeadDistributionView() {
       <PremiumHeader
         icon={Split}
         title="Lead Distribution"
-        subtitle="Incoming LSQ leads ko agents ke beech distribute karo — working hours, region, cap, priority ke hisaab se."
+        subtitle="Incoming CRM leads ko agents ke beech distribute karo — working hours, region, cap, priority ke hisaab se."
         tone="emerald"
         right={
           config ? (
@@ -185,7 +185,7 @@ export function LeadDistributionView() {
                   : "border-transparent text-muted-foreground hover:text-foreground",
               )}
             >
-              {t === "agents" ? "Agent priority" : t === "executions" ? "Executions" : t === "report" ? "Report" : t === "lsq" ? "LSQ lead assignment" : t === "automations" ? "Lead automations" : "Setup"}
+              {t === "agents" ? "Agent priority" : t === "executions" ? "Executions" : t === "report" ? "Report" : t === "lsq" ? "CRM lead assignment" : t === "automations" ? "Lead automations" : "Setup"}
             </button>
           ))}
         </div>
@@ -228,8 +228,8 @@ export function LeadDistributionView() {
                   </h2>
                   <p className="text-[11px] text-muted-foreground">
                     {config.enabled
-                      ? "Leads automatically agents ko assign ho rahi hain (LSQ me OwnerId set ho raha)."
-                      : "Band hai — koi LSQ assignment nahi. Live karne ke liye ON karo."}
+                      ? "Leads automatically agents ko assign ho rahi hain (CRM me OwnerId set ho raha)."
+                      : "Band hai — koi CRM assignment nahi. Live karne ke liye ON karo."}
                   </p>
                 </div>
                 <button
@@ -258,7 +258,7 @@ export function LeadDistributionView() {
                 <div className="flex items-center gap-2">
                   <Webhook className="h-4 w-4 text-emerald-600" />
                   <h2 className="text-sm font-bold">Webhook URL</h2>
-                  <span className="text-[11px] text-muted-foreground">LSQ Automation me ye URL POST pe set karo.</span>
+                  <span className="text-[11px] text-muted-foreground">CRM Automation me ye URL POST pe set karo.</span>
                 </div>
                 <div className="mt-2 flex items-center gap-2">
                   <input
@@ -637,7 +637,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
               <h3 className="text-xs font-bold text-emerald-900">Webhook connected</h3>
             </div>
             <p className="mt-1 text-[10px] text-emerald-800/80">
-              Automations aapke existing LeadSquared webhooks (Lead Stage Change) se hi chalti hain —
+              Automations aapke existing CRM webhooks (Lead Stage Change) se hi chalti hain —
               koi alag webhook add karne ki zaroorat nahi.
             </p>
           </section>
@@ -648,7 +648,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
               <span className="cursor-default text-muted-foreground">Automation Failure Report</span>
               <span className="cursor-default text-muted-foreground">Automation Termination Report</span>
             </div>
-            <p className="mt-1 text-[10px] text-muted-foreground">Reports LSQ ke andar hi available hain.</p>
+            <p className="mt-1 text-[10px] text-muted-foreground">Reports CRM ke andar hi available hain.</p>
           </section>
         </aside>
       </div>
@@ -1226,15 +1226,15 @@ function ExecutionsPanel({ lsqStages }: { lsqStages: string[] }) {
       ) : shown.length === 0 ? (
         <div className="rounded-xl border-2 border-dashed bg-card/50 px-6 py-12 text-center text-xs text-muted-foreground">
           {brandFilter && (events?.length ?? 0) > 0
-            ? `"${brandFilter}" brand ki koi lead nahi mili. Brand tabhi match hoga jab LSQ webhook ke payload me mx_Brand field bheja ho — abhi zyadatar leads me brand aa hi nahi raha.`
-            : "Abhi koi webhook event nahi. LSQ se lead aate hi yahan date/time wise dikhega."}
+            ? `"${brandFilter}" brand ki koi lead nahi mili. Brand tabhi match hoga jab CRM webhook ke payload me mx_Brand field bheja ho — abhi zyadatar leads me brand aa hi nahi raha.`
+            : "Abhi koi webhook event nahi. CRM se lead aate hi yahan date/time wise dikhega."}
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
           <ul className="divide-y text-xs">
             {shown.map((e) => {
               const expanded = open === e.id;
-              // LSQ fields are authoritative; webhook payload fills any gaps.
+              // CRM fields are authoritative; webhook payload fills any gaps.
               const fields = { ...(e.fields ?? {}), ...(e.prospect_id ? lsqFields[e.prospect_id] ?? {} : {}) };
               const highlightKeys = new Set(HIGHLIGHT.map(([k]) => k));
               const rest = Object.entries(fields).filter(([k]) => !highlightKeys.has(k));
@@ -1281,7 +1281,7 @@ function ExecutionsPanel({ lsqStages }: { lsqStages: string[] }) {
                       ))}
                     </dl>
                     {e.prospect_id && !lsqFields[e.prospect_id] ? (
-                      <p className="mt-1 text-[10px] text-muted-foreground">LSQ se latest values load ho rahi…</p>
+                      <p className="mt-1 text-[10px] text-muted-foreground">CRM se latest values load ho rahi…</p>
                     ) : null}
                     {rest.length > 0 ? (
                       <details className="mt-2">
@@ -1554,7 +1554,7 @@ function LsqAssignmentPanel({ lsqStages }: { lsqStages: string[] }) {
   for (const o of data?.owners ?? []) {
     for (const [st, n] of Object.entries(o.byStage)) stageCounts.set(st, (stageCounts.get(st) ?? 0) + n);
   }
-  // Full LSQ stage list merged with data stages. Stages WITH leads first
+  // Full CRM stage list merged with data stages. Stages WITH leads first
   // (by count desc), then the rest alphabetically.
   const allStages = Array.from(new Set([...lsqStages, ...stageCounts.keys()])).sort((a, b) => {
     const ca = stageCounts.get(a) ?? 0;
@@ -1579,7 +1579,7 @@ function LsqAssignmentPanel({ lsqStages }: { lsqStages: string[] }) {
   return (
     <div className="mx-auto max-w-6xl px-6 py-6">
       <div className="mb-1 flex flex-wrap items-center gap-2">
-        <span className="text-sm font-bold">LSQ live assignment · per owner</span>
+        <span className="text-sm font-bold">CRM live assignment · per owner</span>
         <div className="ml-auto flex flex-wrap items-center gap-1.5">
           <input
             type="search"
@@ -1705,7 +1705,7 @@ function LsqAssignmentPanel({ lsqStages }: { lsqStages: string[] }) {
         <div className="py-12 text-center text-sm text-muted-foreground">Loading…</div>
       ) : owners.length === 0 ? (
         <div className="rounded-xl border-2 border-dashed bg-card/50 px-6 py-12 text-center text-xs text-muted-foreground">
-          {stageFilter ? `"${stageFilter}" stage ki koi assigned lead nahi.` : "Abhi koi webhook lead nahi aaya. LSQ se lead aate hi yahan owner-wise count dikhega."}
+          {stageFilter ? `"${stageFilter}" stage ki koi assigned lead nahi.` : "Abhi koi webhook lead nahi aaya. CRM se lead aate hi yahan owner-wise count dikhega."}
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
@@ -2093,7 +2093,7 @@ function AgentsSection({
   });
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
-  // LSQ agents (Users.Get) so the operator picks instead of typing email/id.
+  // CRM agents (Users.Get) so the operator picks instead of typing email/id.
   const [lsqUsers, setLsqUsers] = useState<{ id: string; name: string; email: string | null; active: boolean }[] | null>(null);
   const [lsqUsersErr, setLsqUsersErr] = useState<string | null>(null);
   useEffect(() => {
@@ -2255,7 +2255,7 @@ function AgentsSection({
       {adding ? (
         <div className="mt-3 grid gap-2 rounded-lg border bg-background p-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label className="text-xs font-semibold">Pick LSQ agent <span className="font-normal text-muted-foreground">(email + name + id auto-fill — manually add karne ki zaroorat nahi)</span></label>
+            <label className="text-xs font-semibold">Pick CRM agent <span className="font-normal text-muted-foreground">(email + name + id auto-fill — manually add karne ki zaroorat nahi)</span></label>
             <select
               value={form.lsq_id}
               onChange={(e) => {
@@ -2265,7 +2265,7 @@ function AgentsSection({
               }}
               className="mt-1 w-full rounded-md border bg-background px-2 py-1.5 text-sm"
             >
-              <option value="">{lsqUsers === null ? "Loading LSQ agents…" : `— select LSQ agent (${lsqUsers.length} active) —`}</option>
+              <option value="">{lsqUsers === null ? "Loading CRM agents…" : `— select CRM agent (${lsqUsers.length} active) —`}</option>
               {(lsqUsers ?? []).map((u) => (
                 <option key={u.id} value={u.id}>{u.name || u.email}{u.email ? ` · ${u.email}` : ""}</option>
               ))}
@@ -2273,8 +2273,8 @@ function AgentsSection({
             {lsqUsersErr ? <p className="mt-0.5 text-[10px] text-destructive">LSQ users load nahi hue: {lsqUsersErr}. Neeche manually bhar sakte ho.</p> : null}
           </div>
           <input placeholder="Name" value={form.agent_name} onChange={(e) => setForm({ ...form, agent_name: e.target.value })} className="rounded-md border bg-background px-2 py-1.5 text-sm" />
-          <input placeholder="LSQ email" value={form.agent_email} onChange={(e) => setForm({ ...form, agent_email: e.target.value })} className="rounded-md border bg-background px-2 py-1.5 text-sm" />
-          <input placeholder="LSQ user id (optional)" value={form.lsq_id} onChange={(e) => setForm({ ...form, lsq_id: e.target.value })} className="rounded-md border bg-background px-2 py-1.5 font-mono text-xs" />
+          <input placeholder="CRM email" value={form.agent_email} onChange={(e) => setForm({ ...form, agent_email: e.target.value })} className="rounded-md border bg-background px-2 py-1.5 text-sm" />
+          <input placeholder="CRM user id (optional)" value={form.lsq_id} onChange={(e) => setForm({ ...form, lsq_id: e.target.value })} className="rounded-md border bg-background px-2 py-1.5 font-mono text-xs" />
           <select value={form.international_lead} onChange={(e) => setForm({ ...form, international_lead: e.target.value })} className="rounded-md border bg-background px-2 py-1.5 text-sm">
             {INTL_TAGS.map((t) => <option key={t} value={t}>{t || "National"}</option>)}
           </select>

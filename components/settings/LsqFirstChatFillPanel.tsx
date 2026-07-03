@@ -1,7 +1,7 @@
 "use client";
 
-// Backfill Source / Sub-source / Brand onto LSQ leads whose attribution came in
-// blank — using the lead_defaults of the business number the patient FIRST
+// Backfill Source / Sub-source / Brand onto CRM leads whose attribution came in
+// blank — using the lead_defaults of the business number the client FIRST
 // chatted on. Paste lead numbers → Check (dry run) → Fill blank.
 
 import { useState } from "react";

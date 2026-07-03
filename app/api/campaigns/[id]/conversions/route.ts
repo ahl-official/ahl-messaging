@@ -1,7 +1,7 @@
 // GET /api/campaigns/[id]/conversions
 //
 // Post-campaign LSQ conversion tracking. Reads each recipient's CURRENT
-// lsq_stage from the local `contacts` table (kept fresh by the LSQ webhook),
+// lsq_stage from the local `contacts` table (kept fresh by the CRM webhook),
 // so it covers ALL recipients cheaply and can auto-refresh:
 //   • Package bucket (HT Done / Order Placed) → Total Package value + notes.
 //   • Order bucket   (Order Confirmed)        → Order Value (Revenue).

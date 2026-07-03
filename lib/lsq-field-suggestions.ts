@@ -1,4 +1,4 @@
-// LSQ field value suggestions — learned from incoming leads.
+// CRM field value suggestions — learned from incoming leads.
 //
 // Some lead fields (Sub source, City, Source Medium) have NO master dropdown
 // list in LSQ on this tenant (they're cascading or free-text, and every

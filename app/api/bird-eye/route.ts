@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       q = email ? q.or(`assigned_to.eq.${user.id},lsq_owner_email.eq.${email}`) : q.eq("assigned_to", user.id);
     }
   }
-  // Search by phone (wa_id) or LSQ lead number.
+  // Search by phone (wa_id) or CRM lead number.
   if (search) q = q.or(`wa_id.ilike.%${search}%,lsq_lead_number.ilike.%${search}%`);
   const { data: contacts, error } = await q;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
   const dayAgo = Date.now() - 24 * 60 * 60_000;
   const chats = (contacts ?? []).map((c) => {
     const msgs = (byContact.get(c.id as string) ?? []).slice().reverse(); // chronological
-    // 24h window is OPEN if the patient sent something in the last 24h.
+    // 24h window is OPEN if the client sent something in the last 24h.
     const lastInbound = msgs.filter((m) => m.direction === "inbound").pop();
     const windowOpen = lastInbound?.timestamp ? Date.parse(lastInbound.timestamp as string) > dayAgo : false;
     return {

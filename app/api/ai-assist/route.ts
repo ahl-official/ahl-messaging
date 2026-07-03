@@ -33,7 +33,7 @@ interface Body {
   /** Optional current value of the field — model rewrites/extends it
    *  rather than starting from a blank slate. */
   existing?: string;
-  /** Free-text business context (e.g. "QHT Clinic, hair transplants,
+  /** Free-text business context (e.g. "QHT Salon, hair treatments,
    *  Dehradun") so the model doesn't write generic filler. */
   context?: string;
 }
@@ -71,7 +71,7 @@ Output ONLY the blurb. No quotes, no markdown.`,
 
 Do NOT include any factual content (pricing, procedures, hours) — those live in chunks. Output ONLY the prompt body.`,
 
-  knowledge_chunk: `You write ONE knowledge chunk for a RAG knowledge base. A chunk is a self-contained 200-500 char block that answers a specific question or covers a specific topic (e.g. "Hair transplant pricing", "Refund policy", "Operating hours"). Output ONLY the chunk text — no source label, no metadata. Keep it factual and concise.`,
+  knowledge_chunk: `You write ONE knowledge chunk for a RAG knowledge base. A chunk is a self-contained 200-500 char block that answers a specific question or covers a specific topic (e.g. "Hair treatment pricing", "Refund policy", "Operating hours"). Output ONLY the chunk text — no source label, no metadata. Keep it factual and concise.`,
 
   magic_campaign_brief: `You write the BRIEF for a Magic Message campaign — a short instruction the AI will read once per recipient to generate their personalized WhatsApp message. Write the brief AS IF it were the message itself, in proper WhatsApp form, so the operator can read it like a real message and adjust.
 

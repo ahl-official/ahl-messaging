@@ -1,6 +1,6 @@
 "use client";
 
-// CRM section in the contact-details panel. Fetches the LSQ lead that
+// CRM section in the contact-details panel. Fetches the CRM lead that
 // matches this contact's WhatsApp number and renders the dashboard-
 // relevant fields (name, email, age, city/state, country, created-on,
 // lead number, assignee). When LSQ isn't configured yet, the section
@@ -104,7 +104,7 @@ export function LsqLeadPanel({ waId }: { waId: string }) {
       <header className="flex items-center justify-between gap-2 px-4 pt-4">
         <div className="flex items-center gap-2">
           <Database className="h-4 w-4 text-muted-foreground" />
-          <h3 className="text-sm font-semibold tracking-tight">LeadSquared CRM</h3>
+          <h3 className="text-sm font-semibold tracking-tight">CRM</h3>
         </div>
         <div className="flex items-center gap-1">
           {state.phase === "found" && state.lead?.lead_url ? (
@@ -213,7 +213,7 @@ function NotConfigured() {
     <div className="flex items-start gap-2 rounded-md border border-dashed bg-secondary/40 px-3 py-2.5 text-[11px] text-muted-foreground">
       <ShieldQuestion className="mt-0.5 h-3.5 w-3.5 shrink-0" />
       <div>
-        LeadSquared not configured yet.{" "}
+        CRM not configured yet.{" "}
         <Link href="/integrations/lsq" className="font-medium text-primary hover:underline">
           Set it up →
         </Link>
@@ -236,7 +236,7 @@ function ErrorState({ message, onRetry }: { message: string | null; onRetry: () 
     <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2.5 text-[11px] text-amber-900">
       <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
       <div className="min-w-0 flex-1">
-        <div className="font-semibold">Couldn&apos;t fetch LSQ lead</div>
+        <div className="font-semibold">Couldn&apos;t fetch CRM lead</div>
         <div className="mt-0.5 break-words text-amber-800/80">
           {message ?? "Unknown error"}
         </div>

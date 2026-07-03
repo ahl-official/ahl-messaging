@@ -1,7 +1,7 @@
 "use client";
 
 // Cascading State → City editor for the contact-details panel. Country
-// is derived (and read-only) from the LSQ lead — once a country is
+// is derived (and read-only) from the CRM lead — once a country is
 // known, the operator picks State from a country-scoped dropdown, then
 // picks City from a state-scoped dropdown. Both writes go to LSQ via
 // the same /api/lsq/lead/update endpoint the inline edits use.
@@ -37,7 +37,7 @@ interface Props {
   country: string | null;
   loading?: boolean;
   contactId: string;
-  /** Hides the editor when there's no LSQ lead linked yet — operator
+  /** Hides the editor when there's no CRM lead linked yet — operator
    *  flow is "wait for first inbound" before editing. */
   canEdit: boolean;
   /** LSQ schema names per field, in case a tenant overrides them. */

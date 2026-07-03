@@ -1,12 +1,12 @@
 // GET /api/lsq/activities?prospect_id=<lsq-lead-uuid>
 //
-// Returns the LSQ activity timeline for a single lead. Used by the
+// Returns the CRM activity timeline for a single lead. Used by the
 // contact-details panel + inline chat thread to render activities.
 //
 // Scaling notes:
 //   ─ In-memory cache with a 30s TTL keyed by prospect_id. The client
 //     polls at the same cadence, so when 100+ agents are viewing the
-//     same hot lead, LSQ sees one fetch per 30s — not one per agent.
+//     same hot lead, CRM sees one fetch per 30s — not one per agent.
 //   ─ Concurrent-fetch dedup. If a fetch is already in flight for a
 //     prospect_id, additional callers await the same promise instead
 //     of starting their own. Important during cache-miss + thundering-

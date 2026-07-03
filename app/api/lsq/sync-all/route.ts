@@ -1,6 +1,6 @@
 // POST /api/lsq/sync-all
 //
-// One-shot backfill: walks every contact, fetches the matching LSQ lead,
+// One-shot backfill: walks every contact, fetches the matching CRM lead,
 // mirrors stage / lead number / owner onto the contact row. Used the
 // first time after the LSQ integration is wired up so the contact list
 // gets stage badges populated immediately, without waiting for each
@@ -29,7 +29,7 @@ export async function POST() {
 
   const cfg = getLsqConfig();
   if (!cfg.configured) {
-    return NextResponse.json({ error: "LSQ not configured" }, { status: 400 });
+    return NextResponse.json({ error: "CRM not configured" }, { status: 400 });
   }
 
   const admin = createServiceRoleClient();

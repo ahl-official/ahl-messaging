@@ -55,7 +55,7 @@ const items: NavItem[] = [
   { href: "/campaigns",       label: "Campaigns",    icon: Megaphone,      enabled: true, panel: "campaigns" },
   { href: "/automation",      label: "Automation",   icon: Zap,            enabled: true, panel: "automation" },
   { href: "/lead-distribution", label: "Lead Distribution", icon: Split,    enabled: true, panel: "lead_distribution" },
-  { href: "/integrations/lsq",label: "LeadSquared",  icon: Database,       enabled: true, matchPrefix: "/integrations/lsq", panel: "lsq" },
+  { href: "/integrations/lsq",label: "CRM",  icon: Database,       enabled: true, matchPrefix: "/integrations/lsq", panel: "lsq" },
   { href: "/integrations/telephony", label: "Telephony", icon: Cable,     enabled: true, matchPrefix: "/integrations/telephony", panel: "telephony" },
   { href: "/tasks",           label: "Tasks",        icon: CheckCircle2,   enabled: true, panel: "tasks" },
   { href: "/reports",         label: "Reports",      icon: BarChart3,      enabled: true, panel: "reports" },

@@ -44,7 +44,7 @@ export function DashboardView({ initialContacts, businessNumbers, currentUserId,
   // Tablet/mobile only — the contact-details panel slides in as a drawer.
   // On lg+ the panel is always docked and this is ignored.
   const [panelOpen, setPanelOpen] = useState(false);
-  // LSQ lead-stage filter from the colour strip above the inbox.
+  // CRM lead-stage filter from the colour strip above the inbox.
   const [stageFilter, setStageFilter] = useState<string | null>(null);
   // Stage list-view modal — the strip's "Open in list view" choice.
   // `listStage` = which stage's modal is up; `listMinimized` parks it

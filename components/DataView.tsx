@@ -128,7 +128,7 @@ export function DataView() {
               active={tab === "lsq"}
               onClick={() => setTab("lsq")}
               icon={Webhook}
-              label="LeadSquared"
+              label="CRM"
               tone="violet"
             />
             <TabButton

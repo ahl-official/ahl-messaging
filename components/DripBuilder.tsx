@@ -416,7 +416,7 @@ export function DripBuilder({ onClose, editId }: { onClose: () => void; editId?:
             >
               <div className="space-y-2">
                 {filterFields.length === 0 ? (
-                  <p className="text-[11px] text-muted-foreground">LSQ fields load ho rahe…</p>
+                  <p className="text-[11px] text-muted-foreground">CRM fields load ho rahe…</p>
                 ) : (
                   filterFields.map((f) => {
                     const on = f.schema in conditions;

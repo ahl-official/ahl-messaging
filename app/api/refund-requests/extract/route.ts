@@ -1,6 +1,6 @@
 // POST /api/refund-requests/extract  { prospect_id, crm? }
 //
-// AI auto-fill for the refund form. Fetches the LSQ lead's package
+// AI auto-fill for the refund form. Fetches the CRM lead's package
 // fields (the same set the "Package Shared" section displays) and asks
 // gpt-4o-mini to map them into the refund form's structured columns.
 // Returns the extracted values as JSON so the form can prefill them.
@@ -22,21 +22,21 @@ const PACKAGE_RE =
   /graft|package|\bprp\b|inclus|technique|surgery|booking|\boffer\b|discount|quotation|installment|payment|refund|amount/i;
 const EXCLUDE_RE = /disposition|screenshot|stage|status|date_align/i;
 
-const SYSTEM = `You extract refund-form fields from a LeadSquared lead's package fields.
+const SYSTEM = `You extract refund-form fields from a CRM lead's package fields.
 
 Return STRICT JSON with these keys (use null when unknown — never invent):
 {
   "booking_date":      string | null,   // YYYY-MM-DD if you can parse it
-  "per_graft_rate":    number | null,   // INR per graft, digits only
-  "estimated_grafts":  number | null,   // count of grafts the patient was quoted
-  "booking_amount":    number | null,   // INR the patient ALREADY PAID for booking
+  "per_graft_rate":    number | null,   // INR per unit, digits only
+  "estimated_grafts":  number | null,   // count of units the client was quoted
+  "booking_amount":    number | null,   // INR the client ALREADY PAID for booking
   "refundable_amount": number | null    // INR refundable (often = booking_amount unless stated)
 }
 
 Rules:
 - Numbers: digits only, no commas, no currency symbol.
-- If multiple grafts numbers exist, prefer "Actual Grafts" > "Number Of Graft" > "Estimated".
-- booking_amount = booking advance the patient paid (NOT the total package).
+- If multiple unit counts exist, prefer "Actual Services" > "Number Of Service" > "Estimated".
+- booking_amount = booking advance the client paid (NOT the total package).
 - If refundable_amount isn't stated, mirror booking_amount.
 - Dates: ISO date only ("2025-12-30"), strip times.
 - Output ONLY the JSON object — no preamble, no markdown fence.`;
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ extracted: EMPTY, source: "empty" });
   }
 
-  const userMsg = `LeadSquared lead — package fields:\n\n${pkgFields
+  const userMsg = `CRM lead — package fields:\n\n${pkgFields
     .map(([k, v]) => `${humanise(k)}: ${v}`)
     .join("\n")}`;
 

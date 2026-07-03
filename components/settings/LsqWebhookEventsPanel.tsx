@@ -1,6 +1,6 @@
 "use client";
 
-// Recent LSQ webhook events with their FULL payloads — so a form submission's
+// Recent CRM webhook events with their FULL payloads — so a form submission's
 // exact payload can be inspected. Ring-buffered server-side (last 50/webhook).
 
 import { useCallback, useEffect, useState } from "react";

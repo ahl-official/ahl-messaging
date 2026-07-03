@@ -7,7 +7,7 @@
 //
 //   • Chat summary     — drives the "AI Summary" widget.
 //   • Reply suggestion — drives the "Suggested reply" widget.
-//   • Package Shared   — drives the "Package Shared" section (LSQ notes).
+//   • Package Shared   — drives the "Package Shared" section (CRM notes).
 //   • Output language  — language the package extract is written in.
 
 import { useCallback, useEffect, useState } from "react";
@@ -166,7 +166,7 @@ export function AiSettingsView() {
               <PromptCard
                 field="reply"
                 title="Reply suggestion prompt"
-                hint="What the AI follows when an agent clicks “Suggested reply”. It analyses the chat and drafts the next message — tuned to move the patient toward booking."
+                hint="What the AI follows when an agent clicks “Suggested reply”. It analyses the chat and drafts the next message — tuned to move the client toward booking."
                 initial={data.reply.prompt}
                 fallback={data.reply.default}
               />
@@ -181,7 +181,7 @@ export function AiSettingsView() {
               <PromptCard
                 field="package"
                 title="Package Shared prompt"
-                hint="What the AI follows for the “Package Shared” section. It reads the LSQ lead notes and pulls out only the package quoted to the patient."
+                hint="What the AI follows for the “Package Shared” section. It reads the CRM lead notes and pulls out only the package quoted to the client."
                 initial={data.package.prompt}
                 fallback={data.package.default}
               />
@@ -361,7 +361,7 @@ function LanguageCard({ initial }: { initial: Lang }) {
 
 // ── Booking confirmation template — name + language an owner can change ──
 // When a name is set, a confirmed booking is delivered as that WhatsApp
-// UTILITY template ({{1}}=patient name, {{2}}=date). Clearing the name
+// UTILITY template ({{1}}=client name, {{2}}=date). Clearing the name
 // falls back to a plain text message (inside the 24h window only).
 function BookingTemplateCard({
   initialName,
@@ -403,7 +403,7 @@ function BookingTemplateCard({
         <h2 className="text-sm font-semibold">Booking confirmation template</h2>
         <p className="mt-0.5 max-w-xl text-[11px] text-muted-foreground">
           When set, a confirmed Date Align booking is delivered as this approved
-          WhatsApp UTILITY template — {"{{1}}"} = patient name, {"{{2}}"} = date.
+          WhatsApp UTILITY template — {"{{1}}"} = client name, {"{{2}}"} = date.
           Leave the name blank to send a plain text message instead.
         </p>
       </div>

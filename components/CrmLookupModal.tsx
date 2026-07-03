@@ -1,7 +1,7 @@
 "use client";
 
 // Cross-CRM lead lookup modal. Opened from the inbox search when the
-// query is a phone / lead number — probes both LeadSquared accounts and
+// query is a phone / lead number — probes both CRM accounts and
 // shows where the lead exists, with full details per CRM.
 
 import { useEffect, useState } from "react";
@@ -227,7 +227,7 @@ function CrmBlock({
     setOpenError(null);
     try {
       const digits = lead.phone.replace(/\D/g, "");
-      // The same patient can be stored with or without the country-code
+      // The same client can be stored with or without the country-code
       // prefix depending on which side wrote the row (Meta webhook always
       // stamps "91…", manual entries sometimes drop it). Build a set of
       // plausible forms and accept any wa_id ending in our last-10 digits.
@@ -259,7 +259,7 @@ function CrmBlock({
             return w === digits || w === last10 || w.endsWith(last10);
           });
           if (matches.length > 0) {
-            // The same patient can have a contact row per business number
+            // The same client can have a contact row per business number
             // (Meta + Interakt etc.). Prefer the one on a number the
             // operator currently has toggled ON, so CRM-lookup opens the
             // chat for the number they're actually working in.
@@ -352,7 +352,7 @@ function CrmBlock({
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-secondary hover:text-foreground"
-            aria-label="Open in LeadSquared"
+            aria-label="Open in CRM"
           >
             <ExternalLink className="h-3 w-3" />
           </a>

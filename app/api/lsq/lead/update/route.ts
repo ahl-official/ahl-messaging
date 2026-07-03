@@ -1,6 +1,6 @@
 // PATCH /api/lsq/lead/update
 //
-// Operator-side edits to LSQ lead fields from the contact-details
+// Operator-side edits to CRM lead fields from the contact-details
 // panel. Each panel field has its own LSQ schema name; the client
 // sends `{contact_id, fields: {schema: value}}` and we push them via
 // Lead.Update (no SearchBy → no duplicate risk).
@@ -51,7 +51,7 @@ export async function PATCH(request: NextRequest) {
 
   const cfg = getLsqConfig();
   if (!cfg.configured) {
-    return NextResponse.json({ error: "LSQ not configured" }, { status: 500 });
+    return NextResponse.json({ error: "CRM not configured" }, { status: 500 });
   }
 
   const admin = createServiceRoleClient();
@@ -67,7 +67,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "No LSQ lead linked yet — the lead is created on the customer's first inbound. Try again after the next message.",
+          "No CRM lead linked yet — the lead is created on the customer's first inbound. Try again after the next message.",
       },
       { status: 409 },
     );
@@ -98,7 +98,7 @@ export async function PATCH(request: NextRequest) {
 
   // Mirror the panel's "Name" edit onto the local contact row so the
   // inbox / chat header pick it up immediately without waiting for the
-  // next LSQ refetch. Other LSQ fields stay LSQ-only — the panel reads
+  // next LSQ refetch. Other CRM fields stay LSQ-only — the panel reads
   // them through useLsqLead which fetches fresh on open.
   const firstName = body.fields["FirstName"];
   if (typeof firstName === "string" && firstName.trim()) {

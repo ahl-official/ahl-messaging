@@ -1,6 +1,6 @@
 // POST /api/lsq/ensure-lead
 //
-// Ensures the LSQ lead matching a contact's phone number exists, then
+// Ensures the CRM lead matching a contact's phone number exists, then
 // caches the prospect_id back on the contact row. Called fire-and-
 // forget by the inbound webhook for every new conversation so the
 // "WhatsApp message → CRM lead" handoff is automatic — no need for
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
   const c = contact;
 
   // Interakt numbers run their own CRM/routing by default, so a WhatsApp
-  // inbound must not create or re-attribute an LSQ lead — UNLESS this specific
+  // inbound must not create or re-attribute an CRM lead — UNLESS this specific
   // number has been opted in via its automation_config (enabled = true). Keeps
   // every other Interakt number untouched. (bpid is prefixed "interakt:".)
   if ((c.business_phone_number_id ?? "").startsWith("interakt:")) {
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
 
   // Reject WhatsApp synthetic IDs (LID / privacy / business / etc.).
   // These come through as 15-digit "numbers" with no real country code
-  // and were the source of 718 garbage LSQ leads at QHT before this
+  // and were the source of 718 garbage CRM leads at QHT before this
   // guard was added. Stamp lsq_synced_at so the nightly sync stops
   // retrying — there's nothing to retry.
   if (!isWaIdLikelyReal(c.wa_id)) {
@@ -176,7 +176,7 @@ export async function POST(request: NextRequest) {
   let updateLeadFields: Array<{ lsq_field: string; value: string }> = [];
   let updateExistingSource = false;
   let updateExistingMaxAgeDays: number | null = null;
-  // Meta ad-attribution → LSQ field pushes, resolved from this contact's
+  // Meta ad-attribution → CRM field pushes, resolved from this contact's
   // utm_params (Source ID / Ad Click ID / Campaign …).
   let fbAdFields: Array<{ Attribute: string; Value: string }> = [];
   if (contact.business_phone_number_id) {

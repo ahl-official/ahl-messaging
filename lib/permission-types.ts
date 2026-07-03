@@ -36,7 +36,7 @@ export const PANEL_LABEL: Record<PanelKey, string> = {
   quick_replies: "Quick Replies",
   automation: "Automation",
   calls: "Call history",
-  lsq: "LeadSquared",
+  lsq: "CRM",
   reports: "Reports",
   tasks: "Tasks",
   lead_distribution: "Lead Distribution",
@@ -103,7 +103,7 @@ export const CAPABILITY_KEYS = [
   "can_manage_team",
   "can_manage_numbers",
   "can_delete_labels",
-  // When true, the inbox only shows contacts whose LSQ lead owner
+  // When true, the inbox only shows contacts whose CRM lead owner
   // matches this user's email. Used to give junior agents a focused
   // queue without granting them full inbox access.
   "lsq_assigned_visibility_only",
@@ -140,14 +140,14 @@ export const CAPABILITY_DESCRIPTION: Record<CapabilityKey, string> = {
   can_manage_automation: "Edit auto-reply / drip / image-trigger flows.",
   can_make_calls: "Initiate outbound WhatsApp calls.",
   can_align_dates:
-    "Open Date Align in the composer — pick a patient's date or send a self-booking link.",
+    "Open Date Align in the composer — pick a client's date or send a self-booking link.",
   can_view_call_history: "See the full call log on /calls.",
   can_manage_team: "Invite, deactivate, change roles.",
   can_manage_numbers: "Connect / rename / activate WhatsApp numbers.",
   can_delete_labels:
     "Delete a workspace label (removes it from every contact too). Anyone can create + rename.",
   lsq_assigned_visibility_only:
-    "ON = user sees only chats whose LSQ lead owner is their email (focused queue). OFF = sees ALL chats on their allowed numbers.",
+    "ON = user sees only chats whose CRM lead owner is their email (focused queue). OFF = sees ALL chats on their allowed numbers.",
   can_sync_lsq_owner:
     "When this user reassigns a chat, also push the new owner to LSQ so the lead owner there stays in sync.",
 };
@@ -194,8 +194,8 @@ export const CAPABILITY_GROUPS: CapabilityGroup[] = [
   },
   {
     key: "lsq",
-    label: "LeadSquared",
-    description: "How chats relate to LSQ leads.",
+    label: "CRM",
+    description: "How chats relate to CRM leads.",
     keys: ["can_sync_lsq_owner"],
   },
 ];
@@ -354,7 +354,7 @@ export interface EffectivePermissions {
   can_delete_labels: boolean;
   lsq_assigned_visibility_only: boolean;
   can_sync_lsq_owner: boolean;
-  /** Date Align — pick a patient's date / send a self-booking link. */
+  /** Date Align — pick a client's date / send a self-booking link. */
   can_align_dates: boolean;
   /** Per-bpid override map. `numberAccessMode(perms, bpid)` resolves a
    *  specific number's mode honouring this map first, then the global
@@ -383,7 +383,7 @@ export function ownerPermissions(): EffectivePermissions {
     can_manage_team: true,
     can_manage_numbers: true,
     can_delete_labels: true,
-    // Owners see all chats (no LSQ filter) and DO sync to LSQ when
+    // Owners see all chats (no CRM filter) and DO sync to LSQ when
     // they reassign.
     lsq_assigned_visibility_only: false,
     can_sync_lsq_owner: true,

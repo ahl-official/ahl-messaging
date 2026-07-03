@@ -4,7 +4,7 @@
 // DELETE /api/evolution-groups?id=...      → delete (numbers fall back to "Ungrouped")
 //
 // Operator-defined clusters for Evolution (Baileys) numbers — typically
-// by city or clinic (Delhi / Noida / Haridwar …). Owner / superadmin
+// by city or salon (Mumbai / Noida / Mumbai …). Owner / superadmin
 // can manage; anyone can read for the picker.
 
 import { NextResponse, type NextRequest } from "next/server";

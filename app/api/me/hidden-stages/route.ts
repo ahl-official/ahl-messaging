@@ -1,7 +1,7 @@
 // GET  /api/me/hidden-stages              — { hidden: string[] }
 // PUT  /api/me/hidden-stages  { hidden }   — replace the caller's list
 //
-// Per-agent preference for which LSQ stages to hide from the inbox
+// Per-agent preference for which CRM stages to hide from the inbox
 // funnel strip. Stored on team_members.hidden_stages so it syncs
 // across the agent's devices.
 

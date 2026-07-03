@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
   // metacharacters that have meaning in the filter grammar.
   const safeQ = q.replace(/[,()\\]/g, " ").trim();
 
-  // Build OR filter: wa_id / LSQ lead number contain the digits, OR name /
+  // Build OR filter: wa_id / CRM lead number contain the digits, OR name /
   // profile_name / lead number / prospect id ilike the raw query. The LSQ
   // lead number is the operator's main "find this lead" handle, so a lead-id
   // search (e.g. "9045454045") must hit it even when that contact is outside
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Annotate each row with the business number's display label — same
-  // patient can have one contact row per connected number, and without
+  // client can have one contact row per connected number, and without
   // this label the operator can't tell those rows apart.
   const bpids = Array.from(
     new Set(

@@ -111,7 +111,7 @@ export async function GET(_request: NextRequest, { params }: { params: { id: str
       .update({ utm_params: { ...(utm ?? {}), ...resolved, _ad_resolved: "1" } })
       .eq("id", params.id);
 
-    // Now that campaign / ad set / ad names exist, re-run the LSQ sync so
+    // Now that campaign / ad set / ad names exist, re-run the CRM sync so
     // any "Facebook Ads fields" mappings (campaign etc.) reach the CRM.
     // Fire-and-forget; the route gates on the per-number config itself.
     void pushFbAdFieldsToLsq(params.id);

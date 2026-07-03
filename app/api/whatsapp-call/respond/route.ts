@@ -196,7 +196,7 @@ export async function POST(request: NextRequest) {
       })
       .eq("wa_call_id", payload.call_id);
 
-    // Unknown caller — call leg has no contact_id because the patient
+    // Unknown caller — call leg has no contact_id because the client
     // had never messaged this business number before. Auto-create the
     // contact row so the agent can click through to a real chat thread
     // post-call, and back-link it on the call row. The wa_id comes

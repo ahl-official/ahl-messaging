@@ -2,9 +2,9 @@
 
 // Voice / audio bubble renderer. The default <audio controls> looked
 // busted on dark chat backgrounds (huge grey strip). This wrapper
-// gives it a clinic-themed shell + an inline "Show transcript" toggle
+// gives it a salon-themed shell + an inline "Show transcript" toggle
 // that loads the cached transcript (or kicks one off) so the operator
-// can read what the patient said without listening.
+// can read what the client said without listening.
 
 import { useEffect, useState } from "react";
 import { ChevronDown, Loader2, Mic, Sparkles } from "lucide-react";

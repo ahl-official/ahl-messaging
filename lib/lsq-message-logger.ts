@@ -1,4 +1,4 @@
-// One-call helper to log a WhatsApp message onto an LSQ lead's
+// One-call helper to log a WhatsApp message onto an CRM lead's
 // activity timeline. Used by both the inbound webhook and every
 // outbound send path (manual reply, AI reply, Magic Message,
 // templates) so every chat turn shows up in LSQ reporting.
@@ -9,7 +9,7 @@
 //
 // ActivityNote format:
 //   "<role-prefix> : <message text> - (Insta WA <display_phone>)"
-// where role-prefix is "Patient" for Inbound, "AI Reply" when the bot
+// where role-prefix is "Client" for Inbound, "AI Reply" when the bot
 // sent it, and "Agent Reply" for everything else outbound. The "(Insta
 // WA …)" suffix stays so existing LSQ Smart Views keep grouping.
 
@@ -21,10 +21,10 @@ import {
 } from "@/lib/lsq";
 
 export type MessageDirection = "Inbound" | "Outbound";
-/** Who actually sent the message. Drives the "Patient : / AI Reply : /
+/** Who actually sent the message. Drives the "Client : / AI Reply : /
  *  Agent Reply :" prefix on the LSQ activity note. Optional — defaults
- *  to "patient" for Inbound and "agent" for Outbound. */
-export type MessageSender = "patient" | "ai" | "agent";
+ *  to "client" for Inbound and "agent" for Outbound. */
+export type MessageSender = "client" | "ai" | "agent";
 
 export interface LogWhatsappActivityInput {
   /** Internal contact UUID — we look up wa_id + lsq_prospect_id from
@@ -71,7 +71,7 @@ export async function logWhatsappActivityToLSQ(
   // very first inbound message for a brand-new contact can race ahead
   // of it and find no prospect_id cached. Before giving up, do a
   // synchronous phone-lookup against LSQ — if the lead already exists
-  // (common: patient is in CRM but new on WhatsApp), cache the
+  // (common: client is in CRM but new on WhatsApp), cache the
   // prospect_id back onto the contact so this branch self-heals from
   // message #1. Only the create-fresh case (genuinely-new lead) still
   // falls through to ensure-lead.
@@ -152,15 +152,15 @@ export async function logWhatsappActivityToLSQ(
   const suffixContent = configuredSuffix || (displayPhone ? `WhatsApp ${displayPhone}` : "");
   const noteSuffix = suffixContent ? ` - (${suffixContent})` : "";
 
-  // Role prefix — "Patient : " for inbound, "AI Reply : " when the bot
+  // Role prefix — "Client : " for inbound, "AI Reply : " when the bot
   // generated it, "Agent Reply : " for operator-sent messages. Default
   // sender is derived from direction so existing call-sites don't have
   // to pass it.
   const sender: MessageSender =
-    input.sender ?? (input.direction === "Inbound" ? "patient" : "agent");
+    input.sender ?? (input.direction === "Inbound" ? "client" : "agent");
   const prefix =
-    sender === "patient"
-      ? "Patient"
+    sender === "client"
+      ? "Client"
       : sender === "ai"
         ? "AI Reply"
         : "Agent Reply";

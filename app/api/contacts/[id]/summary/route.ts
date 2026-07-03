@@ -42,11 +42,11 @@ export async function POST(
   }
 
   const rows = (data ?? []) as MsgRow[];
-  // Render each message as "Patient: …" / "Agent: …". Media-only rows
+  // Render each message as "Client: …" / "Agent: …". Media-only rows
   // become a "[image]" style placeholder so context isn't lost.
   const lines = rows
     .map((m) => {
-      const who = m.direction === "inbound" ? "Patient" : "Agent";
+      const who = m.direction === "inbound" ? "Client" : "Agent";
       const text = (m.content ?? "").trim();
       const body = text || (m.type && m.type !== "text" ? `[${m.type}]` : "");
       return body ? `${who}: ${body}` : null;
@@ -70,7 +70,7 @@ export async function POST(
   }
   const langInstruction =
     language === "hinglish"
-      ? "\n\nWrite the summary in Hinglish — conversational Hindi in Roman (English) script, e.g. \"Patient ne order confirm kiya\". Natural and casual, not formal Hindi."
+      ? "\n\nWrite the summary in Hinglish — conversational Hindi in Roman (English) script, e.g. \"Client ne order confirm kiya\". Natural and casual, not formal Hindi."
       : "\n\nWrite the summary in clear, simple English.";
 
   const systemPrompt = (await getAiSummaryPrompt()) + langInstruction;

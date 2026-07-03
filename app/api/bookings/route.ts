@@ -2,7 +2,7 @@
 //   { contact_id }          → create a pending booking, return the public link
 //   { contact_id, date }    → agent aligns a date directly (confirm now)
 //
-// Agent-only (logged-in member). The public patient flow lives under
+// Agent-only (logged-in member). The public client flow lives under
 // /api/book/[token].
 
 import { NextResponse, type NextRequest } from "next/server";
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
   const base = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "";
   const link = `${base}/book/${token}`;
 
-  // Agent aligned a date directly → confirm it now (+ notify the patient).
+  // Agent aligned a date directly → confirm it now (+ notify the client).
   if (date) {
     const res = await finalizeBooking(admin, inserted as BookingRow, date, "agent", {
       title,
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ booking: res.booking, link });
   }
 
-  // Otherwise it's a pending link. Optionally WhatsApp it to the patient now.
+  // Otherwise it's a pending link. Optionally WhatsApp it to the client now.
   if (body.send_link) {
     void sendBookingLink(admin, inserted as BookingRow, link).catch(() => {});
   }

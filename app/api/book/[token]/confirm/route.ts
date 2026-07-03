@@ -1,5 +1,5 @@
 // POST /api/book/[token]/confirm  { date: "YYYY-MM-DD" } — public.
-// The patient picked a date. Re-validate availability, write the Google
+// The client picked a date. Re-validate availability, write the Google
 // Calendar event, mark confirmed. No auth (token is the credential).
 
 import { NextResponse, type NextRequest } from "next/server";
@@ -42,12 +42,12 @@ export async function POST(
     return NextResponse.json({ error: "This link has expired." }, { status: 410 });
   }
 
-  const res = await finalizeBooking(admin, booking as BookingRow, date, "patient");
+  const res = await finalizeBooking(admin, booking as BookingRow, date, "client");
   if (!res.ok) {
     return NextResponse.json({ error: res.error }, { status: 409 });
   }
 
-  // Best-effort: WhatsApp confirmation template + LSQ push + chat bubble.
+  // Best-effort: WhatsApp confirmation template + CRM push + chat bubble.
   void notifyBookingConfirmed(admin, res.booking!).catch(() => {});
 
   return NextResponse.json({ status: "confirmed", booking_date: date });

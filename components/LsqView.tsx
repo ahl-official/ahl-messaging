@@ -1,6 +1,6 @@
 "use client";
 
-// Settings → LeadSquared. Owner-only configuration / status page for
+// Settings → CRM. Owner-only configuration / status page for
 // the LSQ CRM integration. Configuration lives in .env.local
 // (LSQ_HOST + LSQ_ACCESS_KEY + LSQ_SECRET_KEY) — this page only shows
 // whether each is set and offers a "Test connection" button that
@@ -102,7 +102,7 @@ export function LsqView() {
     <div className="flex h-full flex-col bg-secondary/30">
       <PremiumHeader
         icon={Database}
-        title="LeadSquared"
+        title="CRM"
         subtitle="CRM integration for lead capture, status sync, and activity logging."
         tone="violet"
         right={
@@ -227,25 +227,25 @@ export function LsqView() {
             ) : null}
           </section>
 
-          {/* Live webhook — LSQ pushes every lead-stage change here so
+          {/* Live webhook — CRM pushes every lead-stage change here so
               the inbox reflects it without a re-sync. */}
           <LsqWebhookGenerator />
 
           {/* Full payload log of recent webhook events (form submissions etc.). */}
           <LsqWebhookEventsPanel />
 
-          {/* One-time bulk backfill — exports LSQ leads and caches stage /
+          {/* One-time bulk backfill — exports CRM leads and caches stage /
               lead # / owner on matching contacts. */}
           <LsqBackfillPanel configured={!!status?.configured} />
 
           {/* Backfill Source/Sub-source onto blank leads from the number the
-              patient first chatted on. */}
+              client first chatted on. */}
           <LsqFirstChatFillPanel configured={!!status?.configured} />
 
           {/* Failed pushes (rate-limit) + auto-retry status. */}
           <LsqPushFailuresPanel />
 
-          {/* Nightly Evolution → LSQ sync, scheduled by IST clock time. */}
+          {/* Nightly Evolution → CRM sync, scheduled by IST clock time. */}
           <NightlySyncPanel configured={!!status?.configured} />
 
           <EvolutionLeadCreateToggle configured={!!status?.configured} />
@@ -274,7 +274,7 @@ export function LsqView() {
               <FeatureRow
                 state="now"
                 title="Lead lookup in contact panel"
-                description="Show LSQ lead score, owner, stage, and recent activity inline next to the chat."
+                description="Show CRM lead score, owner, stage, and recent activity inline next to the chat."
               />
               <FeatureRow
                 state="now"
@@ -284,7 +284,7 @@ export function LsqView() {
               <FeatureRow
                 state="planned"
                 title="Stage transitions"
-                description="Update LSQ stage when an agent marks a chat as resolved or applies a specific tag."
+                description="Update CRM stage when an agent marks a chat as resolved or applies a specific tag."
               />
             </ul>
           </section>
@@ -292,7 +292,7 @@ export function LsqView() {
           <section className="rounded-xl border bg-card px-5 py-4 text-xs">
             <div className="font-semibold">Where do I find these keys?</div>
             <ol className="mt-2 list-decimal space-y-1 pl-4 text-muted-foreground">
-              <li>Log in to LeadSquared as an admin.</li>
+              <li>Log in to CRM as an admin.</li>
               <li>
                 Settings → API and Webhooks → <strong>API Access Credentials</strong>.
               </li>
@@ -377,7 +377,7 @@ interface FbAdsField {
   source: string;
 }
 
-// Workspace-wide kill switch for LSQ lead creation from Evolution
+// Workspace-wide kill switch for CRM lead creation from Evolution
 // (Baileys) numbers. When OFF, every Evolution-provider inbound skips
 // the LSQ /ensure-lead path — useful when those numbers flood the CRM
 // with junk leads. Meta numbers are unaffected.
@@ -437,7 +437,7 @@ function EvolutionLeadCreateToggle({ configured }: { configured: boolean }) {
   return (
     <section className="overflow-hidden rounded-xl border bg-card shadow-sm">
       <header className="border-b px-5 py-3.5">
-        <h2 className="text-sm font-semibold">Evolution → LSQ lead creation</h2>
+        <h2 className="text-sm font-semibold">Evolution → CRM lead creation</h2>
         <p className="mt-0.5 text-[11px] text-muted-foreground">
           Global kill switch for all Evolution (Baileys) WhatsApp numbers.
           When OFF, no leads are created in LSQ from any Evolution number.
@@ -446,7 +446,7 @@ function EvolutionLeadCreateToggle({ configured }: { configured: boolean }) {
       </header>
       <div className="flex items-start justify-between gap-3 px-5 py-4">
         <div className="min-w-0">
-          <div className="text-sm font-semibold">Create LSQ leads from Evolution numbers</div>
+          <div className="text-sm font-semibold">Create CRM leads from Evolution numbers</div>
           <div className="mt-0.5 text-[11px] text-muted-foreground">
             Turn OFF if Evolution-side inbounds are pushing too many junk
             leads into LSQ. Re-enable any time.
@@ -918,7 +918,7 @@ function LeadDefaultsForNumber({
 
       <footer className="flex items-center justify-between gap-2 border-t bg-secondary/30 px-5 py-3">
         <div className="text-xs text-muted-foreground">
-          {!disabled ? null : "LSQ keys not configured — defaults won't apply yet."}
+          {!disabled ? null : "CRM keys not configured — defaults won't apply yet."}
           {err ? (
             <span className="inline-flex items-center gap-1.5 text-destructive">
               <AlertTriangle className="h-3.5 w-3.5" /> {err}
@@ -947,7 +947,7 @@ function LeadDefaultsForNumber({
   );
 }
 
-// Editor for the Facebook-ad → LSQ field mappings. Each row picks which
+// Editor for the Facebook-ad → CRM field mappings. Each row picks which
 // ad value (Source ID / Ad Click ID / Campaign …) flows into which LSQ
 // schema field. Mirrors LeadDefaultsEditor's add/remove pattern.
 function FbAdsEditor({

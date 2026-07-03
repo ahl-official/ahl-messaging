@@ -3,7 +3,7 @@
 // Same session, same permission resolution, same components as the main
 // dashboard — just none of its chrome. The CRM frames this at:
 //   https://wa.hairmedindia.com/embed/inbox?wa=<E.164 digits, no +>
-// When `wa` is present the embed LOCKS to that one patient's conversation:
+// When `wa` is present the embed LOCKS to that one client's conversation:
 // the inbox sidebar is hidden and only that chat opens. If no thread exists
 // yet, an empty chat for that number opens ready to send the first message —
 // it never falls back to the inbox or auto-selects another contact. Optional
@@ -127,7 +127,7 @@ export default async function EmbedInboxPage({
     // Normalize the country code by comparing the trailing 10-digit national
     // part on BOTH sides (CRM may send "9190…", stored may be "90…" or vice
     // versa). Short numbers (<10 digits) match exact-only — a loose suffix
-    // would lock onto an unrelated patient. We pick by national EQUALITY,
+    // would lock onto an unrelated client. We pick by national EQUALITY,
     // never an arbitrary most-recent suffix hit.
     const reqNat = wa.length >= 10 ? wa.slice(-10) : wa;
     const orClause =
@@ -149,10 +149,10 @@ export default async function EmbedInboxPage({
     const { data: matches } = await lookup;
     const rows = (matches ?? []) as Contact[];
 
-    // Exact wa_id wins. Else a SINGLE unambiguous national match (same patient,
+    // Exact wa_id wins. Else a SINGLE unambiguous national match (same client,
     // possibly on >1 of their numbers → most-recent row). Two distinct numbers
     // sharing the trailing 10 digits = ambiguous → open a fresh empty chat for
-    // the exact requested number rather than guessing the wrong patient.
+    // the exact requested number rather than guessing the wrong client.
     let existing: Contact | null = rows.find((c) => c.wa_id === wa) ?? null;
     if (!existing && reqNat.length === 10) {
       const natMatches = rows.filter(

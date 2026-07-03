@@ -1,8 +1,8 @@
-// LeadSquared → dashboard webhook plumbing. Server-only.
+// CRM → dashboard webhook plumbing. Server-only.
 //
-// LSQ pushes lead/activity updates to a static URL that carries a secret
+// CRM pushes lead/activity updates to a static URL that carries a secret
 // in its path (`/api/lsq/webhook/<secret>`). The handler parses whatever
-// shape LSQ sends, pulls out the lead's stage / owner / number, and
+// shape CRM sends, pulls out the lead's stage / owner / number, and
 // mirrors it onto the matching `contacts` row(s) — so the inbox stage
 // chip + filter strip stay correct without anyone opening the chat.
 //
@@ -20,7 +20,7 @@ const LSQ_WEBHOOKS_KEY = "lsq_webhooks";
 export const LSQ_WEBHOOK_LAST_PAYLOAD_KEY = "lsq_webhook_last_payload";
 
 // Legacy single-webhook keys — migrated into the list on first read so
-// a URL already pasted into LSQ keeps working.
+// a URL already pasted into CRM keeps working.
 const LEGACY_SECRET_KEY = "lsq_webhook_secret";
 const LEGACY_LAST_RECEIVED_KEY = "lsq_webhook_last_received_at";
 const LEGACY_EVENT_COUNT_KEY = "lsq_webhook_event_count";

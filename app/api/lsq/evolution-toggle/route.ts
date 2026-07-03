@@ -1,7 +1,7 @@
 // GET  /api/lsq/evolution-toggle  → { enabled: boolean }
 // PUT  /api/lsq/evolution-toggle  body { enabled: boolean }
 //
-// Global on/off for LSQ lead creation from Evolution (Baileys)
+// Global on/off for CRM lead creation from Evolution (Baileys)
 // WhatsApp numbers. Owner-only. When OFF, /api/lsq/ensure-lead skips
 // every inbound on a number whose provider is 'evolution'.
 

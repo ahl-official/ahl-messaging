@@ -1,7 +1,7 @@
-// Payment account storage helpers. One record per (clinic, provider,
-// account) — each clinic (American Hairline, Alchemane) can have many Razorpay accounts
+// Payment account storage helpers. One record per (salon, provider,
+// account) — each salon (American Hairline, Alchemane) can have many Razorpay accounts
 // + many PayU accounts side by side, with exactly ONE marked active
-// per clinic.
+// per salon.
 //
 // Also exposes virtual ".env.local" accounts (assigned to American Hairline) when env
 // vars are set but no DB row exists — so existing installs keep working
@@ -66,7 +66,7 @@ export async function listPaymentAccounts(): Promise<PaymentAccount[]> {
   return out;
 }
 
-/** The active account for a clinic, or null if none. Falls back to the
+/** The active account for a salon, or null if none. Falls back to the
  *  env account (American Hairline-only) when no DB row is active for that clinic. */
 export async function getActiveAccountForClinic(
   clinic: Clinic,
@@ -179,8 +179,8 @@ export async function setActiveAccount(id: string): Promise<void> {
     .eq("id", id)
     .maybeSingle();
   if (!target?.clinic) return;
-  // 2-step swap scoped to the row's clinic — partial unique index on
-  // (clinic) where is_active=true would block a single UPDATE flipping
+  // 2-step swap scoped to the row's salon — partial unique index on
+  // (salon) where is_active=true would block a single UPDATE flipping
   // two rows simultaneously.
   await admin
     .from("payment_accounts")

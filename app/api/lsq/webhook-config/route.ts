@@ -1,4 +1,4 @@
-// LSQ webhook management — owner-only. Powers the LeadSquared card.
+// CRM webhook management — owner-only. Powers the CRM card.
 //
 //   GET    /api/lsq/webhook-config        → list webhooks + status
 //   POST   /api/lsq/webhook-config        → create a named webhook  {name}

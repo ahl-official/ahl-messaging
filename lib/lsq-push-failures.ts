@@ -1,6 +1,6 @@
-// LSQ push-failure queue. A failed Source/Sub-source push (usually an LSQ rate
+// CRM push-failure queue. A failed Source/Sub-source push (usually an LSQ rate
 // limit) is parked here and re-tried by the 2-minute heartbeat until it lands
-// or gives up. The LSQ settings panel reads this to show what failed + whether
+// or gives up. The CRM settings panel reads this to show what failed + whether
 // the retry pushed. Server-only.
 
 import { createServiceRoleClient } from "@/lib/supabase/server";

@@ -1,5 +1,5 @@
 // Portfolios — read from .env.local only. No DB. No UI mutations.
-// Each portfolio is one Meta Business App (URoots, QHT Clinic, …).
+// Each portfolio is one Meta Business App (URoots, QHT Salon, …).
 //
 // Env shape:
 //   PORTFOLIO_KEYS=UROOTS,QHT_CLINIC
@@ -12,7 +12,7 @@
 //   PORTFOLIO_UROOTS_PHONE_IDS=1186098484633497,1234567890
 //   PORTFOLIO_UROOTS_DISPLAY_NAME=URoots
 //
-//   PORTFOLIO_QHT_CLINIC_NAME="QHT Clinic"
+//   PORTFOLIO_QHT_CLINIC_NAME="QHT Salon"
 //   …
 //
 // Server-only — never import from a client component.

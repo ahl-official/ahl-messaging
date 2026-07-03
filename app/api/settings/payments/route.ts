@@ -1,4 +1,4 @@
-// GET  /api/settings/payments  → { accounts: [...with .clinic], auto_receipt: {americanhairline, alchemane}, webhook_base_url }
+// GET  /api/settings/payments  → { accounts: [...with .salon], auto_receipt: {americanhairline, alchemane}, webhook_base_url }
 // PUT  /api/settings/payments  → body { auto_receipt_americanhairline?: bool, auto_receipt_alchemane?: bool }
 //                                 (account-active flips go through the dedicated routes below)
 //
@@ -27,7 +27,7 @@ export async function GET() {
     ...CLINICS.map((c) => getAppSetting(paymentsAutoReceiptKey(c))),
   ]);
   // Strip secrets before returning — UI only needs label + provider +
-  // clinic + active flag. Editing keys uses the dedicated POST endpoint.
+  // salon + active flag. Editing keys uses the dedicated POST endpoint.
   const safe = accounts.map((a) => ({
     id: a.id,
     clinic: a.clinic,

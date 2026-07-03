@@ -36,7 +36,7 @@ export async function GET(
   // button_clicked column):
   //   • clicked_count        — recipients who tapped a button at all.
   //   • workflow_completion  — how FAR tappers got through the
-  //     template-reply workflow (0–100%). Each reply-step the patient
+  //     template-reply workflow (0–100%). Each reply-step the client
   //     answers counts; finishing the flow = 100%, halfway = ~50%. The
   //     campaign value is the average across everyone who tapped.
   let clickedCount = 0;
@@ -108,7 +108,7 @@ export async function GET(
       clickedCount = tappers.size;
       repliedCount = repliers.size;
 
-      // Flow depth = number of nodes that wait for a patient reply
+      // Flow depth = number of nodes that wait for a client reply
       // (wait_reply + message_buttons) in the template-reply flow this
       // campaign's template triggers. That's how many answers = 100%.
       let flowSteps = 0;

@@ -1193,7 +1193,7 @@ function CreateWizard({ onClose, onCreated }: { onClose: () => void; onCreated: 
   const [recipientsSource, setRecipientsSource] = useState<"all" | "tags" | "csv" | "lsq">("all");
   const [tagsInput, setTagsInput] = useState("");
   const [csvText, setCsvText] = useState("");
-  // LSQ filter state
+  // CRM filter state
   const [lsqStages, setLsqStages] = useState<string[]>([]);
   const [lsqOwners, setLsqOwners] = useState<string[]>([]);
   const [lsqSources, setLsqSources] = useState<string[]>([]);
@@ -1208,7 +1208,7 @@ function CreateWizard({ onClose, onCreated }: { onClose: () => void; onCreated: 
   // Schedule + rate
   const [sendNow, setSendNow] = useState(true);
   const [scheduleAt, setScheduleAt] = useState("");
-  // Recurring (dynamic) — re-run daily against the rolling LSQ filter.
+  // Recurring (dynamic) — re-run daily against the rolling CRM filter.
   const [repeatDaily, setRepeatDaily] = useState(false);
   // Auto-pull on Continue (when the operator skips the manual "Fetch from LSQ").
   const [autoPulling, setAutoPulling] = useState(false);
@@ -1392,7 +1392,7 @@ function CreateWizard({ onClose, onCreated }: { onClose: () => void; onCreated: 
     }
   }
 
-  // Pull LSQ leads from the current filter (same as the panel's "Fetch" button).
+  // Pull CRM leads from the current filter (same as the panel's "Fetch" button).
   async function pullLsqLeads() {
     setAutoPulling(true);
     try {
@@ -1417,13 +1417,13 @@ function CreateWizard({ onClose, onCreated }: { onClose: () => void; onCreated: 
       if (!res.ok || !json.ok) throw new Error(json.error ?? `HTTP ${res.status}`);
       setLsqDirectLeads(json.leads ?? []);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "LSQ fetch failed");
+      setError(e instanceof Error ? e.message : "CRM fetch failed");
     } finally {
       setAutoPulling(false);
     }
   }
 
-  // On reaching the Schedule step with an LSQ filter but no fetched leads yet
+  // On reaching the Schedule step with an CRM filter but no fetched leads yet
   // (operator skipped the manual "Fetch from LSQ"), auto-pull so they see the
   // recipient list + count without going back.
   useEffect(() => {
@@ -2165,7 +2165,7 @@ function sampleValueFor(key: string): string {
   if (k.includes("date")) return "12 May 4PM";
   if (k.includes("time")) return "4:00 PM";
   if (k.includes("doctor") || k.includes("dr")) return "Dr. Mehta";
-  if (k.includes("clinic") || k.includes("city")) return "Mumbai";
+  if (k.includes("salon") || k.includes("city")) return "Mumbai";
   if (k.includes("amount") || k.includes("price") || k.includes("cost")) return "5000";
   if (k.includes("code") || k.includes("otp")) return "482910";
   if (k.includes("link") || k.includes("url")) return "https://americanhairline.com/x";
@@ -2175,11 +2175,11 @@ function sampleValueFor(key: string): string {
 const MAGIC_PROMPT_PRESETS = [
   {
     label: "Follow-up reminder",
-    text: `Start with "Hi {{name}}," then warmly remind the patient about their upcoming follow-up appointment. Mention we'd love to know how their recovery has been so far. Ask if they have any questions or concerns. End with "Reply STOP to opt out." Keep it 40-60 words.`,
+    text: `Start with "Hi {{name}}," then warmly remind the client about their upcoming follow-up appointment. Mention we'd love to know how their recovery has been so far. Ask if they have any questions or concerns. End with "Reply STOP to opt out." Keep it 40-60 words.`,
   },
   {
     label: "Re-engagement",
-    text: `Greet "{{name}}" by name. Mention we noticed they were considering a hair-transplant consultation a while back, and we'd love to help them take the next step. Offer to share recent patient results or book a free 15-min call. Keep it short, no pressure.`,
+    text: `Greet "{{name}}" by name. Mention we noticed they were considering a hair-treatment consultation a while back, and we'd love to help them take the next step. Offer to share recent client results or book a free 15-min call. Keep it short, no pressure.`,
   },
   {
     label: "Festival / offer",
@@ -2187,7 +2187,7 @@ const MAGIC_PROMPT_PRESETS = [
   },
   {
     label: "Photo request",
-    text: `Address "{{name}}" by name. Politely ask them to share 2-3 clear scalp photos (front, top, side) so our medical team can review and call back with an accurate plan. Reassure that the photos stay private with the clinic.`,
+    text: `Address "{{name}}" by name. Politely ask them to share 2-3 clear scalp photos (front, top, side) so our medical team can review and call back with an accurate plan. Reassure that the photos stay private with the salon.`,
   },
 ];
 
@@ -2259,7 +2259,7 @@ function Step2Magic({
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           rows={6}
-          placeholder={`Hi {{name}}, remind the patient about their upcoming follow-up. Ask if they have any questions, mention we're here to help.`}
+          placeholder={`Hi {{name}}, remind the client about their upcoming follow-up. Ask if they have any questions, mention we're here to help.`}
           className="w-full resize-y rounded-md border bg-background px-3 py-2 text-sm leading-relaxed outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
         />
       </div>
@@ -2467,7 +2467,7 @@ function CsvUploader({
           <li>
             <strong>Optional:</strong>{" "}
             <code className="rounded bg-violet-100 px-1 py-0.5 font-mono">display_name</code> —
-            patient name (auto-fills <code className="font-mono">{"{{name}}"}</code> in templates).
+            client name (auto-fills <code className="font-mono">{"{{name}}"}</code> in templates).
           </li>
           <li>
             <strong>Template variables:</strong> any other column matches the placeholder
@@ -2994,7 +2994,7 @@ function LsqFilterPanel({
               Fetch live from LSQ
             </div>
             <p className="mt-0.5 text-[11px] text-emerald-900/85">
-              Pulls all matching leads directly from LeadSquared (not the local cache). Up to 5,000 leads.
+              Pulls all matching leads directly from CRM (not the local cache). Up to 5,000 leads.
             </p>
           </div>
           <button
@@ -3080,7 +3080,7 @@ function LsqFilterPanel({
 
       <p className="text-[10px] text-muted-foreground">
         <strong>Local-cache mode:</strong> default — uses the lsq_stage already on each contact
-        (synced via Settings → LeadSquared → Sync all).
+        (synced via Settings → CRM → Sync all).
         <br />
         <strong>Live LSQ mode:</strong> click <em>Fetch from LSQ</em> above to pull straight from LSQ —
         works even for leads that haven&apos;t been synced locally yet. All filters AND together.
@@ -4234,7 +4234,7 @@ function ConversionsCard({
           {!hasAny && !loading ? " · abhi koi conversion nahi" : ""}
         </div>
       ) : loading ? (
-        <div className="border-t px-4 py-2 text-[10px] text-muted-foreground">LSQ se stages check ho rahe hain…</div>
+        <div className="border-t px-4 py-2 text-[10px] text-muted-foreground">CRM se stages check ho rahe hain…</div>
       ) : null}
     </div>
   );
@@ -4700,7 +4700,7 @@ function RecipientStatusBadge({ status }: { status: string }) {
 
 // ---------------------------------------------------------------------------
 // RECURRING (DAILY DYNAMIC) CAMPAIGNS — list + manage. Each re-runs daily
-// against a rolling LSQ filter, sending the template to NEW matches only.
+// against a rolling CRM filter, sending the template to NEW matches only.
 // ---------------------------------------------------------------------------
 interface RecurringRow {
   id: string;
@@ -4773,7 +4773,7 @@ function RecurringList({ onBack }: { onBack: () => void }) {
       <PremiumHeader
         icon={Clock}
         title="Daily campaigns"
-        subtitle="Dynamic — har din LSQ filter dobara chalega, sirf naye matching leads ko template jaayega (ek lead ek hi baar)."
+        subtitle="Dynamic — har din CRM filter dobara chalega, sirf naye matching leads ko template jaayega (ek lead ek hi baar)."
         tone="emerald"
         right={
           <button

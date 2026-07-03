@@ -168,7 +168,7 @@ type WAMessage = {
     type?: "button_reply" | "list_reply" | "call_permission_reply";
     button_reply?: { id?: string; title?: string };
     list_reply?: { id?: string; title?: string; description?: string };
-    // Patient's response to a Call Permission Request. `response` is
+    // Client's response to a Call Permission Request. `response` is
     // "accept" or "reject"; `expiration_timestamp` (epoch sec) is set on
     // accept and tells us when the grant lapses.
     call_permission_reply?: {
@@ -442,8 +442,8 @@ async function processWebhook(body: WAWebhookBody) {
         const storedType = cprResponse ? "call_permission_reply" : msg.type;
         const storedContent = cprResponse
           ? cprResponse === "accept"
-            ? "✅ Patient granted call permission. You can place WhatsApp calls."
-            : "🚫 Patient denied call permission."
+            ? "✅ Client granted call permission. You can place WhatsApp calls."
+            : "🚫 Client denied call permission."
           : extractContent(msg);
 
         // Quoted-reply context — when the customer swipe-replies to one
@@ -500,7 +500,7 @@ async function processWebhook(body: WAWebhookBody) {
           direction: "inbound",
         });
 
-        // Persist the patient's accept/reject onto whatsapp_call_permissions
+        // Persist the client's accept/reject onto whatsapp_call_permissions
         // so the next dial bypasses CPR (for accept) or surfaces the
         // denial (for reject).
         if (cprResponse) {
@@ -531,7 +531,7 @@ async function processWebhook(body: WAWebhookBody) {
         // webhook stays under Meta's 5s response budget; the processor
         // route handles its own DB writes + send. If automation is off
         // or the contact doesn't qualify, the processor logs "skipped".
-        // Log this inbound onto the LSQ activity timeline. Fire-and-
+        // Log this inbound onto the CRM activity timeline. Fire-and-
         // forget — never blocks the webhook ack. The helper exits early
         // if the contact doesn't have an LSQ prospect_id yet.
         //
@@ -679,10 +679,10 @@ async function processWebhook(body: WAWebhookBody) {
               });
             }
 
-            // Fire-and-forget LSQ lead create-or-update. Idempotent —
+            // Fire-and-forget CRM lead create-or-update. Idempotent —
             // the route exits immediately if the contact already has
             // a cached prospect_id. First WhatsApp message from a new
-            // number ⇒ a fresh LSQ lead is created automatically;
+            // number ⇒ a fresh CRM lead is created automatically;
             // existing leads get matched by phone and refreshed.
             fetch(`${origin}/api/lsq/ensure-lead`, {
               method: "POST",
@@ -931,11 +931,11 @@ async function processWebhook(body: WAWebhookBody) {
         let contactId: string | null = null;
         let lsqOwnerEmail: string | null = null;
         if (counterpartWaId) {
-          // Scope to the number that received the call. The SAME patient
+          // Scope to the number that received the call. The SAME client
           // can have one contact row per business number, so matching on
           // wa_id alone is ambiguous — .maybeSingle() throws on multiple
           // rows, which left contact_id null and the ringing banner stuck
-          // on "Calling…" for any patient reachable on >1 number.
+          // on "Calling…" for any client reachable on >1 number.
           const { data: c } = await supabase
             .from("contacts")
             .select("id, lsq_owner_email")
@@ -950,7 +950,7 @@ async function processWebhook(body: WAWebhookBody) {
           } else if (call.direction !== "business_initiated") {
             // Inbound caller with no contact on THIS number yet — create
             // one, borrowing name/avatar/LSQ owner from a sibling row on
-            // another number when the patient is already known there, so
+            // another number when the client is already known there, so
             // the banner shows who's calling instead of a bare "Calling…".
             const { data: sibling } = await supabase
               .from("contacts")
@@ -1022,7 +1022,7 @@ async function processWebhook(body: WAWebhookBody) {
           // terminate after accept = completed call, not missed.
           // We deliberately DON'T treat a stray answer SDP as accept
           // — Meta sometimes ships answer SDP on the `connect` frame
-          // before the patient actually picks up, which would start
+          // before the client actually picks up, which would start
           // the duration timer too early.
           const wasAccepted =
             existing?.status === "accepted" || !!existing?.accepted_at;
@@ -1040,7 +1040,7 @@ async function processWebhook(body: WAWebhookBody) {
           business_phone_number_id: businessPhoneNumberId,
           direction: (existing?.direction as "inbound" | "outbound" | undefined) ?? direction,
           status: nextStatus,
-          // Snapshot the LSQ lead-owner email at ring time so the
+          // Snapshot the CRM lead-owner email at ring time so the
           // active-call endpoint can route the banner to that
           // specific operator. Preserve any value already on the
           // row (a follow-up webhook frame won't clobber the
@@ -1096,8 +1096,8 @@ async function processWebhook(body: WAWebhookBody) {
           );
         }
 
-        // LSQ activity log for ring-only outcomes — missed calls and
-        // patient declines never produce a recording, so the upload
+        // CRM activity log for ring-only outcomes — missed calls and
+        // client declines never produce a recording, so the upload
         // route's logger doesn't fire. Log them here so the lead
         // timeline still reflects the attempt. Completed (terminated
         // after accepted) calls are logged from the recording route
@@ -1200,7 +1200,7 @@ function buttonLabel(msg: WAMessage): string | null {
   return null;
 }
 
-// True when this interactive payload is the patient's accept/reject for a
+// True when this interactive payload is the client's accept/reject for a
 // Call Permission Request. We store these as their own message `type` so
 // the dashboard can render a dedicated bubble + we can update the
 // permissions table.

@@ -1,7 +1,7 @@
 // Booking availability + helpers for the "Date Align" feature.
 //
 // Available days = next BOOKING_WINDOW_DAYS days, minus: weekly-offs, days the
-// clinic's Google Calendar marks blocked (an all-day event whose title matches
+// salon's Google Calendar marks blocked (an all-day event whose title matches
 // holiday/closed/off/block/leave), and days already at capacity (count of
 // confirmed bookings in our DB). When Google creds aren't set, the calendar
 // step is simply skipped (no blocked days) so the flow still works for testing.
@@ -29,7 +29,7 @@ export interface BookingRow {
 // Per-day booking cap. 0 (the default) = NO cap — a date stays bookable no
 // matter how many appointments it already has, so agents can keep adding
 // multiple to the same day. Set BOOKING_CAPACITY_PER_DAY to a positive number
-// only if the clinic wants to close a day once it hits that many bookings.
+// only if the salon wants to close a day once it hits that many bookings.
 export const BOOKING_CAPACITY = Number(process.env.BOOKING_CAPACITY_PER_DAY || 0);
 export const BOOKING_WINDOW_DAYS = Number(process.env.BOOKING_WINDOW_DAYS || 180);
 const WEEKLY_OFF = new Set(
@@ -167,7 +167,7 @@ export async function finalizeBooking(
   admin: SupabaseClient,
   booking: BookingRow,
   date: string,
-  source: "agent" | "patient",
+  source: "agent" | "client",
   opts?: { title?: string | null; colorId?: string | null },
 ): Promise<{ ok: boolean; error?: string; booking?: BookingRow }> {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -180,7 +180,7 @@ export async function finalizeBooking(
     return { ok: false, error: "Sorry, that date is no longer available." };
   }
 
-  const who = booking.patient_name?.trim() || booking.wa_id || "Patient";
+  const who = booking.patient_name?.trim() || booking.wa_id || "Client";
   const eventId = await createCalendarEvent({
     date,
     // Agent-typed title wins; else a sensible default.

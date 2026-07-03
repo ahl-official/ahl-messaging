@@ -62,7 +62,7 @@ const TOOLS = [
     function: {
       name: "search_contacts",
       description:
-        "Search the operator's WhatsApp contacts. Matches across name, push name, phone number (wa_id), tags, LSQ lead number, LSQ stage, and LSQ owner email/name. Returns up to `limit` rows (default 10, max 50) ordered by most recent activity.",
+        "Search the operator's WhatsApp contacts. Matches across name, push name, phone number (wa_id), tags, CRM lead number, CRM stage, and LSQ owner email/name. Returns up to `limit` rows (default 10, max 50) ordered by most recent activity.",
       parameters: {
         type: "object",
         properties: {
@@ -412,7 +412,7 @@ const TOOLS = [
     function: {
       name: "lsq_lookup",
       description:
-        "Look up the LSQ (LeadSquared) lead for a contact — stage, owner, lead number.",
+        "Look up the LSQ (CRM) lead for a contact — stage, owner, lead number.",
       parameters: {
         type: "object",
         properties: { contact_id: { type: "string" } },

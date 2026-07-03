@@ -7,7 +7,7 @@
 // "Merchant Integration Exception").
 //
 // Workaround: open the payment-link short URL in headless Chromium and
-// step the patient view through PayU's 3-stage flow:
+// step the client view through PayU's 3-stage flow:
 //   stage 1  payu.in/invoice/{id}                  → click "MAKE PAYMENT"
 //   stage 2  api.payu.in/public/#/{id}/paymentoptions → click "UPI"
 //   stage 3  api.payu.in/public/#/{id}/upfrontQr   → extract QR

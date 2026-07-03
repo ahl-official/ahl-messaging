@@ -6,7 +6,7 @@
 //                                      Cron loop polls between iterations
 //                                      and bails as soon as it sees this.
 //
-// Owner-only. Drives the "Nightly sync" panel in Settings → LeadSquared.
+// Owner-only. Drives the "Nightly sync" panel in Settings → CRM.
 
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentMember } from "@/lib/team";

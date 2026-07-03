@@ -83,7 +83,7 @@ export function CallOverlay() {
   // (don't tear down — happens between /dial returning and the next
   // refetch) from "the row was filtered out by status" (tear down —
   // means rejected/terminated/missed). Without this the outbound
-  // dialog stays pinned after the patient declines.
+  // dialog stays pinned after the client declines.
   const everSawCallRef = useRef<boolean>(false);
   const [muted, setMuted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -272,7 +272,7 @@ export function CallOverlay() {
       // but DO NOT start the duration counter here — that waits for
       // the remote audio track to actually unmute (real media flow).
       // Without this guard the timer ticks during the brief gap
-      // between Meta's accept event and the patient's mic actually
+      // between Meta's accept event and the client's mic actually
       // opening.
       setPhase("in-call");
       setPendingDial(null);
@@ -302,7 +302,7 @@ export function CallOverlay() {
   // ---- Ringtone / ringback: synthesised, loops while the call rings --
   //   • Inbound  → "incoming call" ring to alert the agent.
   //   • Outbound → ringback so the agent hears the line ringing while
-  //     the patient's phone rings, instead of dead silence until they
+  //     the client's phone rings, instead of dead silence until they
   //     answer. Stops the instant they pick up (phase → "in-call" on
   //     real media flow). The ringback is local-only (own AudioContext
   //     → speakers), never added to the peer connection or recording.
@@ -460,7 +460,7 @@ export function CallOverlay() {
       }
       // We listen for "actual audio flowing" via track.unmute, NOT
       // pc.connectionState. ICE+DTLS can establish (state="connected")
-      // before the patient picks up — the track stays muted until
+      // before the client picks up — the track stays muted until
       // their mic opens, which is the real "answered" signal. Without
       // this, the duration counter ticks during ring time.
       const onAnswered = () => {
@@ -888,7 +888,7 @@ export function CallOverlay() {
   const isOutboundDial =
     phase === "dialing" ||
     (phase === "ringing" && call?.direction === "outbound");
-  // Patient-initiated ring → take over the full screen (with a dim
+  // Client-initiated ring → take over the full screen (with a dim
   // backdrop) so the agent can't miss it. Outbound dial + in-call
   // stay as the unobtrusive top-right card.
   const isInboundRinging = phase === "ringing" && call?.direction === "inbound";

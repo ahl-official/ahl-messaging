@@ -3,7 +3,7 @@
 // "Suggested reply" widget body in the contact-details panel. One click
 // on a language button POSTs the conversation to
 // /api/contacts/[id]/reply-suggestion and renders a ready-to-send draft
-// tuned to move the patient toward booking. Agent copies it into the
+// tuned to move the client toward booking. Agent copies it into the
 // composer. The system prompt is editable in Settings → AI.
 
 import { useState } from "react";
@@ -118,7 +118,7 @@ export function ReplySuggestionWidget({ contactId }: { contactId: string }) {
       ) : (
         <p className="text-[11.5px] leading-relaxed text-muted-foreground">
           AI reads the whole chat and drafts the best next message — written
-          to move the patient toward booking. Then copy &amp; send.
+          to move the client toward booking. Then copy &amp; send.
         </p>
       )}
       <div className="grid grid-cols-2 gap-2">

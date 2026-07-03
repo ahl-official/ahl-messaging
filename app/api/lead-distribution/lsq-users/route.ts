@@ -1,9 +1,9 @@
 // GET /api/lead-distribution/lsq-users
-//   → all LSQ users (sales agents) with active flag (StatusCode 0 = present).
+//   → all CRM users (sales agents) with active flag (StatusCode 0 = present).
 // GET /api/lead-distribution/lsq-users?email=foo@bar.com
 //   → just that user (presence check before assigning a lead).
 //
-// Backs the Lead Distribution setup (pick real LSQ agents) and the Phase-2
+// Backs the Lead Distribution setup (pick real CRM agents) and the Phase-2
 // engine (verify an agent is live in LSQ before assignment).
 
 import { NextResponse, type NextRequest } from "next/server";

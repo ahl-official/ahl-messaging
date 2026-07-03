@@ -3,7 +3,7 @@
 // All media exchanged with a contact (photos + voice notes / audio),
 // both directions, newest-first. Despite the route name we include
 // audio too so the right-rail "Media" strip shows the full WhatsApp-
-// style media gallery — patient-sent and team-sent alike. The
+// style media gallery — client-sent and team-sent alike. The
 // component renders thumbnails for photos and a compact audio chip
 // for voice notes. Source is the local `messages` table — same
 // Supabase Storage bucket the webhook caches into.

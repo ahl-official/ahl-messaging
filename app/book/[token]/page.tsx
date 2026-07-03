@@ -1,4 +1,4 @@
-// Public patient-facing booking page (no login). Opened from a link the agent
+// Public client-facing booking page (no login). Opened from a link the agent
 // shares on WhatsApp. The interactive picker lives in the client component.
 
 import { BookingClient } from "@/components/BookingClient";

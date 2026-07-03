@@ -77,8 +77,8 @@ interface NumberRow {
   /** WhatsApp profile picture URL cached from Evolution. Short-TTL
    *  Meta CDN link; refreshed silently when the row mounts. */
   profile_pic_url?: string | null;
-  /** Operator-defined cluster for Evolution numbers (Delhi / Noida /
-   *  Haridwar clinic …). null = "Ungrouped". */
+  /** Operator-defined cluster for Evolution numbers (Mumbai / Noida /
+   *  Mumbai salon …). null = "Ungrouped". */
   evolution_group_id?: string | null;
 }
 
@@ -111,7 +111,7 @@ export function NumbersView({ canEdit }: { canEdit: boolean }) {
   /** Bulk status modal — open when operator wants to post the same
    *  status to several Evolution numbers in one shot. */
   const [bulkStatusOpen, setBulkStatusOpen] = useState(false);
-  /** Operator-defined clusters for Evolution numbers (Delhi / Noida …). */
+  /** Operator-defined clusters for Evolution numbers (Mumbai / Noida …). */
   const [evolutionGroups, setEvolutionGroups] = useState<EvolutionGroup[]>([]);
   /** Group filter within the "Unofficial" tab — "all", "ungrouped", or a group id. */
   const [evolutionGroupFilter, setEvolutionGroupFilter] = useState<string>("all");
@@ -1801,7 +1801,7 @@ function AddNumberModal({
               <input
                 value={verifiedName}
                 onChange={(e) => setVerifiedName(e.target.value)}
-                placeholder="QHT Clinic"
+                placeholder="QHT Salon"
                 className="w-full rounded-md border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
               />
             </Field>
@@ -4553,8 +4553,8 @@ function SyncHistoryButton({ instanceName }: { instanceName: string }) {
 
 // =====================================================================
 // Evolution group filter strip — pill row above the unofficial cards.
-// Each pill represents an operator-defined cluster (Delhi / Noida /
-// Haridwar clinic…). Owner/superadmin also sees a "Manage" button that
+// Each pill represents an operator-defined cluster (Mumbai / Noida /
+// Mumbai salon…). Owner/superadmin also sees a "Manage" button that
 // opens the CRUD modal.
 // =====================================================================
 function EvolutionGroupFilterStrip({
@@ -4713,7 +4713,7 @@ function EvolutionGroupsManagerModal({
             <input
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              placeholder="e.g. Delhi clinic"
+              placeholder="e.g. Mumbai salon"
               maxLength={60}
               disabled={busy}
               onKeyDown={(e) => {

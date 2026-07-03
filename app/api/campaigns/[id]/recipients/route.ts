@@ -21,7 +21,7 @@ interface PostBody {
   from?: "tags" | "csv" | "all" | "lsq";
   tags?: string[];
   rows?: CsvRow[];
-  /** LSQ filters — only used when from='lsq'. AND-combined. */
+  /** CRM filters — only used when from='lsq'. AND-combined. */
   lsq_stages?: string[];
   lsq_owners?: string[];
   created_after?: string;        // ISO timestamp
@@ -110,7 +110,7 @@ export async function POST(
       );
       if (stages.length === 0 && owners.length === 0 && !body.created_after && !body.created_before) {
         return NextResponse.json(
-          { error: "LSQ filter needs at least one of: stages, owners, or date range." },
+          { error: "CRM filter needs at least one of: stages, owners, or date range." },
           { status: 400 },
         );
       }

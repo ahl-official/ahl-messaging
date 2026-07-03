@@ -1,6 +1,6 @@
 // POST /api/lead-distribution/webhook/<secret>
 //
-// LSQ pushes leads here (configure under Lead Distribution → Webhook URL).
+// CRM pushes leads here (configure under Lead Distribution → Webhook URL).
 // Phase 1: authenticate by secret, parse the lead, and record it. Phase 2
 // adds the distribution engine (working hours → region → agent pick → LSQ
 // verify → assign). GET returns 200 so LSQ's "test" probe passes.

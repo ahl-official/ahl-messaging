@@ -1,7 +1,7 @@
 // GET /api/automation/process-pending
 //
 // Worker route — meant to be hit by cron every 2-3s on the VPS. Finds
-// contacts whose `automation_pending_at` has elapsed (the patient's
+// contacts whose `automation_pending_at` has elapsed (the client's
 // debounce window closed) and fires `runAutomation` for each, ONCE.
 //
 // Atomic claim: the UPDATE filters on `automation_pending_at <= now()`

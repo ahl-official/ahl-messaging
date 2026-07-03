@@ -38,7 +38,7 @@ const CATEGORIES: { name: string; emojis: string[] }[] = [
     ],
   },
   {
-    name: "Clinic",
+    name: "Salon",
     emojis: [
       "🩺","💊","🏥","💉","🦷","👶","👨‍⚕️","👩‍⚕️","🧑‍⚕️","🧬",
       "🩹","🩻","🧪","💆","💆‍♀️","💆‍♂️","🪞","✂️","🧴","🧼",

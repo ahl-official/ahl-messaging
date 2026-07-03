@@ -168,7 +168,7 @@ async function processInteraktEvent(body: unknown, bpid: string) {
     await supabase.rpc("bump_unread", { p_contact_id: contact.id });
   } else {
     // Outbound (incl. marketing template blasts). The 24h customer-service
-    // window only OPENS on an inbound patient message — an outbound never
+    // window only OPENS on an inbound client message — an outbound never
     // does. So if this contact has no inbound in the last 24h, its window
     // is closed: mark it 'closed' so it stays out of the "Open" inbox.
     const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
@@ -237,7 +237,7 @@ async function processInteraktEvent(body: unknown, bpid: string) {
     console.error("[interakt] insert message failed:", insertErr.message);
   }
 
-  // AI bot + LSQ lead push for inbound — ONLY for Interakt numbers explicitly
+  // AI bot + CRM lead push for inbound — ONLY for Interakt numbers explicitly
   // enabled in their automation_config. Most Interakt numbers run their own
   // CRM/routing and must stay untouched, so this is opt-in per number. Mirrors
   // the Meta webhook's fire-and-forget triggers.
@@ -294,7 +294,7 @@ async function processInteraktEvent(body: unknown, bpid: string) {
   });
 }
 
-// Fire the AI bot + LSQ lead-push for an inbound Interakt message — gated on
+// Fire the AI bot + CRM lead-push for an inbound Interakt message — gated on
 // the number's automation_config being enabled, so unmanaged Interakt numbers
 // stay exactly as before (no bot, no LSQ). Fire-and-forget, mirrors the Meta
 // webhook. The downstream routes re-check `enabled` / `lsq_lead_create_enabled`.

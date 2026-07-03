@@ -20,7 +20,7 @@ interface Body {
 // subsequent inbound message within the window resets the timestamp.
 // Once the window settles, /api/automation/process-pending picks up the
 // row, atomically claims it, and runs the LLM ONCE on the combined
-// recent-message context — so a patient typing 4 quick messages gets
+// recent-message context — so a client typing 4 quick messages gets
 // one consolidated reply instead of 4 racing ones.
 // =====================================================================
 export async function POST(request: NextRequest) {
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     const mediaTypes = ["image", "video", "audio", "document", "sticker", "voice", "ptt"];
     const inboundHasMedia = Boolean(inboundMediaUrl) || mediaTypes.includes(inboundType);
     // Run on text OR media — an image-only reply must still resume a flow
-    // that's waiting for the patient to send photos.
+    // that's waiting for the client to send photos.
     if (inboundText.trim() || inboundHasMedia) {
       try {
         const { matchAndRunTriggers } = await import("@/lib/trigger-engine");
@@ -105,8 +105,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ skipped: "automation_disabled" });
   }
 
-  // Test-mode patient whitelist — when set, the bot replies ONLY to
-  // these patient numbers (operator's own phone + testers). Lets a
+  // Test-mode client whitelist — when set, the bot replies ONLY to
+  // these client numbers (operator's own phone + testers). Lets a
   // freshly trained bot live-test on the production WhatsApp number
   // without exposing real customers to wrong answers.
   const testPatients = await getAutomationTestContactNumbers();

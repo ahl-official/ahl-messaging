@@ -1,4 +1,4 @@
-// Push the dashboard's chat-assignment over to LeadSquared so the LSQ
+// Push the dashboard's chat-assignment over to CRM so the LSQ
 // lead owner stays in sync with the dashboard's assigned_to_email.
 // Best-effort — failures are logged but never block the dashboard
 // assignment (matches every other LSQ helper in this codebase).

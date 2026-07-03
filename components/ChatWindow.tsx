@@ -142,7 +142,7 @@ export function ChatWindow({
   // and the next send carries Meta `context.message_id` so the
   // customer's phone renders it as a swipe-reply thread.
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
-  // LSQ activity timeline merged inline. Read prospect_id from the
+  // CRM activity timeline merged inline. Read prospect_id from the
   // contact row (cached locally by /api/lsq/lead) so we don't need to
   // round-trip through the LSQ lookup before activities can render.
   // Operator's "show LSQ activities in chat" toggle (lives in this
@@ -530,7 +530,7 @@ export function ChatWindow({
     };
     // ID-only dep — depending on the whole `contact` object meant
     // every realtime update from DashboardView (different reference,
-    // even when only LSQ stage / avatar changed) tore down this
+    // even when only CRM stage / avatar changed) tore down this
     // effect, set loading=true, refetched messages, and rebuilt the
     // realtime channel. Visible result: the entire chat thread and
     // notes panel "blinked" empty then re-populated. Switching to

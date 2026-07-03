@@ -4,7 +4,7 @@
 // leads that came in blank. Unlike bulk-fill-source (one fixed value for every
 // lead), this resolves the CORRECT value PER LEAD:
 //
-//   LSQ lead number → lead's phone → our contact(s) for that phone →
+//   CRM lead number → lead's phone → our contact(s) for that phone →
 //   the business number the FIRST chat happened on → that number's
 //   automation_configs.lead_defaults → push those fields to the lead.
 //
@@ -54,7 +54,7 @@ interface FirstChat {
   fields: Array<{ Attribute: string; Value: string }>;
 }
 
-// Resolve the first-chat business number for an LSQ lead's phone, and the
+// Resolve the first-chat business number for an CRM lead's phone, and the
 // field set that number would push onto an EXISTING lead — same composition as
 // ensure-lead's re-attribution path: the number's "update existing" fields
 // (falling back to lead_defaults) PLUS the FB-ad fields resolved from the
@@ -67,7 +67,7 @@ async function resolveFirstChat(
   const last10 = (leadPhone ?? "").replace(/\D/g, "").slice(-10);
   if (last10.length < 10) return empty;
 
-  // Every contact row this patient has (one per business number messaged).
+  // Every contact row this client has (one per business number messaged).
   const { data: contacts } = await admin
     .from("contacts")
     .select("id, wa_id, business_phone_number_id, created_at, utm_params")
@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
   }
 
   const cfg = getLsqConfig();
-  if (!cfg.configured) return NextResponse.json({ error: "LSQ not configured" }, { status: 400 });
+  if (!cfg.configured) return NextResponse.json({ error: "CRM not configured" }, { status: 400 });
 
   const leadNumbers = [
     ...new Set((body.lead_numbers ?? []).map((n) => String(n).trim()).filter(Boolean)),

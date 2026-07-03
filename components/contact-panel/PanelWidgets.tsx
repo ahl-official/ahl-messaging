@@ -177,7 +177,7 @@ export function PanelWidgets({
       </div>
 
       {/* Refund request — admin-reviewable form. Pre-fills agent (session)
-          + lead/patient (LSQ); operator types the package + amount fields
+          + lead/client (CRM); operator types the package + amount fields
           and uploads the booking payment screenshot. */}
       <RefundRequestSection
         contactId={contactId}

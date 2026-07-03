@@ -1,6 +1,6 @@
 // GET /api/lsq/stages
 //
-// Returns every LSQ stage that actually has at least one contact in
+// Returns every CRM stage that actually has at least one contact in
 // our local DB — derived from contacts.lsq_stage which is cached at
 // per-contact LSQ-lookup time. This is more reliable than calling
 // LSQ's ProspectStages.Get master endpoint (some tenants return 404)

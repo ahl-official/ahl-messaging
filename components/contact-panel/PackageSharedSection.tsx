@@ -45,11 +45,11 @@ export function PackageSharedContent({
 
   const meta: Record<Crm, { label: string; prospectId: string | null }> = {
     primary: {
-      label: lsq.label || "Haridwar/Delhi",
+      label: lsq.label || "Mumbai/Khar West",
       prospectId: lsq.lead?.prospect_id ?? null,
     },
     secondary: {
-      label: lsq2.label || "Hyderabad/Gurgaon",
+      label: lsq2.label || "Mumbai/Khar West",
       prospectId: lsq2.lead?.prospect_id ?? null,
     },
   };
@@ -164,7 +164,7 @@ export function PackageSharedContent({
             title="Package"
             sub={active.sharedBy ? `Shared by ${active.sharedBy}` : null}
             lines={bullets(active.pkg)}
-            empty="No package has been shared with this patient yet."
+            empty="No package has been shared with this client yet."
             tone="violet"
           />
           {/* Full notes / activity summary */}

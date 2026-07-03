@@ -70,7 +70,7 @@ export async function GET() {
 
   const cfg = getLsqConfig();
   if (!cfg.configured) {
-    return NextResponse.json({ error: "LSQ not configured" }, { status: 400 });
+    return NextResponse.json({ error: "CRM not configured" }, { status: 400 });
   }
 
   const res = await lsqFetch<FieldMeta[]>({
@@ -79,7 +79,7 @@ export async function GET() {
     timeoutMs: 20_000,
   });
   if (!res.ok || !Array.isArray(res.data)) {
-    return NextResponse.json({ error: res.error ?? "LSQ metadata fetch failed" }, { status: 502 });
+    return NextResponse.json({ error: res.error ?? "CRM metadata fetch failed" }, { status: 502 });
   }
 
   const bySchema = new Map<string, OutField>();

@@ -284,7 +284,7 @@ interface PutBody {
    *  portfolio-level business_account_id for template fetches. Empty
    *  string clears it (falls back to portfolio default). */
   waba_id?: string | null;
-  /** Operator-defined cluster for Evolution numbers (Delhi / Noida /
+  /** Operator-defined cluster for Evolution numbers (Mumbai / Noida /
    *  Haridwar clinic …). null clears the assignment. */
   evolution_group_id?: string | null;
 }

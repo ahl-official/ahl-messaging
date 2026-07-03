@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Cable, Copy, Check, Plus, Trash2, Upload, Save, Eye, EyeOff } from "lucide-react";
 import { PremiumHeader } from "@/components/PremiumHeader";
 
-// Universal Telephony connector — modelled on LeadSquared's Tata-Smartflo
+// Universal Telephony connector — modelled on CRM's Tata-Smartflo
 // connector. Each OPERATOR exposes a set of API hooks. INBOUND hooks
 // (Call Route, Agent Popup, Call Log, Disposition, SSO) are OUR endpoints the
 // operator configures — their URLs embed the connector key (from env, never

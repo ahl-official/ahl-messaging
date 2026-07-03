@@ -2,11 +2,11 @@
 // Lead Automation execution engine
 // ---------------------------------------------------------------------
 // Runs the visual flows built in Lead Distribution → Lead Automations when
-// an LSQ webhook arrives. Each automation is a flow graph:
+// an CRM webhook arrives. Each automation is a flow graph:
 //
 //   trigger → [if_else …] → action (send_template …)
 //
-// On every LSQ lead push we:
+// On every CRM lead push we:
 //   1. Load PUBLISHED automations.
 //   2. Match the trigger — lead's current stage == config.change_to.
 //   3. Walk the flow from the trigger node, evaluating If/Else branches
@@ -55,7 +55,7 @@ interface AutomationRow {
 
 const last10 = (s: string) => s.replace(/\D/g, "").slice(-10);
 
-// Map a UI condition-field name to the lead's value. LSQ webhook fields are
+// Map a UI condition-field name to the lead's value. CRM webhook fields are
 // flattened to lowercase keys (see parseLsqWebhookPayload).
 function resolveField(field: string, lead: ParsedLsqLead): string {
   const f = field.trim().toLowerCase();
@@ -117,7 +117,7 @@ function evalCriteria(criteria: FlowNode["data"]["criteria"], lead: ParsedLsqLea
   return (criteria?.match ?? "any") === "all" ? results.every(Boolean) : results.some(Boolean);
 }
 
-// Fire-and-forget entry point — called from the LSQ webhook handler.
+// Fire-and-forget entry point — called from the CRM webhook handler.
 export async function runLeadAutomations(lead: ParsedLsqLead): Promise<number> {
   const stage = (lead.stage ?? "").trim().toLowerCase();
   if (!stage || !lead.mobile) return 0;
@@ -136,7 +136,7 @@ export async function runLeadAutomations(lead: ParsedLsqLead): Promise<number> {
   });
   if (matched.length === 0) return 0;
 
-  // The LSQ stage-change webhook payload only carries STANDARD fields (stage,
+  // The CRM stage-change webhook payload only carries STANDARD fields (stage,
   // phone, source, owner) — NOT custom fields like mx_Brand. Fetch the full
   // lead from LSQ ONLY when a condition references a non-standard field, so a
   // wildcard "any stage" trigger doesn't hammer LSQ on every change.
@@ -159,7 +159,7 @@ export async function runLeadAutomations(lead: ParsedLsqLead): Promise<number> {
         }
       }
     } catch (e) {
-      console.warn(`[lead-automation] LSQ lead fetch failed:`, e instanceof Error ? e.message : e);
+      console.warn(`[lead-automation] CRM lead fetch failed:`, e instanceof Error ? e.message : e);
     }
   }
 
@@ -364,7 +364,7 @@ async function fireSendTemplate(
     let preview = `Template: ${template}`;
     if (bpid.startsWith("interakt:")) {
       // Interakt template send — fetch the template to count body {{n}} vars,
-      // fill them with the patient name, send via Interakt's API.
+      // fill them with the client name, send via Interakt's API.
       const { getInteraktApiKeyForNumber, fetchInteraktTemplates, sendInteraktTemplate } = await import("@/lib/interakt");
       const apiKey = await getInteraktApiKeyForNumber(bpid);
       if (!apiKey) throw new Error("no Interakt API key for " + bpid);
@@ -462,7 +462,7 @@ async function logOutbound(
 
 // Build the body parameters a template needs + a rendered preview for the
 // inbox. Fetches the template from Meta to learn how many {{n}} variables its
-// BODY has, then fills them with the patient's first name (the common case,
+// BODY has, then fills them with the client's first name (the common case,
 // e.g. "Good morning {{1}}"). `components` is undefined when the template has
 // no body variables; `preview` is the body text with vars substituted (falls
 // back to "Template: <name>").

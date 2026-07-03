@@ -199,7 +199,7 @@ export function ContactDetailsPanel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contact?.id, adSourceId, adResolved]);
 
-  // LSQ lead — fetched inline so the contact-details panel reads as one
+  // CRM lead — fetched inline so the contact-details panel reads as one
   // unified source of truth (CRM + WhatsApp). The hook returns null
   // while loading and on misses, which the Field rows below treat as "—".
   const lsq = useLsqLead(DEMO_MODE ? null : contact?.wa_id ?? null);
@@ -434,7 +434,7 @@ export function ContactDetailsPanel({
                   rel="noopener noreferrer"
                   className="inline-flex h-5 w-5 items-center justify-center rounded text-muted-foreground hover:bg-secondary hover:text-foreground"
                   aria-label="Open in LSQ"
-                  title="Open in LeadSquared"
+                  title="Open in CRM"
                 >
                   <ExternalLink className="h-3 w-3" />
                 </a>
@@ -468,7 +468,7 @@ export function ContactDetailsPanel({
           />
         ) : null}
 
-        {/* LSQ sync status banner — visible at a glance whether the
+        {/* CRM sync status banner — visible at a glance whether the
             last ensure-lead attempt succeeded, plus a retry button. */}
         {openSection === "lead" ? (
           <LsqSyncStatus contact={contact} onRetry={lsq.refresh} />
@@ -485,12 +485,12 @@ export function ContactDetailsPanel({
                   [
                     {
                       key: "primary" as const,
-                      label: lsq.label || "Haridwar/Delhi",
+                      label: lsq.label || "Mumbai/Khar West",
                       dot: "bg-emerald-400",
                     },
                     {
                       key: "secondary" as const,
-                      label: lsq2.label || "Hyderabad/Gurgaon",
+                      label: lsq2.label || "Mumbai/Khar West",
                       dot: "bg-violet-400",
                     },
                   ]
@@ -909,7 +909,7 @@ function InlineEmailEditor({
       onClick={startEdit}
       disabled={!canEdit || loading}
       className="group mt-0.5 flex w-full items-center gap-1 truncate text-left text-xs text-foreground/80 disabled:cursor-default"
-      title={canEdit ? "Click to edit email" : "LSQ lead not linked yet"}
+      title={canEdit ? "Click to edit email" : "CRM lead not linked yet"}
     >
       <span className="truncate">
         {email ? (
@@ -932,7 +932,7 @@ function InlineEmailEditor({
  *  the operator sees in the rest of the dashboard's "section card"
  *  pattern, so the panel reads as deliberate UI rather than a
  *  flat list of fields. */
-/** Operator-editable mirror of `Field` for LSQ lead attributes. Click
+/** Operator-editable mirror of `Field` for CRM lead attributes. Click
  *  the row → inline input → Save (Enter or check button) PATCHes the
  *  LSQ lead via /api/lsq/lead/update, then triggers `onSaved` so the
  *  panel refetches the lead and renders the new value. Empty input is
@@ -1454,7 +1454,7 @@ function formatDate(iso: string | null | undefined): string | null {
   return d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 }
 
-// LSQ sync status — surfaces the outcome of the last ensure-lead call
+// CRM sync status — surfaces the outcome of the last ensure-lead call
 // for this contact and provides a "Retry" button when something went
 // wrong (or when the operator wants to re-attempt for any reason).
 function LsqSyncStatus({
@@ -1516,7 +1516,7 @@ function LsqSyncStatus({
     }
   }
 
-  // Force re-push: re-stamp Source / fb-ad / default fields onto the LSQ lead
+  // Force re-push: re-stamp Source / fb-ad / default fields onto the CRM lead
   // even when the "update existing" toggle is off (and ignoring the age gate).
   // For when an earlier sync dropped fields due to an LSQ rate-limit.
   async function repush() {
@@ -1622,7 +1622,7 @@ function LsqSyncStatus({
             type="button"
             onClick={repush}
             disabled={repushing || retrying}
-            title="Source / campaign fields ko LSQ lead pe force re-push karo"
+            title="Source / campaign fields ko CRM lead pe force re-push karo"
             className="inline-flex items-center gap-1 rounded-md border bg-white px-1.5 py-0.5 text-[10px] font-medium text-foreground hover:bg-secondary disabled:opacity-50"
           >
             {repushing ? <Loader2 className="h-2.5 w-2.5 animate-spin" /> : <RefreshCcw className="h-2.5 w-2.5" />}

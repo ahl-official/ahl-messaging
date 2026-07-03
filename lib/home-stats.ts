@@ -1,7 +1,7 @@
 // Server-side aggregations powering the /home dashboard.
 //
 // One round-trip to Supabase per logical concern (contacts, business numbers,
-// recent inbound messages) — fine for a single-clinic team inbox at thousands-
+// recent inbound messages) — fine for a single-salon team inbox at thousands-
 // of-rows scale. When traffic grows, swap each computation for a Postgres
 // view / function with proper indexing.
 

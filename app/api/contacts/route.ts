@@ -111,7 +111,7 @@ export async function GET(request: NextRequest) {
   }
   if (mineParam) {
     // "Mine" = leads the caller owns. That's BOTH the dashboard assignment
-    // (contacts.assigned_to = my auth id) AND the LSQ lead owner
+    // (contacts.assigned_to = my auth id) AND the CRM lead owner
     // (lsq_owner_email = my email) — most leads arrive owned in LSQ and were
     // never explicitly dashboard-assigned, so an assigned_to-only filter
     // showed almost nothing. lsq_owner_email is stored lower(trim()).

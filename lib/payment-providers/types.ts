@@ -30,7 +30,7 @@ export interface CreateLinkResult {
   /** Gateway's link id — razorpay payment_link.id / PayU invoice URL
    *  fragment. Used to correlate webhook events. */
   providerLinkId: string;
-  /** Short URL we share with the patient. */
+  /** Short URL we share with the client. */
   shortUrl: string;
 }
 

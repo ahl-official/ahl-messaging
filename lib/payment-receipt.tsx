@@ -2,7 +2,7 @@
 //
 // Generates an A4 single-page PDF using @react-pdf/renderer. The PDF
 // gets uploaded to Supabase Storage by sendReceiptInternal and then
-// pushed to the patient on WhatsApp as a document attachment.
+// pushed to the client on WhatsApp as a document attachment.
 //
 // Note: Helvetica (the built-in font) does not include the ₹ glyph, so
 // the amount is rendered as "Rs. 1,234.00". The WhatsApp caption that
@@ -23,21 +23,21 @@ import {
 
 // --------------------------------------------------------------------
 // Edit these constants to customise the receipt branding. Operators can
-// later swap this for a Settings → Branding section if per-clinic
+// later swap this for a Settings → Branding section if per-salon
 // overrides are needed.
 // --------------------------------------------------------------------
 const CLINIC_NAME = "QHT Mediways Private Limited";
-const CLINIC_TAGLINE = "Hair Transplant Clinic";
+const CLINIC_TAGLINE = "Hair Treatment Salon";
 const SUPPORT_EMAIL = "info@americanhairline.com";
 const SUPPORT_WEBSITE = "americanhairline.com";
 const NOTES: string[] = [
   "Booking amount is valid for 1 year.",
-  "Treatment may be denied to patients in case the patient is found unfit for surgery.",
+  "Treatment may be denied to patients in case the client is found unfit for surgery.",
 ];
 const TERMS: string[] = [
   "Booking amount is 100% refundable.",
   "Booking refund should only be initiated on 4th and 19th of every month. Approved refunds might take 7-8 business days to process. The time may vary based on the payment method (e.g., credit card, Phone Pay etc.).",
-  "Show this receipt at the clinic's reception while coming for treatment.",
+  "Show this receipt at the salon's reception while coming for treatment.",
   "Treatment date may change in case of any emergency or pandemic factors.",
 ];
 // --------------------------------------------------------------------

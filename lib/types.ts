@@ -16,7 +16,7 @@ export interface Contact {
   name: string | null;
   profile_name: string | null;
   last_message_at: string | null;
-  /** Timestamp of the patient's most-recent INBOUND message — drives the
+  /** Timestamp of the client's most-recent INBOUND message — drives the
    *  real-time 24h customer-service window (open until 24h after this).
    *  Nullable: older rows may not have it; the inbox falls back to
    *  last_message_at when the last message was inbound, else `status`. */
@@ -49,7 +49,7 @@ export interface Contact {
    *  personal messages. Bot stays silent; a human can still reply. */
   bot_blocked_at?: string | null;
   bot_blocked_reason?: string | null;
-  /** Patient's chosen reply language (set by the bot). The bot replies in
+  /** Client's chosen reply language (set by the bot). The bot replies in
    *  this language on every turn; also pushed to LSQ mx_Religion. */
   preferred_language?: string | null;
   /** LSQ ProspectStage cached locally so the contact list can render
@@ -66,7 +66,7 @@ export interface Contact {
   lsq_sub_source?: string | null;
   utm_source?: string | null;
   utm_params?: Record<string, unknown> | null;
-  /** Per-contact LSQ sync diagnostic (populated by ensure-lead). */
+  /** Per-contact CRM sync diagnostic (populated by ensure-lead). */
   lsq_last_sync_at?: string | null;
   lsq_last_sync_status?: "created" | "linked" | "skipped" | "error" | null;
   lsq_last_sync_error?: string | null;

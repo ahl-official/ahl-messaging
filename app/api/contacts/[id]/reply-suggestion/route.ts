@@ -1,6 +1,6 @@
 // POST /api/contacts/[id]/reply-suggestion
 // Analyses the whole conversation and drafts the next message the agent
-// should send — tuned to move the patient toward booking. The system
+// should send — tuned to move the client toward booking. The system
 // prompt is operator-editable in Settings → AI.
 
 import { NextResponse, type NextRequest } from "next/server";
@@ -45,7 +45,7 @@ export async function POST(
   const rows = (data ?? []) as MsgRow[];
   const lines = rows
     .map((m) => {
-      const who = m.direction === "inbound" ? "Patient" : "Agent";
+      const who = m.direction === "inbound" ? "Client" : "Agent";
       const text = (m.content ?? "").trim();
       const body = text || (m.type && m.type !== "text" ? `[${m.type}]` : "");
       return body ? `${who}: ${body}` : null;
@@ -60,7 +60,7 @@ export async function POST(
   }
 
   // Output language — explicit choice from the panel widget, or "auto"
-  // (the one-click composer button) which mirrors the patient.
+  // (the one-click composer button) which mirrors the client.
   let language: "english" | "hinglish" | "auto" = "auto";
   try {
     const body = (await request.json()) as { language?: string };
@@ -74,7 +74,7 @@ export async function POST(
       ? "\n\nWrite the suggested message in Hinglish — conversational Hindi in Roman (English) script. Natural and casual, how a real agent texts."
       : language === "english"
         ? "\n\nWrite the suggested message in clear, simple English."
-        : "\n\nWrite the suggested message in the same language and script the patient is using in the conversation (if they write Hinglish, reply in Hinglish; if English, reply in English).";
+        : "\n\nWrite the suggested message in the same language and script the client is using in the conversation (if they write Hinglish, reply in Hinglish; if English, reply in English).";
 
   const systemPrompt = (await getAiReplyPrompt()) + langInstruction;
   const transcript = lines.slice(-300).join("\n");

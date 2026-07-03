@@ -83,7 +83,7 @@ export default async function LoginPage({
             <Pillar
               icon={Inbox}
               title="Unified inbox"
-              subtitle="Every patient chat, one place"
+              subtitle="Every client chat, one place"
             />
             <Pillar
               icon={Sparkles}
@@ -234,7 +234,7 @@ function ChatShowcase() {
           status="read"
         />
 
-        {/* Inbound — second patient (no float; the entry slide alone
+        {/* Inbound — second client (no float; the entry slide alone
             reads as a fresh arrival without the bubble jiggling forever) */}
         <ChatBubble
           side="in"

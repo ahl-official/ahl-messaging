@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Contact display names so a linked-contact chip can show the patient
+  // Contact display names so a linked-contact chip can show the client
   // name rather than a UUID. Cheap — same one-shot pattern as members.
   const contactIds = Array.from(
     new Set(rows.map((r) => r.contact_id).filter((v): v is string => Boolean(v))),

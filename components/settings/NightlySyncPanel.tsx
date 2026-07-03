@@ -1,6 +1,6 @@
 "use client";
 
-// Settings → LeadSquared → "Nightly sync".
+// Settings → CRM → "Nightly sync".
 //
 // Operator picks an IST clock time. A VPS cron heartbeat hits
 // /api/cron/nightly-sync every 5 min; the handler fires the job only

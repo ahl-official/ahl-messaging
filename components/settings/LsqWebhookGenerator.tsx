@@ -1,11 +1,11 @@
 "use client";
 
-// LeadSquared webhook manager — multiple named endpoints.
+// CRM webhook manager — multiple named endpoints.
 //
 // LSQ fires one webhook per event type, so the operator creates one
 // named endpoint per event (e.g. "Lead Stage Change"). Each gets its
 // own URL + its own "Connected" status and event counter. Shared by
-// the LeadSquared integration page and Settings → Data.
+// the CRM integration page and Settings → Data.
 
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -140,7 +140,7 @@ export function LsqWebhookGenerator() {
           <h2 className="text-sm font-semibold">Live event webhooks</h2>
           <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">
             LSQ sends one webhook per event. Add one endpoint per event,
-            paste its URL into LeadSquared → Settings → Webhooks. Stage /
+            paste its URL into CRM → Settings → Webhooks. Stage /
             owner / name updates then flow into the inbox instantly.
           </p>
         </div>

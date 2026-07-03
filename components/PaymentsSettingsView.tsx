@@ -1,11 +1,11 @@
 "use client";
 
 // Settings → Payments.
-// Per-clinic (American Hairline, Alchemane) multi-account: each clinic gets its own
+// Per-salon (American Hairline, Alchemane) multi-account: each salon gets its own
 // collapsible card containing Razorpay + PayU subsections + an
 // auto-receipt toggle. Operators can label accounts, flip the active
-// account independently per clinic, and switch clinics from the
-// composer's clinic chooser.
+// account independently per salon, and switch clinics from the
+// composer's salon chooser.
 
 import { useCallback, useEffect, useState } from "react";
 import {

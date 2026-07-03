@@ -1,6 +1,6 @@
 // GET /api/lsq/lead?mobile=<wa_id>[&crm=secondary]
 //
-// Looks up a LeadSquared lead by the contact's WhatsApp number and
+// Looks up a CRM lead by the contact's WhatsApp number and
 // returns the dashboard-relevant fields. The contact-details panel
 // calls this when a chat is opened, so the agent sees CRM context
 // alongside the conversation.
@@ -58,8 +58,8 @@ export async function GET(request: NextRequest) {
         lsq_owner_email: result.lead.owner_email,
         lsq_prospect_id: result.lead.prospect_id,
         // Source fields for the CRM-style lead table (Lead Source / Sub
-        // source / Source Medium). Read straight from the LSQ lead so the
-        // table mirrors LeadSquared instead of showing blanks.
+        // source / Source Medium). Read straight from the CRM lead so the
+        // table mirrors CRM instead of showing blanks.
         lsq_source: result.lead.source,
         lsq_sub_source: result.lead.sub_source,
         utm_source: result.lead.source_medium,

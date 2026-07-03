@@ -117,17 +117,17 @@ interface PutBody {
    *  inbound, so a patient typing 3 quick messages gets ONE combined
    *  reply instead of three racing ones. 0–120. */
   inbound_debounce_seconds?: number;
-  /** Per-number map of "what to extract" → "which LSQ lead field
+  /** Per-number map of "what to extract" → "which CRM lead field
    *  to update". Each entry triggers a post-reply extraction pass. */
   field_mappings?: Array<{ description?: string; lsq_field?: string }>;
   /** Static field=value pairs (Source / Sub Source / etc.) applied to
    *  every Lead.CreateOrUpdate from this number. Stored as constants —
    *  not extracted from chat. */
   lead_defaults?: Array<{ lsq_field?: string; value?: string }>;
-  /** Which {lsq_field,value} pairs to PATCH onto an EXISTING LSQ lead when
+  /** Which {lsq_field,value} pairs to PATCH onto an EXISTING CRM lead when
    *  "update existing leads" is on. Empty = fall back to lead_defaults. */
   update_lead_fields?: Array<{ lsq_field?: string; value?: string }>;
-  /** Meta ad-attribution → LSQ field mappings. Each pushes a value from
+  /** Meta ad-attribution → CRM field mappings. Each pushes a value from
    *  contacts.utm_params (source_id / ctwa_clid / campaign_name / …) onto
    *  the lead. `source` is one of FB_AD_SOURCE_KEYS. */
   lsq_fb_ads_fields?: Array<{ lsq_field?: string; source?: string }>;
@@ -173,7 +173,7 @@ interface PutBody {
   guardrails_text?: string | null;
   /** Per-stage persona map { "<lsq stage>": "<persona text>" }. */
   stage_personas?: Record<string, string> | null;
-  /** When an inbound arrives from a phone that already has an LSQ lead,
+  /** When an inbound arrives from a phone that already has an CRM lead,
    *  overwrite its Source / mx_Sub_source with this number's lead_defaults.
    *  Default OFF — preserves the original attribution. (0027 migration.) */
   update_existing_lead_source?: boolean;

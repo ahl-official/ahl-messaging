@@ -6,7 +6,7 @@
 //
 // Two modes:
 //   • inbox  — conversation list + open thread + composer (no ?wa).
-//   • locked — a single patient's chat only, no sidebar (?wa=<digits>). If
+//   • locked — a single client's chat only, no sidebar (?wa=<digits>). If
 //     no thread exists yet it creates one on the chosen number and opens an
 //     empty chat ready for the first message.
 
@@ -91,7 +91,7 @@ function LockedChat({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: "Patient",
+            name: "Client",
             phone: lockedWa,
             business_phone_number_id: lockedFromBpid,
           }),

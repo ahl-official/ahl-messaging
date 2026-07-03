@@ -282,7 +282,7 @@ export function ReportsView({ canSetKra = false }: { canSetKra?: boolean }) {
             <motion.div className="h-full" variants={fadeUp}>
               <KpiCard
                 icon={Inbox}
-                label="Patient messages"
+                label="Client messages"
                 value={totals?.patient_messages ?? 0}
                 sub={sinceLabel + " · inbound"}
                 accent="sky"
@@ -897,7 +897,7 @@ function DailyBreakdownTable({ rows }: { rows: DailyBreakdown[] }) {
           <div>
             <h2 className="text-sm font-semibold">Per-day messages</h2>
             <p className="text-[10px] text-muted-foreground">
-              Patient messages in / agent messages out, grouped by date.
+              Client messages in / agent messages out, grouped by date.
             </p>
           </div>
         </div>
@@ -910,7 +910,7 @@ function DailyBreakdownTable({ rows }: { rows: DailyBreakdown[] }) {
           <thead className="sticky top-0 bg-secondary/40 backdrop-blur">
             <tr className="text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               <th className="px-5 py-2.5">Date</th>
-              <th className="px-3 py-2.5 text-right">Patient msgs</th>
+              <th className="px-3 py-2.5 text-right">Client msgs</th>
               <th className="px-3 py-2.5 text-right">Unique patients</th>
               <th className="px-3 py-2.5 text-right">Outbound</th>
               <th className="px-3 py-2.5 pr-5">Activity</th>

@@ -245,7 +245,7 @@ export function ContactsView({ contacts, total, page, pageSize, query }: Props) 
                         {c.linked_numbers_count && c.linked_numbers_count > 1 ? (
                           <span
                             className="inline-flex items-center rounded-full bg-violet-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-violet-700 ring-1 ring-inset ring-violet-200"
-                            title={`This patient has ${c.linked_numbers_count} contact rows — one per business number they messaged.`}
+                            title={`This client has ${c.linked_numbers_count} contact rows — one per business number they messaged.`}
                           >
                             × {c.linked_numbers_count} numbers
                           </span>
@@ -591,7 +591,7 @@ function CreateContactDialog({
 // Edit dialog — change a contact's name + tags. Phone is intentionally
 // read-only (it's the WhatsApp identity; changing it would orphan the
 // chat history). Calls the same server actions the inline chat-side
-// NameEditor uses, so name edits mirror to the LSQ lead automatically.
+// NameEditor uses, so name edits mirror to the CRM lead automatically.
 // ---------------------------------------------------------------------
 function EditContactDialog({
   contact,

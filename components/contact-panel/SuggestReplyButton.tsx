@@ -3,7 +3,7 @@
 // One-click "Suggest reply" button. Calls /api/contacts/[id]/reply-
 // suggestion and hands the drafted message back via onPick — the caller
 // drops it into whatever textarea it owns (the composer, Magic Message,
-// etc.). Language is "auto" — the draft mirrors the patient.
+// etc.). Language is "auto" — the draft mirrors the client.
 
 import { useState } from "react";
 import { Loader2, Sparkles } from "lucide-react";

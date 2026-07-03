@@ -118,7 +118,7 @@ interface Props {
   /** phone_number_id → business number row, used to render the small
    *  number-badge on every chat card. */
   businessNumbersById?: Map<string, BusinessNumber>;
-  /** LSQ lead-stage filter from the colour strip above the inbox.
+  /** CRM lead-stage filter from the colour strip above the inbox.
    *  null = no stage filter. */
   stageFilter?: string | null;
 }
@@ -184,7 +184,7 @@ function contactIsMine(c: Contact, userId: string | null, emailLower: string): b
 }
 
 export function ContactList({ initialContacts, selectedId, onSelect, currentUserId, currentUserEmail = null, businessNumbersById, stageFilter = null }: Props) {
-  // Normalised once — "Mine" matches the LSQ lead owner by lower-cased email.
+  // Normalised once — "Mine" matches the CRM lead owner by lower-cased email.
   const myEmail = (currentUserEmail ?? "").trim().toLowerCase();
   const perms = usePermissions();
   const members = useMembers();
@@ -1073,12 +1073,12 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
         }
         // Unreplied — the customer's last message is still unanswered.
         // ANY window (closed ones just need a Magic Message) — the agent
-        // wants to see every patient who's waiting, not only the few whose
+        // wants to see every client who's waiting, not only the few whose
         // 24h window happens to be open.
         if (unrepliedOnly) {
           if (c.last_message_direction !== "inbound") return false;
         }
-        // LSQ lead-stage filter — from the colour strip above the inbox.
+        // CRM lead-stage filter — from the colour strip above the inbox.
         if (stageFilter) {
           if (
             (c.lsq_stage ?? "").trim().toLowerCase() !==
@@ -1097,8 +1097,8 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
         }
       }
       // Search — matches across multiple haystacks so the agent can find a
-      // chat by typing any of: name, phone, tag, label name, LSQ lead
-      // number, or LSQ stage. Lead number matches both "432029" and
+      // chat by typing any of: name, phone, tag, label name, CRM lead
+      // number, or CRM stage. Lead number matches both "432029" and
       // "#432029" naturally because the stored value is digits-only and
       // we lowercase the query (no special handling needed).
       if (q) {
@@ -1474,7 +1474,7 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
         {tableOpen ? <LeadTableView onClose={() => setTableOpen(false)} /> : null}
 
         {/* Cross-CRM lookup — appears when the query is a phone / lead
-            number. Opens a modal probing both LeadSquared accounts. */}
+            number. Opens a modal probing both CRM accounts. */}
         {lookupQuery && !DEMO_MODE ? (
           <button
             type="button"
@@ -1950,8 +1950,8 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
                           {isClosed ? (
                             <Check className="h-3 w-3 text-emerald-600 shrink-0" aria-label="Closed" />
                           ) : null}
-                          {/* LSQ stage chip — comes from contacts.lsq_stage,
-                              which is mirrored from LeadSquared whenever the
+                          {/* CRM stage chip — comes from contacts.lsq_stage,
+                              which is mirrored from CRM whenever the
                               contact-details panel fetches the lead. Sits
                               right after the name so the agent sees pipeline
                               stage at a glance without opening the chat. */}
@@ -2047,7 +2047,7 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
                                 ) ?? shortEmail(c.assigned_to_email)}
                           </span>
                         ) : c.lsq_owner_name ? (
-                          // No internal assignee, but the LSQ lead has an
+                          // No internal assignee, but the CRM lead has an
                           // owner — show that name so the inbox mirrors who
                           // owns the lead in the CRM. Each owner gets a
                           // stable colour (hashed off their email) so the

@@ -34,7 +34,7 @@ Rules:
 
 Output ONLY the corrected text — no preamble, no quotes, no explanation.`;
 
-const SYSTEM_PROFESSIONAL = `You rewrite a customer-support agent's rough draft into clear, professional ENGLISH for a business WhatsApp reply (a hair-transplant clinic replying to patients).
+const SYSTEM_PROFESSIONAL = `You rewrite a customer-support agent's rough draft into clear, professional ENGLISH for a business WhatsApp reply (a hair salon replying to clients).
 
 Rules:
 - Translate Hinglish / Hindi / casual text into natural, polished, professional English.

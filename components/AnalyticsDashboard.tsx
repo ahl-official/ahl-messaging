@@ -7,7 +7,7 @@
 //
 // Charts are hand-rolled SVG — no chart-library dep. They're modest
 // (line chart, bar chart, heatmap, leaderboard table) but plenty
-// readable on the data sizes a clinic dashboard sees.
+// readable on the data sizes a salon dashboard sees.
 
 import { useEffect, useMemo, useState } from "react";
 import { motion, type Variants } from "motion/react";

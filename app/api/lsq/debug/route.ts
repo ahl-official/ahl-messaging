@@ -1,6 +1,6 @@
 // GET /api/lsq/debug?phone=91-9045454045
 //
-// Diagnostic endpoint that talks to LeadSquared with the exact phone
+// Diagnostic endpoint that talks to CRM with the exact phone
 // value provided (no variant rewriting), returns the full URL we hit
 // (with secret key redacted), the HTTP status, and the raw body.
 // Owner-only. Useful when "lead not found" mysteries strike — paste
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
   const cfg = getLsqConfig();
   if (!cfg.configured) {
-    return NextResponse.json({ error: "LSQ not configured" }, { status: 500 });
+    return NextResponse.json({ error: "CRM not configured" }, { status: 500 });
   }
 
   const params = new URLSearchParams({

@@ -3,7 +3,7 @@
 // Cross-CRM lead lookup for the inbox search. Resolves the query to a
 // phone number — either it already is one, or it's a lead number we
 // map back to a contact's WhatsApp number via the cached
-// `lsq_lead_number` — then probes BOTH LeadSquared accounts and returns
+// `lsq_lead_number` — then probes BOTH CRM accounts and returns
 // each one's lead (or a miss). Powers the "CRM Lookup" modal.
 
 import { NextResponse, type NextRequest } from "next/server";

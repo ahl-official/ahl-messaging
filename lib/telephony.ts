@@ -33,7 +33,7 @@ export interface Click2CallContext {
   virtualNumberTag?: string;
 }
 
-// Fill both LeadSquared-style `@tokens` and our `{{snake_case}}` placeholders.
+// Fill both CRM-style `@tokens` and our `{{snake_case}}` placeholders.
 function applyMerge(
   tpl: string,
   ctx: { agent: string; lead: string; agentEmail: string; vnTag: string },

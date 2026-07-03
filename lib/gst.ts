@@ -1,6 +1,6 @@
 // GST computation + Indian-rupee number-to-words.
 //
-// Clinic books a round figure inclusive of tax (e.g. ₹3,000). Tally
+// Salon books a round figure inclusive of tax (e.g. ₹3,000). Tally
 // back-calculates the taxable value and splits the tax. We replicate
 // that exactly so the app's invoice matches the Tally voucher to the
 // paise:

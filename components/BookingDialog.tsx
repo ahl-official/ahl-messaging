@@ -46,7 +46,7 @@ export function BookingDialog({
   contactName?: string | null;
   onClose: () => void;
 }) {
-  // Only "Set the date myself" is offered now — the patient-link flow was
+  // Only "Set the date myself" is offered now — the client-link flow was
   // removed, so the dialog opens straight into the calendar.
   const [tab] = useState<"link" | "self">("self");
   const [dates, setDates] = useState<string[]>([]);
@@ -148,7 +148,7 @@ export function BookingDialog({
           <div className="px-6 py-10 text-center">
             <div className="text-5xl">✅</div>
             <p className="mt-3 text-lg font-semibold text-gray-900">{fmtLong(confirmed)}</p>
-            <p className="mt-1 text-gray-500">Date set and confirmation sent to the patient.</p>
+            <p className="mt-1 text-gray-500">Date set and confirmation sent to the client.</p>
             <button
               onClick={onClose}
               className="mt-5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
@@ -164,7 +164,7 @@ export function BookingDialog({
               {tab === "link" ? (
                 <div className="space-y-3">
                   <p className="text-sm text-gray-600">
-                    The patient gets a private link where they choose their own date.
+                    The client gets a private link where they choose their own date.
                   </p>
                   <button
                     onClick={() => shareLink(true)}

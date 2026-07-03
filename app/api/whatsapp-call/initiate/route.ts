@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
   let permissionState: "pending" | "granted" | "error" = "pending";
   let error: string | null = null;
 
-  // Short-circuit when the patient has ALREADY accepted a prior CPR.
+  // Short-circuit when the client has ALREADY accepted a prior CPR.
   // Without this, every "Call" click fires another CPR — eventually
   // tripping Meta's per-pair rate limit (#138009) and locking the
   // operator out of dialing even though permission is on file.
@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
       content:
         permissionState === "granted"
           ? "🔔 Permission already granted — dialing now…"
-          : "🔔 Sent a WhatsApp call permission request. Waiting for the patient to tap Allow.",
+          : "🔔 Sent a WhatsApp call permission request. Waiting for the client to tap Allow.",
       status: "sent",
       timestamp: nowIso,
       business_phone_number_id: contact.business_phone_number_id,

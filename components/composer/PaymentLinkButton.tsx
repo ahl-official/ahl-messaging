@@ -1,6 +1,6 @@
 "use client";
 
-// Composer ₹ icon → clinic chooser (American Hairline / Alchemane) → payment dialog
+// Composer ₹ icon → salon chooser (American Hairline / Alchemane) → payment dialog
 // with two modes (Link / UPI). The dialog drops the message into the
 // chat input only when the server-side QR send fails — when the QR
 // bubble lands successfully, we just close and let polling refresh.
@@ -67,7 +67,7 @@ export function PaymentLinkButton({ contactId, disabled, onPrefill }: Props) {
 }
 
 // ---------------------------------------------------------------------
-// Clinic chooser — first step. Alchemane is disabled until the operator
+// Salon chooser — first step. Alchemane is disabled until the operator
 // integrates its own gateway account.
 // ---------------------------------------------------------------------
 function ClinicChooserDialog({
@@ -246,7 +246,7 @@ function PaymentLinkDialog({
                 American Hairline · Send payment
               </h3>
               <p className="text-[11px] leading-tight text-muted-foreground">
-                Link bhejo ya direct UPI QR — patient ke hisaab se choose karo.
+                Link bhejo ya direct UPI QR — client ke hisaab se choose karo.
               </p>
             </div>
           </div>
@@ -346,7 +346,7 @@ function PaymentLinkDialog({
             <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
             <div>
               {mode === "link"
-                ? "Link generate hote hi QR + caption chat mein chala jayega. Patient scan/click karke pay karega — webhook se auto receipt ban jayega."
+                ? "Link generate hote hi QR + caption chat mein chala jayega. Client scan/click karke pay karega — webhook se auto receipt ban jayega."
                 : "PayU se UPI QR generate hoga — scan karte hi GPay/Paytm/PhonePe khulega. Payment milte hi status auto Paid ho jayega aur receipt khud bhej dega."}
             </div>
           </div>

@@ -3,9 +3,9 @@
 // Operator clicks the ₹ icon in the chat composer → small dialog →
 // this route. Two modes:
 //   - mode='link': mint a PayU/Razorpay payment link (hosted checkout)
-//     and send a QR of that URL to the patient.
+//     and send a QR of that URL to the client.
 //   - mode='upi':  call PayU's Dynamic UPI QR API (DBQR / UPIDBQR) and
-//     send a QR of the returned `upi://pay?...` deeplink. Patient
+//     send a QR of the returned `upi://pay?...` deeplink. Client
 //     scanning it lands directly in GPay / Paytm / PhonePe — no PayU
 //     webpage in between. The S2S webhook fires on success exactly the
 //     same way, so the existing handler flips status → paid and
@@ -29,7 +29,7 @@ interface Body {
   /** 'link' (default) — gateway-hosted checkout link.
    *  'upi'  — PayU Dynamic UPI QR (true `upi://pay` deeplink). */
   mode?: "link" | "upi";
-  /** Which clinic's payment account to mint through. Defaults to American Hairline
+  /** Which salon's payment account to mint through. Defaults to American Hairline
    *  so existing callers keep working without code changes. */
   clinic?: "americanhairline" | "alchemane";
 }
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
   // -----------------------------------------------------------------
   // UPI mode — mint a regular PayU payment-link, then scrape the
   // `upi://pay?…` deeplink from PayU's hosted /upfrontQr screen and
-  // send a QR of that deeplink to the patient. Patient scanning it
+  // send a QR of that deeplink to the client. Client scanning it
   // jumps straight into GPay / Paytm / PhonePe, payment flows through
   // PayU and the existing S2S webhook flips the row to `paid`.
   // -----------------------------------------------------------------
@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
         lines.push("Scan QR via GPay / Paytm / PhonePe to pay.");
       }
       // Same-device UPI intent fails for high-value (>= ₹2000) on most
-      // banks — patient needs to scan from a SECOND phone.
+      // banks — client needs to scan from a SECOND phone.
       if (amountMinor >= 200000) {
         lines.push(
           "Note: ₹2000+ ke liye QR ko KISI DUSRE phone se scan kijiye — same phone se UPI fail karta hai.",
