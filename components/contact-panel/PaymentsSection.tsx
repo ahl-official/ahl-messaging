@@ -166,7 +166,7 @@ export function PaymentsSection({ contactId }: { contactId: string }) {
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-emerald-100 text-emerald-700">
+                    <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-primary/15 text-primary">
                       <IndianRupee className="h-3 w-3" />
                     </span>
                     <span className="text-sm font-semibold tabular-nums">
@@ -190,7 +190,7 @@ export function PaymentsSection({ contactId }: { contactId: string }) {
                       href={r.short_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-[10.5px] font-semibold text-emerald-700 hover:underline"
+                      className="inline-flex items-center gap-1 text-[10.5px] font-semibold text-primary hover:underline"
                     >
                       Open <ExternalLink className="h-3 w-3" />
                     </a>
@@ -203,7 +203,7 @@ export function PaymentsSection({ contactId }: { contactId: string }) {
                     >
                       {copiedId === r.id ? (
                         <>
-                          <Check className="h-3 w-3 text-emerald-600" /> Copied
+                          <Check className="h-3 w-3 text-primary" /> Copied
                         </>
                       ) : (
                         <>
@@ -238,7 +238,7 @@ export function PaymentsSection({ contactId }: { contactId: string }) {
                   onClick={() => handleSendReceipt(r.id)}
                   disabled={sendingId === r.id}
                   className={cn(
-                    "mt-2 inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2 py-0.5 text-[10.5px] font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50",
+                    "mt-2 inline-flex items-center gap-1 rounded-md bg-primary px-2 py-0.5 text-[10.5px] font-semibold text-white shadow-sm transition hover:bg-primary/90 disabled:opacity-50",
                   )}
                 >
                   {sendingId === r.id ? (
@@ -250,7 +250,7 @@ export function PaymentsSection({ contactId }: { contactId: string }) {
                 </button>
               ) : null}
               {isPaid && r.receipt_sent_at ? (
-                <div className="mt-1 inline-flex items-center gap-1 text-[10.5px] text-emerald-700">
+                <div className="mt-1 inline-flex items-center gap-1 text-[10.5px] text-primary">
                   <Check className="h-3 w-3" /> Receipt sent{" "}
                   {new Date(r.receipt_sent_at).toLocaleString()}
                 </div>
@@ -285,7 +285,7 @@ function SectionShell({ children }: { children: React.ReactNode }) {
   return (
     <section className="rounded-xl border bg-card px-3 py-2.5 shadow-sm">
       <header className="mb-1.5 flex items-center gap-1.5">
-        <IndianRupee className="h-3.5 w-3.5 text-emerald-600" />
+        <IndianRupee className="h-3.5 w-3.5 text-primary" />
         <h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
           Payments
         </h3>
@@ -312,7 +312,7 @@ function StatusPill({ status }: { status: PaymentRow["status"] }) {
     },
     paid: {
       label: "Paid",
-      cls: "bg-emerald-100 text-emerald-800",
+      cls: "bg-primary/15 text-primary",
       icon: Check,
     },
     cancelled: {

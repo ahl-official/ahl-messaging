@@ -58,7 +58,7 @@ interface PermsResp {
 const ROLE_TONE: Record<Role, string> = {
   owner: "bg-amber-50 text-amber-800 ring-amber-200",
   superadmin: "bg-purple-50 text-purple-800 ring-purple-200",
-  admin: "bg-emerald-50 text-emerald-800 ring-emerald-200",
+  admin: "bg-primary/10 text-primary ring-primary/25",
   teammate: "bg-secondary text-foreground/70 ring-border",
 };
 
@@ -165,7 +165,7 @@ export function TeamView() {
             <button
               type="button"
               onClick={() => setInviting(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary/90"
             >
               <Plus className="h-3.5 w-3.5" />
               Invite member
@@ -192,7 +192,7 @@ export function TeamView() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search team by name or email…"
-                className="h-9 w-full rounded-lg border bg-card pl-9 pr-3 text-sm shadow-sm outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-200"
+                className="h-9 w-full rounded-lg border bg-card pl-9 pr-3 text-sm shadow-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
               />
             </div>
           ) : null}
@@ -375,7 +375,7 @@ function PendingRow({
         type="button"
         onClick={approve}
         disabled={busy !== null}
-        className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
+        className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary/90 disabled:opacity-50"
       >
         {busy === "approve" ? (
           <Loader2 className="h-3 w-3 animate-spin" />
@@ -416,12 +416,12 @@ function Stat({
   tone?: "emerald" | "amber";
 }) {
   const ring = tone === "emerald"
-    ? "ring-emerald-100"
+    ? "ring-primary/20"
     : tone === "amber"
       ? "ring-amber-100"
       : "ring-border";
   const accent = tone === "emerald"
-    ? "bg-emerald-500/10 text-emerald-700"
+    ? "bg-primary/10 text-primary"
     : tone === "amber"
       ? "bg-amber-500/10 text-amber-700"
       : "bg-secondary text-foreground/70";
@@ -517,7 +517,7 @@ function MemberRow({
         className={cn(
           "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-semibold ring-1 ring-inset",
           member.is_active
-            ? "bg-emerald-100 text-emerald-700 ring-emerald-200"
+            ? "bg-primary/15 text-primary ring-primary/25"
             : "bg-secondary text-muted-foreground ring-border opacity-60",
         )}
       >
@@ -674,7 +674,7 @@ function MemberRow({
           disabled={busy !== null}
           className={cn(
             "inline-flex items-center gap-1 rounded-md border bg-background px-2 py-1 text-[11px] font-medium hover:bg-secondary disabled:opacity-50",
-            member.is_active ? "text-foreground" : "text-emerald-700",
+            member.is_active ? "text-foreground" : "text-primary",
           )}
         >
           {member.is_active ? (
@@ -859,7 +859,7 @@ function InviteDialog({
                     className={cn(
                       "flex items-center justify-between gap-1.5 rounded-lg border px-3 py-2 text-left text-xs transition",
                       role === r
-                        ? "border-emerald-300 bg-emerald-50/50 shadow-sm"
+                        ? "border-primary/30 bg-primary/10 shadow-sm"
                         : "hover:bg-secondary",
                     )}
                   >
@@ -867,7 +867,7 @@ function InviteDialog({
                       <Icon className="h-3.5 w-3.5 text-muted-foreground" />
                       <span className="font-medium">{ROLE_LABEL[r]}</span>
                     </span>
-                    {role === r ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : null}
+                    {role === r ? <Check className="h-3.5 w-3.5 text-primary" /> : null}
                   </button>
                 );
               })}
@@ -915,7 +915,7 @@ function SkeletonState() {
 }
 
 const TEAM_CHIP_COLORS: Record<string, string> = {
-  emerald: "bg-emerald-50 text-emerald-800 ring-emerald-200",
+  emerald: "bg-primary/10 text-primary ring-primary/25",
   sky:     "bg-sky-50 text-sky-800 ring-sky-200",
   violet:  "bg-violet-50 text-violet-800 ring-violet-200",
   amber:   "bg-amber-50 text-amber-800 ring-amber-200",

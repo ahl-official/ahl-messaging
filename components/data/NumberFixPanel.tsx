@@ -245,7 +245,7 @@ export function NumberFixPanel() {
             <div className="mt-3 space-y-2.5 rounded-lg border bg-secondary/30 p-3">
               <div className="flex flex-wrap gap-x-5 gap-y-1 text-[12px]">
                 <span>
-                  <span className="font-bold text-emerald-700">
+                  <span className="font-bold text-primary">
                     {preview.toFix.toLocaleString()}
                   </span>{" "}
                   to rename
@@ -268,7 +268,7 @@ export function NumberFixPanel() {
 
               {preview.samples.length > 0 ? (
                 <div className="space-y-0.5">
-                  <div className="text-[11px] font-semibold text-emerald-700">
+                  <div className="text-[11px] font-semibold text-primary">
                     Rename
                   </div>
                   <div className="max-h-44 space-y-0.5 overflow-y-auto font-mono text-[11px] text-muted-foreground">
@@ -319,7 +319,7 @@ export function NumberFixPanel() {
                     type="button"
                     onClick={apply}
                     disabled={busy}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
                   >
                     {busy ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -352,7 +352,7 @@ export function NumberFixPanel() {
 
           {/* Result */}
           {result ? (
-            <div className="mt-3 flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-[12px] text-emerald-900">
+            <div className="mt-3 flex items-start gap-2 rounded-lg border border-primary/25 bg-primary/10 p-3 text-[12px] text-primary">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
               <div>
                 <strong>{result.fixed.toLocaleString()}</strong> renamed,{" "}

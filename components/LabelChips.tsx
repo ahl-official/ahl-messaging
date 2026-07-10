@@ -75,7 +75,7 @@ export function useLabels(): LabelDef[] | null {
 }
 
 const TONE: Record<string, string> = {
-  emerald: "bg-emerald-50 text-emerald-800 ring-emerald-200",
+  emerald: "bg-primary/10 text-primary ring-primary/25",
   sky:     "bg-sky-50 text-sky-800 ring-sky-200",
   violet:  "bg-violet-50 text-violet-800 ring-violet-200",
   amber:   "bg-amber-50 text-amber-800 ring-amber-200",
@@ -85,7 +85,7 @@ const TONE: Record<string, string> = {
 };
 
 const DOT: Record<string, string> = {
-  emerald: "bg-emerald-500",
+  emerald: "bg-primary",
   sky:     "bg-sky-500",
   violet:  "bg-violet-500",
   amber:   "bg-amber-500",
@@ -96,7 +96,7 @@ const DOT: Record<string, string> = {
 
 // Tag-icon stroke colours so the icon picks up the chip's accent.
 const ICON: Record<string, string> = {
-  emerald: "text-emerald-600",
+  emerald: "text-primary",
   sky:     "text-sky-600",
   violet:  "text-violet-600",
   amber:   "text-amber-600",
@@ -254,7 +254,7 @@ export function LabelPicker({
                             className={cn(
                               "flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-xs transition",
                               isOn
-                                ? "bg-emerald-50/40 font-semibold text-foreground"
+                                ? "bg-primary/10 font-semibold text-foreground"
                                 : "hover:bg-secondary",
                               isCapped && "cursor-not-allowed opacity-50",
                             )}
@@ -264,7 +264,7 @@ export function LabelPicker({
                               {l.name}
                             </span>
                             {isOn ? (
-                              <span className="text-[10px] font-bold text-emerald-700">✓</span>
+                              <span className="text-[10px] font-bold text-primary">✓</span>
                             ) : isCapped ? (
                               <span className="text-[10px] text-muted-foreground">max 3</span>
                             ) : null}
@@ -278,7 +278,7 @@ export function LabelPicker({
                   <button
                     type="button"
                     onClick={() => setMode("manage")}
-                    className="inline-flex items-center gap-1 font-semibold text-emerald-700 hover:underline"
+                    className="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
                   >
                     <Tag className="h-2.5 w-2.5" />
                     Manage labels

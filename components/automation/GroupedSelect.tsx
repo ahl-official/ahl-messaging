@@ -75,8 +75,8 @@ export function GroupedSelect({
         disabled={disabled}
         onClick={() => setOpen((o) => !o)}
         className={cn(
-          "flex h-8 w-full items-center justify-between gap-2 rounded-md border bg-white px-2.5 text-left text-xs outline-none transition hover:border-emerald-300 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-muted-foreground",
-          open && "border-emerald-400 ring-1 ring-emerald-200",
+          "flex h-8 w-full items-center justify-between gap-2 rounded-md border bg-white px-2.5 text-left text-xs outline-none transition hover:border-primary/30 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-muted-foreground",
+          open && "border-primary/40 ring-1 ring-primary/25",
         )}
       >
         <span className={cn("truncate", !selected && "text-muted-foreground")}>{selected?.label ?? placeholder}</span>
@@ -100,7 +100,7 @@ export function GroupedSelect({
                         value={q}
                         onChange={(e) => setQ(e.target.value)}
                         placeholder="Search…"
-                        className="w-full rounded-md border bg-secondary/30 py-1.5 pl-7 pr-2 text-xs outline-none focus:border-emerald-400"
+                        className="w-full rounded-md border bg-secondary/30 py-1.5 pl-7 pr-2 text-xs outline-none focus:border-primary"
                       />
                     </div>
                   </div>
@@ -120,15 +120,15 @@ export function GroupedSelect({
                           type="button"
                           onClick={() => { onChange(i.value); close(); }}
                           className={cn(
-                            "flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-xs transition hover:bg-emerald-50",
-                            i.value === value && "bg-emerald-50/70 font-semibold text-emerald-700",
+                            "flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-xs transition hover:bg-primary/10",
+                            i.value === value && "bg-primary/10 font-semibold text-primary",
                           )}
                         >
                           <span className="min-w-0">
                             <span className="block truncate">{i.label}</span>
                             {i.sub ? <span className="block truncate text-[10px] text-muted-foreground">{i.sub}</span> : null}
                           </span>
-                          {i.value === value ? <Check className="h-3.5 w-3.5 shrink-0 text-emerald-600" /> : null}
+                          {i.value === value ? <Check className="h-3.5 w-3.5 shrink-0 text-primary" /> : null}
                         </button>
                       ))}
                     </div>

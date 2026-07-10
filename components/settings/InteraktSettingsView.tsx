@@ -79,7 +79,7 @@ export function InteraktSettingsView() {
     <div className="mx-auto max-w-3xl space-y-5 px-6 py-6">
       <div>
         <h1 className="flex items-center gap-2 text-lg font-semibold">
-          <Webhook className="h-5 w-5 text-emerald-700" />
+          <Webhook className="h-5 w-5 text-primary" />
           Interakt numbers
         </h1>
         <p className="mt-0.5 text-sm text-muted-foreground">
@@ -98,7 +98,7 @@ export function InteraktSettingsView() {
       {/* Add number */}
       <section className="space-y-3 rounded-xl border bg-card p-4 shadow-sm">
         <h2 className="flex items-center gap-2 text-sm font-semibold">
-          <Plus className="h-4 w-4 text-emerald-700" /> Add Interakt number
+          <Plus className="h-4 w-4 text-primary" /> Add Interakt number
         </h2>
         <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
           <input
@@ -206,7 +206,7 @@ function NumberCard({
   return (
     <section className="space-y-3 rounded-xl border bg-card p-4 shadow-sm">
       <div className="flex items-center gap-2.5">
-        <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200">
+        <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-primary/10 text-primary ring-1 ring-inset ring-primary/25">
           <Phone className="h-4 w-4" />
         </span>
         <div className="min-w-0 flex-1">
@@ -246,7 +246,7 @@ function NumberCard({
         </label>
         {number.has_api_key ? (
           <div className="mb-1.5 flex items-center gap-2 text-xs">
-            <Check className="h-3.5 w-3.5 text-emerald-600" />
+            <Check className="h-3.5 w-3.5 text-primary" />
             <code className="rounded bg-secondary px-1.5 py-0.5 font-mono">{number.api_key_masked}</code>
           </div>
         ) : (
@@ -368,7 +368,7 @@ function CopyField({ label, value, mono }: { label: string; value: string; mono?
         <button
           type="button"
           onClick={copy}
-          className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700"
+          className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-xs font-semibold text-white transition hover:bg-primary/90"
         >
           {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
           {copied ? "Copied" : "Copy"}

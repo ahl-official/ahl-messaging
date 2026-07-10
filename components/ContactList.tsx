@@ -132,7 +132,7 @@ type AssigneeFilter = "all" | "mine" | "unassigned";
 //   • IDLE   — soft fill, Tag icon, label name. Hover = ring-2.
 //   • ACTIVE — same fill, ring-2 (always), trailing ✓.
 const LABEL_FILTER_TONE: Record<string, string> = {
-  emerald: "bg-emerald-50 text-emerald-800 ring-emerald-200",
+  emerald: "bg-primary/10 text-primary ring-primary/25",
   sky:     "bg-sky-50 text-sky-800 ring-sky-200",
   violet:  "bg-violet-50 text-violet-800 ring-violet-200",
   amber:   "bg-amber-50 text-amber-800 ring-amber-200",
@@ -141,7 +141,7 @@ const LABEL_FILTER_TONE: Record<string, string> = {
   slate:   "bg-slate-100 text-slate-700 ring-slate-200",
 };
 const LABEL_FILTER_ICON: Record<string, string> = {
-  emerald: "text-emerald-600",
+  emerald: "text-primary",
   sky:     "text-sky-600",
   violet:  "text-violet-600",
   amber:   "text-amber-600",
@@ -150,7 +150,7 @@ const LABEL_FILTER_ICON: Record<string, string> = {
   slate:   "text-slate-500",
 };
 const LABEL_FILTER_ACTIVE_RING: Record<string, string> = {
-  emerald: "ring-2 ring-emerald-400 ring-offset-1 ring-offset-card",
+  emerald: "ring-2 ring-primary/40 ring-offset-1 ring-offset-card",
   sky:     "ring-2 ring-sky-400 ring-offset-1 ring-offset-card",
   violet:  "ring-2 ring-violet-400 ring-offset-1 ring-offset-card",
   amber:   "ring-2 ring-amber-400 ring-offset-1 ring-offset-card",
@@ -1463,7 +1463,7 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
               e.preventDefault();
               setTableOpen(true);
             }}
-            className="ml-1 text-muted-foreground hover:text-emerald-700"
+            className="ml-1 text-muted-foreground hover:text-primary"
             title="CRM list view"
             aria-label="Open lead table"
           >
@@ -1533,7 +1533,7 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
                   className={cn(
                     "shrink-0 cursor-grab active:cursor-grabbing transition",
                     dragOverChip === key && dragChipRef.current && dragChipRef.current !== key
-                      ? "ring-2 ring-emerald-400 ring-offset-1 rounded-full"
+                      ? "ring-2 ring-primary/40 ring-offset-1 rounded-full"
                       : "",
                   )}
                   title="Drag to reorder"
@@ -1573,7 +1573,7 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
                               type="checkbox"
                               checked={visibleChips.has(key)}
                               onChange={() => toggleChipVisible(key)}
-                              className="h-3.5 w-3.5 accent-emerald-600"
+                              className="h-3.5 w-3.5 accent-primary"
                             />
                             <span>{CHIP_LABEL[key] ?? key}</span>
                           </label>
@@ -1666,7 +1666,7 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
                   className={cn(
                     "shrink-0 cursor-grab active:cursor-grabbing transition",
                     dragOverChip === key && dragChipRef.current && dragChipRef.current !== key
-                      ? "ring-2 ring-emerald-400 ring-offset-1 rounded-full"
+                      ? "ring-2 ring-primary/40 ring-offset-1 rounded-full"
                       : "",
                   )}
                 >
@@ -1681,7 +1681,7 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
               className={cn(
                 "ml-1 inline-flex h-7 items-center gap-1 rounded-full border px-2.5 text-[11px] font-semibold transition",
                 editChips
-                  ? "border-emerald-300 bg-emerald-50 text-emerald-700"
+                  ? "border-primary/30 bg-primary/10 text-primary"
                   : "bg-card text-muted-foreground hover:bg-secondary hover:text-foreground",
               )}
             >
@@ -1702,7 +1702,7 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
                       type="checkbox"
                       checked={visibleChips.has(key)}
                       onChange={() => toggleChipVisible(key)}
-                      className="h-3.5 w-3.5 accent-emerald-600"
+                      className="h-3.5 w-3.5 accent-primary"
                     />
                     <span>{CHIP_LABEL[key] ?? key}</span>
                   </label>
@@ -1821,7 +1821,7 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
                   type="button"
                   onClick={syncGroups}
                   disabled={syncingGroups}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
                 >
                   {syncingGroups ? "Syncing…" : "Sync groups from WhatsApp"}
                 </button>
@@ -1928,7 +1928,7 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
                       )}
                       {hasUnread ? (
                         <span
-                          className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] px-1 rounded-full bg-emerald-600 text-white text-[9px] font-semibold flex items-center justify-center ring-2 ring-card"
+                          className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] px-1 rounded-full bg-primary text-white text-[9px] font-semibold flex items-center justify-center ring-2 ring-card"
                           aria-label={`${c.unread_count} unread`}
                         >
                           {c.unread_count > 99 ? "99+" : c.unread_count}
@@ -1948,7 +1948,7 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
                               — those stay whole as shrink-0 siblings. */}
                           <span className="truncate min-w-0">{name}</span>
                           {isClosed ? (
-                            <Check className="h-3 w-3 text-emerald-600 shrink-0" aria-label="Closed" />
+                            <Check className="h-3 w-3 text-primary shrink-0" aria-label="Closed" />
                           ) : null}
                           {/* CRM stage chip — comes from contacts.lsq_stage,
                               which is mirrored from CRM whenever the
@@ -1990,7 +1990,7 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
                           className={cn(
                             "shrink-0 text-xs tabular-nums whitespace-nowrap leading-none md:text-[11px]",
                             hasUnread
-                              ? "font-bold text-emerald-700"
+                              ? "font-bold text-primary"
                               : "font-semibold text-muted-foreground",
                           )}
                         />
@@ -2017,7 +2017,7 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
                         </span>
                         {awaitingReply ? (
                           <span
-                            className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-emerald-100"
+                            className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary ring-1 ring-primary/20"
                             title="Customer is waiting for a reply"
                           >
                             <CornerDownLeft className="h-3 w-3" />
@@ -2172,8 +2172,8 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
           ) : (
             <>
               <span className="relative flex h-1.5 w-1.5 shrink-0">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-50" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-50" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
               </span>
               <span className="uppercase">Up to date</span>
               <span className="text-muted-foreground/60">·</span>
@@ -2267,7 +2267,7 @@ function PreviewTick({ status }: { status: Contact["last_message_status"] }) {
   if (status === "read") {
     return (
       <CheckCheck
-        className="h-3 w-3 shrink-0 text-emerald-600"
+        className="h-3 w-3 shrink-0 text-primary"
         aria-label="Read"
         strokeWidth={2.6}
       />

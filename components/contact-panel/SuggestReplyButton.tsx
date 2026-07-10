@@ -57,7 +57,7 @@ export function SuggestReplyButton({
         onClick={go}
         disabled={disabled || loading}
         title="Draft a reply with AI"
-        className="inline-flex items-center gap-1.5 rounded-md border border-emerald-300 bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-md border border-primary/30 bg-primary/10 px-2.5 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/15 disabled:opacity-50"
       >
         {loading ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -76,7 +76,7 @@ export function SuggestReplyButton({
         onClick={go}
         disabled={disabled || loading}
         aria-label="Suggested by AI"
-        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-emerald-600 transition hover:bg-emerald-50 hover:text-emerald-700 disabled:opacity-40"
+        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-primary transition hover:bg-primary/10 hover:text-primary disabled:opacity-40"
       >
         {loading ? (
           <Loader2 className="h-4 w-4 animate-spin" />

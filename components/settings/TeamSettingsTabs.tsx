@@ -56,7 +56,7 @@ export function TeamSettingsTabs() {
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition",
                   active
-                    ? "bg-emerald-600 text-white shadow-sm"
+                    ? "bg-primary text-white shadow-sm"
                     : "text-muted-foreground hover:bg-secondary",
                 )}
               >

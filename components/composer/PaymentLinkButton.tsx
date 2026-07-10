@@ -46,7 +46,7 @@ export function PaymentLinkButton({ contactId, disabled, onPrefill }: Props) {
         label="Send payment link"
         disabled={disabled || !contactId}
         onClick={() => setOpen(true)}
-        className="text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+        className="text-primary hover:bg-primary/10 hover:text-primary"
       />
       {open && contactId && !clinic ? (
         <ClinicChooserDialog
@@ -86,9 +86,9 @@ function ClinicChooserDialog({
       }}
     >
       <div className="relative w-full max-w-[440px] overflow-hidden rounded-2xl bg-card shadow-2xl ring-1 ring-border animate-in fade-in-0 zoom-in-95">
-        <div className="relative flex items-center justify-between border-b bg-gradient-to-r from-emerald-50 via-white to-teal-50 px-5 py-3.5">
+        <div className="relative flex items-center justify-between border-b bg-gradient-to-r from-primary/10 via-white to-[#6098FF]/10 px-5 py-3.5">
           <div className="flex items-center gap-2.5">
-            <span className="relative inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm ring-1 ring-inset ring-white/40">
+            <span className="relative inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#6098FF] to-[#6098FF] text-white shadow-sm ring-1 ring-inset ring-white/40">
               <Hospital className="h-4 w-4" />
             </span>
             <div>
@@ -114,14 +114,14 @@ function ClinicChooserDialog({
           <button
             type="button"
             onClick={() => onPick("americanhairline")}
-            className="group flex flex-col items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50/70 p-4 text-left transition hover:border-emerald-400 hover:bg-emerald-50"
+            className="group flex flex-col items-start gap-2 rounded-xl border border-primary/25 bg-primary/10 p-4 text-left transition hover:border-primary/40 hover:bg-primary/10"
           >
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600 text-white">
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-white">
               <Hospital className="h-4 w-4" />
             </span>
             <div>
-              <div className="text-sm font-bold text-emerald-900">American Hairline</div>
-              <div className="text-[10.5px] text-emerald-700">
+              <div className="text-sm font-bold text-primary">American Hairline</div>
+              <div className="text-[10.5px] text-primary">
                 Integrated · Link / UPI
               </div>
             </div>
@@ -236,9 +236,9 @@ function PaymentLinkDialog({
         onSubmit={handleGenerate}
         className="relative w-full max-w-[460px] overflow-hidden rounded-2xl bg-card shadow-2xl ring-1 ring-border animate-in fade-in-0 zoom-in-95"
       >
-        <div className="relative flex items-center justify-between border-b bg-gradient-to-r from-emerald-50 via-white to-teal-50 px-5 py-3.5">
+        <div className="relative flex items-center justify-between border-b bg-gradient-to-r from-primary/10 via-white to-[#6098FF]/10 px-5 py-3.5">
           <div className="flex items-center gap-2.5">
-            <span className="relative inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm ring-1 ring-inset ring-white/40">
+            <span className="relative inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#6098FF] to-[#6098FF] text-white shadow-sm ring-1 ring-inset ring-white/40">
               <IndianRupee className="h-4 w-4" />
             </span>
             <div>
@@ -271,7 +271,7 @@ function PaymentLinkDialog({
               className={cn(
                 "flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition",
                 mode === "link"
-                  ? "bg-card text-emerald-700 shadow-sm ring-1 ring-emerald-200"
+                  ? "bg-card text-primary shadow-sm ring-1 ring-primary/25"
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
@@ -285,7 +285,7 @@ function PaymentLinkDialog({
               className={cn(
                 "flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition",
                 mode === "upi"
-                  ? "bg-card text-emerald-700 shadow-sm ring-1 ring-emerald-200"
+                  ? "bg-card text-primary shadow-sm ring-1 ring-primary/25"
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
@@ -298,7 +298,7 @@ function PaymentLinkDialog({
             <label className="mb-1.5 block text-xs font-semibold text-foreground">
               Amount (₹)
             </label>
-            <div className="flex h-11 items-center gap-2 rounded-lg border border-input bg-background px-3 focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-200/40">
+            <div className="flex h-11 items-center gap-2 rounded-lg border border-input bg-background px-3 focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/40">
               <span className="text-base font-bold text-muted-foreground">₹</span>
               <input
                 ref={amountRef}
@@ -316,9 +316,9 @@ function PaymentLinkDialog({
                   type="button"
                   onClick={() => setAmount(String(p))}
                   className={cn(
-                    "rounded-full border border-input bg-background px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground transition hover:bg-emerald-50 hover:text-emerald-700",
+                    "rounded-full border border-input bg-background px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground transition hover:bg-primary/10 hover:text-primary",
                     Number(amount) === p &&
-                      "border-emerald-300 bg-emerald-50 text-emerald-800",
+                      "border-primary/30 bg-primary/10 text-primary",
                   )}
                 >
                   ₹{p.toLocaleString("en-IN")}
@@ -338,12 +338,12 @@ function PaymentLinkDialog({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Consultation fee, Surgery booking, etc."
-              className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+              className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
           </div>
 
-          <div className="flex items-start gap-2 rounded-lg border border-emerald-200/80 bg-emerald-50/70 px-3 py-2 text-[11.5px] leading-relaxed text-emerald-900">
-            <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
+          <div className="flex items-start gap-2 rounded-lg border border-primary/25/80 bg-primary/10 px-3 py-2 text-[11.5px] leading-relaxed text-primary">
+            <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
             <div>
               {mode === "link"
                 ? "Link generate hote hi QR + caption chat mein chala jayega. Client scan/click karke pay karega — webhook se auto receipt ban jayega."
@@ -370,7 +370,7 @@ function PaymentLinkDialog({
           <button
             type="submit"
             disabled={busy || !amount}
-            className="group relative inline-flex items-center gap-1.5 overflow-hidden rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-2 text-xs font-bold text-white shadow-md transition hover:shadow-lg disabled:opacity-40"
+            className="group relative inline-flex items-center gap-1.5 overflow-hidden rounded-lg bg-gradient-to-r from-[#6098FF] to-[#6098FF] px-4 py-2 text-xs font-bold text-white shadow-md transition hover:shadow-lg disabled:opacity-40"
           >
             {busy ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />

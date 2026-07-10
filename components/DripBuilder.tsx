@@ -73,7 +73,7 @@ const STEP_META: Record<
     label: "Template",
     sub: "Approved WhatsApp template — delivers outside the 24h window.",
     icon: Send,
-    tone: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+    tone: "bg-primary/10 text-primary ring-primary/25",
   },
   magic: {
     label: "Magic Message",
@@ -548,7 +548,7 @@ export function DripBuilder({ onClose, editId }: { onClose: () => void; editId?:
 
       {/* Footer — save */}
       <footer className="space-y-2 border-t bg-card px-6 py-3">
-        <div className="mx-auto flex max-w-2xl items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-[11px] text-emerald-900">
+        <div className="mx-auto flex max-w-2xl items-center gap-2 rounded-md border border-primary/25 bg-primary/10 px-3 py-2 text-[11px] text-primary">
           <Info className="h-3.5 w-3.5 shrink-0" />
           LSQ lead is stage (+ source) pe aate hi matching contact enroll hoga aur steps auto-send
           honge. Stage badle to sequence ruk jayegi.
@@ -649,7 +649,7 @@ function NumberSelect({
           open ? "border-primary ring-2 ring-primary/10" : "hover:border-foreground/20",
         )}
       >
-        <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200">
+        <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary ring-1 ring-inset ring-primary/25">
           <Phone className="h-3.5 w-3.5" />
         </span>
         <span className="min-w-0 flex-1">
@@ -710,7 +710,7 @@ function NumberSelect({
                         }}
                         className={cn(
                           "flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition",
-                          active ? "bg-emerald-50 text-emerald-900" : "hover:bg-secondary",
+                          active ? "bg-primary/10 text-primary" : "hover:bg-secondary",
                         )}
                       >
                         <span className="min-w-0 flex-1">
@@ -721,7 +721,7 @@ function NumberSelect({
                             </span>
                           ) : null}
                         </span>
-                        {active ? <Check className="h-4 w-4 shrink-0 text-emerald-600" /> : null}
+                        {active ? <Check className="h-4 w-4 shrink-0 text-primary" /> : null}
                       </button>
                     );
                   })}
@@ -1123,7 +1123,7 @@ export function DripsList({
                       className={cn(
                         "mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset",
                         d.enabled
-                          ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+                          ? "bg-primary/10 text-primary ring-primary/25"
                           : "bg-slate-100 text-slate-400 ring-slate-200",
                       )}
                     >
@@ -1136,7 +1136,7 @@ export function DripsList({
                           className={cn(
                             "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ring-1 ring-inset",
                             d.enabled
-                              ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+                              ? "bg-primary/10 text-primary ring-primary/25"
                               : "bg-slate-100 text-slate-500 ring-slate-200",
                           )}
                         >
@@ -1183,7 +1183,7 @@ export function DripsList({
                           "inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-semibold ring-1 ring-inset transition disabled:opacity-50",
                           d.enabled
                             ? "bg-amber-50 text-amber-700 ring-amber-200 hover:bg-amber-100"
-                            : "bg-emerald-50 text-emerald-700 ring-emerald-200 hover:bg-emerald-100",
+                            : "bg-primary/10 text-primary ring-primary/25 hover:bg-primary/15",
                         )}
                       >
                         <Power className="h-3.5 w-3.5" />

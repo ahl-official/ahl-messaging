@@ -93,7 +93,7 @@ export default function GlobalError({
               fontSize: 13,
               fontWeight: 600,
               color: "#fff",
-              background: "#0E7C5A",
+              background: "#2E6DE2",
             }}
           >
             Reload

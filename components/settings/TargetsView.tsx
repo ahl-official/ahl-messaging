@@ -270,7 +270,7 @@ function MemberOverridesCard({
   return (
     <section className="overflow-hidden rounded-2xl border bg-card shadow-sm">
       <header className="flex items-center gap-2 border-b bg-gradient-to-r from-secondary/40 to-transparent px-5 py-3.5">
-        <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
+        <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-inset ring-primary/20">
           <Users className="h-3.5 w-3.5" />
         </span>
         <div>
@@ -303,7 +303,7 @@ function MemberOverridesCard({
                   className={cn(
                     "flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-1.5 text-left text-[11px] transition",
                     isActive
-                      ? "bg-card font-semibold ring-1 ring-emerald-200"
+                      ? "bg-card font-semibold ring-1 ring-primary/25"
                       : "text-muted-foreground hover:bg-secondary",
                   )}
                 >
@@ -495,7 +495,7 @@ function MemberEditor({
           {error ? (
             <span className="text-rose-700">{error}</span>
           ) : savedAt ? (
-            <span className="inline-flex items-center gap-1.5 text-emerald-700">
+            <span className="inline-flex items-center gap-1.5 text-primary">
               <Check className="h-3.5 w-3.5" /> Saved
             </span>
           ) : (

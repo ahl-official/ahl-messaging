@@ -78,7 +78,7 @@ export function LeadNumberField({ leadNumber, leadUrl, loading }: Props) {
             type="button"
             onClick={() => setOpen((o) => !o)}
             title={copied ? "Copied" : "Click for actions"}
-            className="inline-flex max-w-full items-center gap-1 truncate font-mono text-[12px] font-medium text-foreground transition-colors hover:text-emerald-700"
+            className="inline-flex max-w-full items-center gap-1 truncate font-mono text-[12px] font-medium text-foreground transition-colors hover:text-primary"
             aria-haspopup="menu"
             aria-expanded={open}
           >
@@ -87,7 +87,7 @@ export function LeadNumberField({ leadNumber, leadUrl, loading }: Props) {
               className={
                 "shrink-0 text-[9px] font-medium transition-opacity " +
                 (copied
-                  ? "text-emerald-700 opacity-100"
+                  ? "text-primary opacity-100"
                   : "text-muted-foreground opacity-60 group-hover:opacity-100")
               }
             >
@@ -110,7 +110,7 @@ export function LeadNumberField({ leadNumber, leadUrl, loading }: Props) {
               className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] hover:bg-secondary"
             >
               {copied ? (
-                <Check className="h-3.5 w-3.5 text-emerald-600" />
+                <Check className="h-3.5 w-3.5 text-primary" />
               ) : (
                 <CopyIcon className="h-3.5 w-3.5 text-muted-foreground" />
               )}

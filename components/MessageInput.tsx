@@ -502,7 +502,7 @@ export function MessageInput({
                   label="Date Align"
                   disabled={disabled || sending}
                   onClick={onDateAlign}
-                  className="text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+                  className="text-primary hover:bg-primary/10 hover:text-primary"
                 />
               ) : null}
               {onSendFile ? (
@@ -544,7 +544,7 @@ export function MessageInput({
             className={cn(
               "mb-1.5 flex items-start gap-2 rounded-md border-l-4 bg-secondary/60 px-2.5 py-1.5",
               replyingTo.direction === "outbound"
-                ? "border-emerald-500"
+                ? "border-primary"
                 : "border-sky-500",
             )}
           >
@@ -687,10 +687,10 @@ export function MessageInput({
                       onMouseEnter={() => setSlashIdx(i)}
                       className={cn(
                         "flex w-full flex-col gap-0.5 px-3 py-2 text-left transition",
-                        i === slashIdx ? "bg-emerald-50" : "hover:bg-secondary",
+                        i === slashIdx ? "bg-primary/10" : "hover:bg-secondary",
                       )}
                     >
-                      <code className="self-start rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-800 ring-1 ring-emerald-200">
+                      <code className="self-start rounded bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold text-primary ring-1 ring-primary/25">
                         /{qr.shortcut}
                       </code>
                       <span className="line-clamp-2 text-xs text-foreground/80">

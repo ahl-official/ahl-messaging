@@ -205,7 +205,7 @@ export function MagicMessageImageDialog({
             />
 
             {previewUrl ? (
-              <div className="rounded-md border bg-emerald-50/40 p-2">
+              <div className="rounded-md border bg-primary/10 p-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={previewUrl}

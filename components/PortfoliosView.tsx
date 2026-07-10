@@ -101,7 +101,7 @@ export function PortfoliosView() {
 
       <div className="min-h-0 flex-1 overflow-auto p-6">
         <div className="mx-auto max-w-4xl space-y-5">
-          <div className="flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-900">
+          <div className="flex items-start gap-2 rounded-lg border border-primary/25 bg-primary/10 px-4 py-3 text-xs text-primary">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
             <div>
               <strong>Secrets stay in <span className="font-mono">.env.local</span>.</strong>{" "}
@@ -200,7 +200,7 @@ function PortfolioCard({
         <div className="flex min-w-0 items-center gap-2">
           <h2 className="truncate text-sm font-semibold">{portfolio.name}</h2>
           {portfolio.is_active ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary ring-1 ring-inset ring-primary/25">
               <Power className="h-3 w-3" />
               Active
             </span>
@@ -213,7 +213,7 @@ function PortfolioCard({
 
         <div className="flex shrink-0 items-center gap-2">
           {allRequiredSet ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-[11px] font-semibold text-primary ring-1 ring-inset ring-primary/25">
               <CheckCircle2 className="h-3.5 w-3.5" />
               Configured
             </span>

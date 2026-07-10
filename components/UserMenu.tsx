@@ -51,7 +51,7 @@ const ROLE_PILL_CLASS: Record<Role, string> = {
 // Stable hashed gradient per initials so the same user always gets the
 // same avatar colour across pages — same approach used in Home/Inbox.
 const AVATAR_GRADIENTS = [
-  "from-emerald-500 to-teal-600",
+  "from-[#6098FF] to-[#6098FF]",
   "from-violet-500 to-purple-600",
   "from-sky-500 to-blue-600",
   "from-amber-500 to-orange-600",
@@ -103,8 +103,8 @@ export function UserMenu({ email, fullName, role, isDemo }: Props) {
         className={cn(
           "group flex items-center gap-2 rounded-full pl-1 pr-2.5 py-1 transition ring-1 ring-inset",
           open
-            ? "bg-emerald-50 ring-emerald-200"
-            : "bg-card ring-border hover:bg-secondary hover:ring-emerald-200",
+            ? "bg-primary/10 ring-primary/25"
+            : "bg-card ring-border hover:bg-secondary hover:ring-primary/25",
         )}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -119,7 +119,7 @@ export function UserMenu({ email, fullName, role, isDemo }: Props) {
             {initials}
           </span>
           {/* Online dot */}
-          <span className="absolute -bottom-0.5 -right-0.5 inline-flex h-2.5 w-2.5 items-center justify-center rounded-full bg-emerald-500 ring-2 ring-card" />
+          <span className="absolute -bottom-0.5 -right-0.5 inline-flex h-2.5 w-2.5 items-center justify-center rounded-full bg-primary ring-2 ring-card" />
         </span>
         {role ? (
           <span
@@ -143,20 +143,20 @@ export function UserMenu({ email, fullName, role, isDemo }: Props) {
         <div
           role="menu"
           className={cn(
-            "absolute right-0 top-full z-[60] mt-2 flex h-[calc(100vh-4.5rem)] w-80 flex-col overflow-hidden rounded-2xl border bg-card shadow-2xl shadow-emerald-900/10 ring-1 ring-emerald-100/60",
+            "absolute right-0 top-full z-[60] mt-2 flex h-[calc(100vh-4.5rem)] w-80 flex-col overflow-hidden rounded-2xl border bg-card shadow-2xl shadow-primary/10 ring-1 ring-primary/20",
             "animate-in fade-in-0 zoom-in-95",
           )}
         >
           {/* Profile header — emerald wash + gradient avatar. */}
-          <div className="relative shrink-0 overflow-hidden bg-gradient-to-br from-emerald-50 via-card to-card p-4">
+          <div className="relative shrink-0 overflow-hidden bg-gradient-to-br from-primary/10 via-card to-card p-4">
             <div
               aria-hidden
-              className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-200/40 blur-2xl"
+              className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/20/40 blur-2xl"
             />
             <div className="relative flex items-center gap-3">
               <span
                 className={cn(
-                  "inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-base font-bold text-white shadow-lg shadow-emerald-900/20 ring-2 ring-white",
+                  "inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-base font-bold text-white shadow-lg shadow-primary/20 ring-2 ring-white",
                   gradient,
                 )}
               >
@@ -168,10 +168,10 @@ export function UserMenu({ email, fullName, role, isDemo }: Props) {
                 </div>
                 <div className="mt-1 flex items-center gap-1.5">
                   <span className="relative inline-flex">
-                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    <span className="absolute inset-0 inline-block h-1.5 w-1.5 animate-ping rounded-full bg-emerald-500/60" />
+                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
+                    <span className="absolute inset-0 inline-block h-1.5 w-1.5 animate-ping rounded-full bg-primary/60" />
                   </span>
-                  <span className="text-[11px] font-medium text-emerald-700">
+                  <span className="text-[11px] font-medium text-primary">
                     Online
                   </span>
                   {role ? (
@@ -206,9 +206,9 @@ export function UserMenu({ email, fullName, role, isDemo }: Props) {
               <Link
                 href="/settings/team"
                 onClick={() => setOpen(false)}
-                className="group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] font-medium text-foreground transition hover:bg-emerald-50 hover:text-emerald-800"
+                className="group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] font-medium text-foreground transition hover:bg-primary/10 hover:text-primary"
               >
-                <SettingsIcon className="h-4 w-4 text-muted-foreground group-hover:text-emerald-700" />
+                <SettingsIcon className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
                 Workspace settings
               </Link>
             ) : null}
@@ -216,9 +216,9 @@ export function UserMenu({ email, fullName, role, isDemo }: Props) {
               <Link
                 href="/profile"
                 onClick={() => setOpen(false)}
-                className="group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] font-medium text-foreground transition hover:bg-emerald-50 hover:text-emerald-800"
+                className="group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] font-medium text-foreground transition hover:bg-primary/10 hover:text-primary"
               >
-                <UserIcon className="h-4 w-4 text-muted-foreground group-hover:text-emerald-700" />
+                <UserIcon className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
                 Profile settings
               </Link>
             ) : null}
@@ -397,12 +397,12 @@ function NumbersBlock({ canToggle, open }: { canToggle: boolean; open: boolean }
             <span
               className={cn(
                 "inline-block h-1.5 w-1.5 rounded-full",
-                allOn ? "bg-emerald-500" : allOff ? "bg-rose-500" : "bg-amber-500",
+                allOn ? "bg-primary" : allOff ? "bg-rose-500" : "bg-amber-500",
               )}
             />
             {allOn ? "All on" : allOff ? "All off" : `${onCount}/${total} on`}
             <span className="text-muted-foreground">·</span>
-            <span className="text-emerald-700">
+            <span className="text-primary">
               {allOn ? "Disable all" : "Enable all"}
             </span>
           </button>
@@ -417,7 +417,7 @@ function NumbersBlock({ canToggle, open }: { canToggle: boolean; open: boolean }
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search name, nickname or number"
-            className="w-full rounded-lg border bg-background py-1.5 pl-7 pr-2 text-[12px] outline-none focus:ring-2 focus:ring-emerald-200"
+            className="w-full rounded-lg border bg-background py-1.5 pl-7 pr-2 text-[12px] outline-none focus:ring-2 focus:ring-primary/20"
           />
         </div>
       ) : null}
@@ -534,7 +534,7 @@ function Toggle({
       disabled={disabled}
       className={cn(
         "relative inline-flex h-4 w-7 shrink-0 items-center rounded-full transition",
-        on ? "bg-emerald-500" : "bg-muted-foreground/40",
+        on ? "bg-primary" : "bg-muted-foreground/40",
         disabled && "cursor-not-allowed opacity-60",
       )}
     >
@@ -558,10 +558,10 @@ function NotificationsRow() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] font-medium text-foreground transition hover:bg-emerald-50 hover:text-emerald-800"
+        className="group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] font-medium text-foreground transition hover:bg-primary/10 hover:text-primary"
         aria-expanded={open}
       >
-        <Bell className="h-4 w-4 text-muted-foreground group-hover:text-emerald-700" />
+        <Bell className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
         <span className="flex-1">Notifications</span>
         <ChevronDown
           className={cn(

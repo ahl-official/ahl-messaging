@@ -21,7 +21,7 @@ interface Row {
 
 const STATUS_STYLE: Record<string, string> = {
   pending: "bg-amber-100 text-amber-800",
-  pushed: "bg-emerald-100 text-emerald-800",
+  pushed: "bg-primary/15 text-primary",
   failed: "bg-rose-100 text-rose-700",
 };
 const STATUS_LABEL: Record<string, string> = {
@@ -108,7 +108,7 @@ export function LsqPushFailuresPanel() {
             type="button"
             onClick={retryNow}
             disabled={retrying || pending === 0}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 disabled:opacity-40"
           >
             {retrying ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCcw className="h-3.5 w-3.5" />}
             Retry now{pending > 0 ? ` (${pending})` : ""}

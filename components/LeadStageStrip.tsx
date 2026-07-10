@@ -562,7 +562,7 @@ export function LeadStageStrip({
         <button
           type="button"
           onClick={toggleCollapsed}
-          className="flex items-center gap-1.5 px-3 text-[10px] font-bold uppercase tracking-wide text-muted-foreground transition hover:text-emerald-700"
+          className="flex items-center gap-1.5 px-3 text-[10px] font-bold uppercase tracking-wide text-muted-foreground transition hover:text-primary"
           title="Show stage bar"
           aria-label="Show stage bar"
         >
@@ -591,7 +591,7 @@ export function LeadStageStrip({
             onClick={() => nudge(-1)}
             onMouseEnter={() => startAuto(-1)}
             onMouseLeave={stopAuto}
-            className="absolute left-1.5 top-1/2 z-[80] inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border bg-card text-muted-foreground shadow-md transition hover:scale-110 hover:bg-emerald-50 hover:text-emerald-700"
+            className="absolute left-1.5 top-1/2 z-[80] inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border bg-card text-muted-foreground shadow-md transition hover:scale-110 hover:bg-primary/10 hover:text-primary"
             aria-label="Scroll stages left"
           >
             <ChevronLeft className="h-3.5 w-3.5" />
@@ -745,7 +745,7 @@ export function LeadStageStrip({
             ref={hiddenBtnRef}
             type="button"
             onClick={() => setHiddenPanelOpen((v) => !v)}
-            className="ml-1 inline-flex h-9 shrink-0 items-center gap-1.5 self-center rounded-full border border-dashed border-slate-300 bg-card px-3 text-[11px] font-bold uppercase tracking-wider text-slate-600 shadow-sm transition hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-700"
+            className="ml-1 inline-flex h-9 shrink-0 items-center gap-1.5 self-center rounded-full border border-dashed border-slate-300 bg-card px-3 text-[11px] font-bold uppercase tracking-wider text-slate-600 shadow-sm transition hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
             title="Show hidden stages"
           >
             <EyeOff className="h-3.5 w-3.5" />
@@ -778,7 +778,7 @@ export function LeadStageStrip({
                   <button
                     type="button"
                     onClick={unhideAll}
-                    className="rounded-md px-2 py-0.5 text-[11px] font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                    className="rounded-md px-2 py-0.5 text-[11px] font-semibold text-primary transition hover:bg-primary/10"
                   >
                     Unhide all
                   </button>
@@ -793,7 +793,7 @@ export function LeadStageStrip({
                       <button
                         type="button"
                         onClick={() => unhideStage(s)}
-                        className="inline-flex h-6 items-center gap-1 rounded-md border bg-card px-2 text-[10px] font-semibold text-foreground transition hover:bg-emerald-50 hover:text-emerald-700"
+                        className="inline-flex h-6 items-center gap-1 rounded-md border bg-card px-2 text-[10px] font-semibold text-foreground transition hover:bg-primary/10 hover:text-primary"
                         title="Show this stage again"
                       >
                         Unhide
@@ -906,7 +906,7 @@ export function LeadStageStrip({
                 unhideAll();
                 setCtxMenu(null);
               }}
-              className="flex w-full items-center gap-2 border-t px-3 py-2 text-left text-xs font-medium text-emerald-700 transition hover:bg-emerald-50"
+              className="flex w-full items-center gap-2 border-t px-3 py-2 text-left text-xs font-medium text-primary transition hover:bg-primary/10"
             >
               <Eye className="h-3.5 w-3.5" />
               Unhide all ({hidden.size})
@@ -926,7 +926,7 @@ export function LeadStageStrip({
             onClick={() => nudge(1)}
             onMouseEnter={() => startAuto(1)}
             onMouseLeave={stopAuto}
-            className="absolute right-1.5 top-1/2 z-[80] inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border bg-card text-muted-foreground shadow-md transition hover:scale-110 hover:bg-emerald-50 hover:text-emerald-700"
+            className="absolute right-1.5 top-1/2 z-[80] inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border bg-card text-muted-foreground shadow-md transition hover:scale-110 hover:bg-primary/10 hover:text-primary"
             aria-label="Scroll stages right"
           >
             <ChevronRight className="h-3.5 w-3.5" />
@@ -983,7 +983,7 @@ export function LeadStageStrip({
         <button
           type="button"
           onClick={toggleCollapsed}
-          className="flex flex-1 items-center justify-center text-muted-foreground transition hover:bg-emerald-50 hover:text-emerald-700"
+          className="flex flex-1 items-center justify-center text-muted-foreground transition hover:bg-primary/10 hover:text-primary"
           title="Hide stage bar"
           aria-label="Hide stage bar"
         >
@@ -994,8 +994,8 @@ export function LeadStageStrip({
           type="button"
           onClick={() => setSearchOpen((v) => !v)}
           className={cn(
-            "flex flex-1 items-center justify-center border-t text-muted-foreground transition hover:bg-emerald-50 hover:text-emerald-700",
-            searchOpen && "bg-emerald-50 text-emerald-700",
+            "flex flex-1 items-center justify-center border-t text-muted-foreground transition hover:bg-primary/10 hover:text-primary",
+            searchOpen && "bg-primary/10 text-primary",
           )}
           title="Search stages"
           aria-label="Search stages"

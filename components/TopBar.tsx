@@ -34,7 +34,7 @@ export function TopBar({ email, fullName, role, isDemo }: Props) {
           AHL Messaging
         </span>
         {/* Region tag — names the CRM region this inbox is wired to. */}
-        <span className="hidden md:inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 ring-1 ring-inset ring-emerald-100">
+        <span className="hidden md:inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary ring-1 ring-inset ring-primary/20">
           Mumbai, Khar West
         </span>
       </div>

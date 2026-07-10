@@ -124,7 +124,7 @@ export function EmbedSettingsView() {
                           )
                         }
                         placeholder="https://crm.example.com"
-                        className="flex-1 rounded-lg border px-3 py-2 font-mono text-xs outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+                        className="flex-1 rounded-lg border px-3 py-2 font-mono text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                       />
                       <button
                         type="button"
@@ -176,13 +176,13 @@ export function EmbedSettingsView() {
               {error ? (
                 <span className="text-xs text-rose-600">{error}</span>
               ) : savedAt && !dirty ? (
-                <span className="text-xs text-emerald-600">Saved</span>
+                <span className="text-xs text-primary">Saved</span>
               ) : null}
               <button
                 type="button"
                 onClick={save}
                 disabled={saving || !dirty}
-                className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
               >
                 {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                 Save

@@ -21,7 +21,7 @@ export function TasksChip() {
         hasOpen
           ? overdue > 0
             ? "text-rose-700 ring-rose-300 shadow-sm shadow-rose-200"
-            : "text-emerald-700 ring-emerald-300"
+            : "text-primary ring-primary/30"
           : "text-muted-foreground ring-border",
       )}
       title={
@@ -44,13 +44,13 @@ export function TasksChip() {
           <span
             className={cn(
               "absolute inset-0 inline-flex h-full w-full animate-ping rounded-full opacity-75",
-              overdue > 0 ? "bg-rose-500" : "bg-emerald-500",
+              overdue > 0 ? "bg-rose-500" : "bg-primary",
             )}
           />
           <span
             className={cn(
               "relative inline-flex h-2.5 w-2.5 rounded-full ring-2 ring-background",
-              overdue > 0 ? "bg-rose-600" : "bg-emerald-500",
+              overdue > 0 ? "bg-rose-600" : "bg-primary",
             )}
           />
         </span>

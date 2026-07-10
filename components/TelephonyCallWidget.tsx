@@ -54,7 +54,7 @@ export function TelephonyCallWidget() {
 
   return (
     <div className="fixed bottom-4 right-4 z-[60] w-72 overflow-hidden rounded-2xl border bg-card shadow-2xl">
-      <div className="flex items-center justify-between bg-gradient-to-br from-emerald-600 to-emerald-700 px-4 py-2.5 text-white">
+      <div className="flex items-center justify-between bg-gradient-to-br from-primary to-[#1e56c7] px-4 py-2.5 text-white">
         <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide">
           <Phone className="h-3.5 w-3.5" /> Telephony call
         </span>
@@ -65,9 +65,9 @@ export function TelephonyCallWidget() {
 
       <div className="flex items-center gap-3 px-4 py-4">
         <div className="relative">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-lg font-bold text-emerald-700">{initial}</div>
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 text-lg font-bold text-primary">{initial}</div>
           {phase === "dialing" ? (
-            <span className="absolute inset-0 animate-ping rounded-full ring-2 ring-emerald-400/60" />
+            <span className="absolute inset-0 animate-ping rounded-full ring-2 ring-primary/40/60" />
           ) : null}
         </div>
         <div className="min-w-0 flex-1">
@@ -77,7 +77,7 @@ export function TelephonyCallWidget() {
             {phase === "dialing" ? (
               <span className="font-medium text-amber-600">Dialing… apne phone pe uthao</span>
             ) : (
-              <span className="font-semibold tabular-nums text-emerald-700">In call · {mmss}</span>
+              <span className="font-semibold tabular-nums text-primary">In call · {mmss}</span>
             )}
           </div>
         </div>

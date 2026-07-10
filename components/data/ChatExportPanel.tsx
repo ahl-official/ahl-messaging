@@ -159,7 +159,7 @@ export function ChatExportPanel() {
                 key={c.id}
                 className="flex items-center gap-3 px-4 py-3 hover:bg-secondary/30"
               >
-                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary ring-1 ring-inset ring-primary/25">
                   <Phone className="h-4 w-4" />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -189,7 +189,7 @@ export function ChatExportPanel() {
                     "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold shadow-sm transition",
                     downloadingId === c.id || c.message_count === 0
                       ? "border bg-secondary text-muted-foreground"
-                      : "bg-emerald-600 text-white hover:bg-emerald-700",
+                      : "bg-primary text-white hover:bg-primary/90",
                   )}
                 >
                   {downloadingId === c.id ? (

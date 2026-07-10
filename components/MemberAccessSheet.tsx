@@ -689,7 +689,7 @@ export function MemberAccessSheet(props: SheetProps) {
                   <AlertCircle className="h-3.5 w-3.5" /> {err}
                 </span>
               ) : savedAt ? (
-                <span className="inline-flex items-center gap-1.5 text-emerald-600">
+                <span className="inline-flex items-center gap-1.5 text-primary">
                   <Check className="h-3.5 w-3.5" /> Saved
                 </span>
               ) : dirty ? (

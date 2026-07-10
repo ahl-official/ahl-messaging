@@ -64,12 +64,12 @@ const ACCENTS: Record<Accent, { ring: string; fill: string; bgSoft: string; text
     chipBorder: "border-sky-200",
   },
   emerald: {
-    ring: "ring-emerald-300",
-    fill: "bg-emerald-600",
-    bgSoft: "bg-emerald-50/40",
-    text: "text-emerald-900",
-    chipBg: "bg-emerald-100 text-emerald-800",
-    chipBorder: "border-emerald-200",
+    ring: "ring-primary/30",
+    fill: "bg-primary",
+    bgSoft: "bg-primary/10",
+    text: "text-primary",
+    chipBg: "bg-primary/15 text-primary",
+    chipBorder: "border-primary/25",
   },
 };
 

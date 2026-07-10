@@ -340,7 +340,7 @@ function CrmBlock({
       <div className="flex items-center justify-between gap-2 border-b bg-secondary/40 px-3.5 py-2">
         <div className="flex min-w-0 items-center gap-1.5">
           {found ? (
-            <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+            <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-primary" />
           ) : (
             <XCircle className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
           )}
@@ -417,7 +417,7 @@ function CrmBlock({
               type="button"
               onClick={handleOpenChat}
               disabled={!lead.phone || opening}
-              className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
+              className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-primary/90 disabled:opacity-50"
               title={lead.phone ? "Open chat with this lead" : "Lead has no phone on file"}
             >
               {opening ? (

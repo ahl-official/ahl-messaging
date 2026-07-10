@@ -142,14 +142,14 @@ export function RecentActivityFab() {
     >
       {open ? (
         <div className="mb-3 w-[26rem] max-w-[calc(100vw-2.5rem)] overflow-hidden rounded-2xl border bg-popover text-popover-foreground shadow-2xl ring-1 ring-border">
-          <header className="flex items-center justify-between gap-3 border-b bg-gradient-to-r from-emerald-50/50 via-transparent to-sky-50/40 px-4 py-3">
+          <header className="flex items-center justify-between gap-3 border-b bg-gradient-to-r from-primary/10 via-transparent to-[#6098FF]/10 px-4 py-3">
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <h2 className="text-sm font-semibold">Recent activity</h2>
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary ring-1 ring-inset ring-primary/25">
                   <span className="relative flex h-1.5 w-1.5">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#6098FF] opacity-75" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
                   </span>
                   Live
                 </span>
@@ -217,11 +217,11 @@ export function RecentActivityFab() {
       >
         <span
           aria-hidden
-          className="pointer-events-none absolute inset-[-3px] rounded-full bg-gradient-to-br from-emerald-400/40 via-teal-400/40 to-sky-400/40 opacity-70 blur-[6px] transition group-hover:opacity-100 group-hover:blur-[8px]"
+          className="pointer-events-none absolute inset-[-3px] rounded-full bg-gradient-to-br from-[#6098FF]/40 via-primary/40 to-[#6098FF]/40 opacity-70 blur-[6px] transition group-hover:opacity-100 group-hover:blur-[8px]"
         />
         <span
           aria-hidden
-          className="pointer-events-none absolute inset-[3px] rounded-full bg-[conic-gradient(from_200deg_at_50%_50%,#10b981_0deg,#14b8a6_120deg,#0ea5e9_220deg,#6366f1_320deg,#10b981_360deg)] shadow-inner"
+          className="pointer-events-none absolute inset-[3px] rounded-full bg-[conic-gradient(from_200deg_at_50%_50%,#2E6DE2_0deg,#14b8a6_120deg,#0ea5e9_220deg,#6366f1_320deg,#2E6DE2_360deg)] shadow-inner"
         />
         <span
           aria-hidden
@@ -237,8 +237,8 @@ export function RecentActivityFab() {
           aria-hidden
           className="pointer-events-none absolute right-1 top-1 flex h-2.5 w-2.5"
         >
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-card" />
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#6098FF] opacity-75" />
+          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-card" />
         </span>
       </button>
     </div>
@@ -250,7 +250,7 @@ function CompactActivityRow({ log }: { log: LogRow }) {
     {
       success: {
         Icon: CheckCircle2,
-        ring: "bg-emerald-50 text-emerald-600 ring-emerald-100",
+        ring: "bg-primary/10 text-primary ring-primary/20",
       },
       failed: {
         Icon: XCircle,

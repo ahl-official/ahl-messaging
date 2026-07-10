@@ -78,9 +78,9 @@ const STATUS_META: Record<
   { label: string; tone: string; icon: typeof PhoneIncoming }
 > = {
   ringing:    { label: "Ringing",   tone: "bg-amber-100 text-amber-700 ring-amber-200",       icon: PhoneIncoming },
-  accepted:   { label: "Live",      tone: "bg-emerald-100 text-emerald-700 ring-emerald-200", icon: CheckCheck },
+  accepted:   { label: "Live",      tone: "bg-primary/15 text-primary ring-primary/25", icon: CheckCheck },
   rejected:   { label: "Declined",  tone: "bg-rose-100 text-rose-700 ring-rose-200",          icon: PhoneOff },
-  terminated: { label: "Completed", tone: "bg-emerald-100 text-emerald-700 ring-emerald-200", icon: CheckCheck },
+  terminated: { label: "Completed", tone: "bg-primary/15 text-primary ring-primary/25", icon: CheckCheck },
   missed:     { label: "Missed",    tone: "bg-rose-50 text-rose-700 ring-rose-200",           icon: PhoneMissed },
   failed:     { label: "Failed",    tone: "bg-rose-100 text-rose-800 ring-rose-300",          icon: AlertTriangle },
 };
@@ -234,7 +234,7 @@ export function CallsView() {
           icon={CheckCheck}
           label="Answered"
           value={String(stats.answered)}
-          tone="from-emerald-500 to-emerald-600"
+          tone="from-[#6098FF] to-primary"
         />
         <StatCard
           icon={PhoneMissed}
@@ -437,7 +437,7 @@ function CallListItem({
               <DirIcon
                 className={cn(
                   "h-3 w-3",
-                  call.direction === "inbound" ? "text-emerald-600" : "text-blue-600",
+                  call.direction === "inbound" ? "text-primary" : "text-blue-600",
                 )}
               />
               {call.direction === "inbound" ? "Incoming" : "Outgoing"}
@@ -496,7 +496,7 @@ function CallListItem({
         <div className="flex shrink-0 items-center gap-1.5 text-muted-foreground">
           {call.recording_url ? (
             <FileAudio
-              className="h-4 w-4 text-emerald-600"
+              className="h-4 w-4 text-primary"
               aria-label="Recording available"
             />
           ) : null}
@@ -583,7 +583,7 @@ function CallDetail({
         className={cn(
           "relative overflow-hidden border-b px-5 pb-5 pt-6",
           wasAnswered
-            ? "bg-gradient-to-br from-emerald-50 via-card to-card"
+            ? "bg-gradient-to-br from-primary/10 via-card to-card"
             : "bg-gradient-to-br from-rose-50 via-card to-card",
         )}
       >
@@ -610,7 +610,7 @@ function CallDetail({
               </span>
               <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[11px] font-semibold text-foreground/80">
                 {call.direction === "inbound" ? (
-                  <ArrowDownLeft className="h-3 w-3 text-emerald-600" />
+                  <ArrowDownLeft className="h-3 w-3 text-primary" />
                 ) : (
                   <ArrowUpRight className="h-3 w-3 text-blue-600" />
                 )}
@@ -636,7 +636,7 @@ function CallDetail({
                 ? fmtDuration(call.duration_seconds)
                 : "—"
             }
-            tone="text-emerald-700"
+            tone="text-primary"
             primary
           />
           <BigTile
@@ -664,7 +664,7 @@ function CallDetail({
             <TimelineRow
               label="Answered"
               when={call.accepted_at}
-              tone="text-emerald-700"
+              tone="text-primary"
             />
           ) : null}
           {call.end_at ? (
@@ -898,7 +898,7 @@ function Avatar({
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-100 to-emerald-200 font-semibold text-emerald-800 ring-1 ring-inset ring-emerald-200",
+        "inline-flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/15 to-primary/20 font-semibold text-primary ring-1 ring-inset ring-primary/25",
         cls,
       )}
     >
@@ -966,7 +966,7 @@ function BigTile({
     <div
       className={cn(
         "rounded-lg border bg-card px-3 py-2 shadow-sm",
-        primary && "ring-2 ring-emerald-200",
+        primary && "ring-2 ring-primary/25",
       )}
     >
       <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -1002,7 +1002,7 @@ function TimelineRow({
         <span
           className={cn("inline-block h-1.5 w-1.5 rounded-full", {
             "bg-amber-500": tone.includes("amber"),
-            "bg-emerald-500": tone.includes("emerald"),
+            "bg-primary": tone.includes("emerald"),
             "bg-rose-500": tone.includes("rose"),
           })}
         />
@@ -1074,7 +1074,7 @@ function EmptyState() {
   return (
     <div className="grid h-full place-items-center px-6">
       <div className="max-w-sm rounded-2xl border-2 border-dashed bg-card/50 px-8 py-12 text-center">
-        <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+        <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">
           <PhoneCall className="h-6 w-6" />
         </div>
         <div className="text-sm font-semibold">No calls yet</div>

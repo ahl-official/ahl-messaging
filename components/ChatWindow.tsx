@@ -95,7 +95,7 @@ function LiveStatusPill({ status }: { status: LiveStatus }) {
   const styles: Record<LiveStatus, { label: string; cls: string; pulse: boolean }> = {
     idle:       { label: "",                cls: "",                                                   pulse: false },
     connecting: { label: "Connecting…",     cls: "bg-amber-50 text-amber-800 ring-amber-200",          pulse: true },
-    live:       { label: "Live",            cls: "bg-emerald-50 text-emerald-800 ring-emerald-200",    pulse: true },
+    live:       { label: "Live",            cls: "bg-primary/10 text-primary ring-primary/25",    pulse: true },
     error:      { label: "Reconnecting…",   cls: "bg-rose-50 text-rose-800 ring-rose-200",             pulse: true },
     closed:     { label: "Offline",         cls: "bg-slate-100 text-slate-700 ring-slate-200",         pulse: false },
   };
@@ -1403,8 +1403,8 @@ export function ChatWindow({
       onDrop={onDrop}
     >
       {dragActive ? (
-        <div className="pointer-events-none absolute inset-0 z-40 m-3 flex items-center justify-center rounded-2xl border-2 border-dashed border-emerald-400 bg-emerald-50/80 backdrop-blur-sm">
-          <div className="rounded-xl bg-white/90 px-5 py-3 text-sm font-semibold text-emerald-700 shadow">
+        <div className="pointer-events-none absolute inset-0 z-40 m-3 flex items-center justify-center rounded-2xl border-2 border-dashed border-primary/40 bg-primary/20 backdrop-blur-sm">
+          <div className="rounded-xl bg-white/90 px-5 py-3 text-sm font-semibold text-primary shadow">
             Drop image / video to send
           </div>
         </div>
@@ -1473,8 +1473,8 @@ export function ChatWindow({
                       onClick={onClick}
                       className={`inline-flex h-6 items-center gap-1 rounded-full border border-dashed px-2 text-[10px] font-semibold transition ${
                         open
-                          ? "border-emerald-400 bg-emerald-50 text-emerald-700"
-                          : "border-border text-muted-foreground hover:border-emerald-300 hover:bg-emerald-50/40 hover:text-emerald-700"
+                          ? "border-primary/40 bg-primary/10 text-primary"
+                          : "border-border text-muted-foreground hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
                       }`}
                       title="Manage labels (max 3)"
                     >
@@ -1529,7 +1529,7 @@ export function ChatWindow({
           <button
             type="button"
             onClick={() => setAssigningTask(true)}
-            className="shrink-0 hidden md:inline-flex h-8 items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 text-[12px] font-medium text-emerald-700 transition-colors hover:bg-emerald-100"
+            className="shrink-0 hidden md:inline-flex h-8 items-center gap-1.5 rounded-md border border-primary/25 bg-primary/10 px-2.5 text-[12px] font-medium text-primary transition-colors hover:bg-primary/15"
             title="Assign a task for this chat"
           >
             <ClipboardCheck className="h-3.5 w-3.5" />
@@ -1572,7 +1572,7 @@ export function ChatWindow({
             className={cn(
               "shrink-0 inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-[12px] font-medium transition-colors disabled:opacity-50",
               botBlocked
-                ? "border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
                 : "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100",
             )}
             title={botBlocked ? "Bot is blocked — click to unblock (resume AI replies)" : "Block the AI bot for this chat (handle manually)"}

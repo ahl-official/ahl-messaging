@@ -492,7 +492,7 @@ function NumberPicker({
                       }}
                       className={cn(
                         "flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-xs hover:bg-secondary/70",
-                        isSelected && "bg-emerald-50",
+                        isSelected && "bg-primary/10",
                       )}
                     >
                       <span className="flex min-w-0 flex-col">
@@ -506,7 +506,7 @@ function NumberPicker({
                         ) : null}
                       </span>
                       {isSelected ? (
-                        <Check className="h-3 w-3 shrink-0 text-emerald-600" />
+                        <Check className="h-3 w-3 shrink-0 text-primary" />
                       ) : null}
                     </button>
                   </li>
@@ -934,8 +934,8 @@ function SessionsMode({
       </div>
 
       {isTxt ? (
-        <div className="grid gap-2 rounded-md border border-emerald-200 bg-emerald-50/40 px-3 py-2 text-[11px] text-emerald-900 sm:grid-cols-2">
-          <div className="sm:col-span-2 text-emerald-800">
+        <div className="grid gap-2 rounded-md border border-primary/25 bg-primary/10 px-3 py-2 text-[11px] text-primary sm:grid-cols-2">
+          <div className="sm:col-span-2 text-primary">
             Detected a WhatsApp .txt chat export. Fill in the customer&apos;s phone so the
             messages attach to the right contact, and (optionally) your own name as
             it appears in the file so outbound vs inbound is correct.
@@ -1030,8 +1030,8 @@ function SessionsPreview({
 
   return (
     <div className="overflow-hidden rounded-xl border bg-card">
-      <header className="flex items-center justify-between gap-3 border-b bg-emerald-50/60 px-4 py-2.5">
-        <div className="text-[11px] font-semibold text-emerald-900">
+      <header className="flex items-center justify-between gap-3 border-b bg-primary/10 px-4 py-2.5">
+        <div className="text-[11px] font-semibold text-primary">
           Preview · <strong>{parsed.contacts.length}</strong> contact(s),{" "}
           <strong>{parsed.messages.length}</strong> message(s) will be imported.
           Pick a session to preview the chat below before confirming.
@@ -1040,7 +1040,7 @@ function SessionsPreview({
           type="button"
           onClick={onConfirm}
           disabled={disabled}
-          className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary/90 disabled:opacity-50"
         >
           <Check className="h-3.5 w-3.5" />
           Confirm &amp; import
@@ -1060,7 +1060,7 @@ function SessionsPreview({
                 className={cn(
                   "flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-1.5 text-left text-[11px] transition",
                   isActive
-                    ? "bg-card font-semibold text-foreground ring-1 ring-emerald-200"
+                    ? "bg-card font-semibold text-foreground ring-1 ring-primary/25"
                     : "text-muted-foreground hover:bg-secondary",
                 )}
               >
@@ -1087,7 +1087,7 @@ function SessionsPreview({
                 className={cn(
                   "max-w-[78%] rounded-2xl px-3 py-1.5 text-[12px] leading-snug shadow-sm",
                   m.direction === "outbound"
-                    ? "rounded-br-sm bg-emerald-100 text-foreground"
+                    ? "rounded-br-sm bg-primary/15 text-foreground"
                     : "rounded-bl-sm bg-white text-foreground",
                 )}
               >
@@ -1214,7 +1214,7 @@ function JsonMode({
         </div>
       ) : null}
       {parsed ? (
-        <div className="rounded-md border border-emerald-200 bg-emerald-50/60 px-3 py-1.5 text-xs text-emerald-900">
+        <div className="rounded-md border border-primary/25 bg-primary/10 px-3 py-1.5 text-xs text-primary">
           Parsed: <strong>{parsed.contacts.length}</strong> contact(s),{" "}
           <strong>{parsed.messages.length}</strong> message(s).
         </div>
@@ -1361,7 +1361,7 @@ function CsvMode({
         </div>
       ) : null}
       {parsed ? (
-        <div className="rounded-md border border-emerald-200 bg-emerald-50/60 px-3 py-1.5 text-xs text-emerald-900">
+        <div className="rounded-md border border-primary/25 bg-primary/10 px-3 py-1.5 text-xs text-primary">
           Parsed: <strong>{parsed.contacts.length}</strong> contact(s),{" "}
           <strong>{parsed.messages.length}</strong> message(s).
         </div>
@@ -1680,7 +1680,7 @@ function TableMode({
             </div>
           ) : null}
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="rounded-full bg-emerald-100 px-2 py-0.5 font-semibold text-emerald-800">
+            <span className="rounded-full bg-primary/15 px-2 py-0.5 font-semibold text-primary">
               {preview.total_rows.toLocaleString()} rows
             </span>
             {preview.distinct_contacts !== null ? (
@@ -1700,7 +1700,7 @@ function TableMode({
                   <span className="text-muted-foreground">{canonical}</span>
                   {" → "}
                   {mapped ? (
-                    <span className="text-emerald-700">{mapped}</span>
+                    <span className="text-primary">{mapped}</span>
                   ) : (
                     <span className="text-rose-600">missing</span>
                   )}
@@ -1733,7 +1733,7 @@ function TableMode({
               type="button"
               onClick={handleRun}
               disabled={running || requiredMissing || !targetBpid}
-              className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary/90 disabled:opacity-50"
             >
               {running ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -1755,7 +1755,7 @@ function TableMode({
       ) : null}
 
       {result ? (
-        <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-900">
+        <div className="rounded-md border border-primary/25 bg-primary/10 px-3 py-2 text-xs text-primary">
           <strong>Done.</strong> Inserted{" "}
           {result.inserted_contacts.toLocaleString()} new contact
           {result.inserted_contacts === 1 ? "" : "s"} and{" "}
@@ -1922,8 +1922,8 @@ function ProgressBlock({ job, log }: { job: ImportJob; log: string[] }) {
   const pctC = totalC > 0 ? Math.min(100, (job.processed_contacts / totalC) * 100) : 0;
   const pctM = totalM > 0 ? Math.min(100, (job.processed_messages / totalM) * 100) : 0;
   return (
-    <div className="border-b bg-emerald-50/40 px-5 py-3">
-      <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-emerald-900">
+    <div className="border-b bg-primary/10 px-5 py-3">
+      <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-primary">
         {job.status === "completed" ? (
           <CheckCircle2 className="h-4 w-4" />
         ) : job.status === "failed" ? (
@@ -1961,15 +1961,15 @@ function ProgressLine({
 }) {
   return (
     <div>
-      <div className="flex items-center justify-between text-[10px] text-emerald-900/80">
+      <div className="flex items-center justify-between text-[10px] text-primary/80">
         <span>{label}</span>
         <span className="font-mono">
           {done}/{total} · inserted {ins}
         </span>
       </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-emerald-100">
+      <div className="h-1.5 overflow-hidden rounded-full bg-primary/15">
         <div
-          className="h-full bg-emerald-500 transition-[width] duration-300"
+          className="h-full bg-primary transition-[width] duration-300"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -2014,7 +2014,7 @@ function JobsHistory({ jobs }: { jobs: ImportJob[] | null }) {
                 className={cn(
                   "inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold",
                   j.status === "completed"
-                    ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                    ? "bg-primary/10 text-primary ring-1 ring-primary/25"
                     : j.status === "running"
                       ? "bg-sky-50 text-sky-700 ring-1 ring-sky-200"
                       : j.status === "failed" || j.status === "cancelled"

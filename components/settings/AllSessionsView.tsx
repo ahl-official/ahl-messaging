@@ -103,7 +103,7 @@ export function AllSessionsView() {
       <div className="rounded-2xl border bg-card shadow-sm">
         <header className="flex items-center justify-between gap-3 border-b px-5 py-3.5">
           <div className="flex items-center gap-2">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200">
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-inset ring-primary/25">
               <Monitor className="h-4 w-4" />
             </span>
             <div>
@@ -163,7 +163,7 @@ export function AllSessionsView() {
                           className={cn(
                             "rounded-full px-1.5 py-0 text-[10px] font-bold",
                             u.active_count > 0
-                              ? "bg-emerald-100 text-emerald-700"
+                              ? "bg-primary/15 text-primary"
                               : "bg-slate-200 text-slate-600",
                           )}
                         >
@@ -212,7 +212,7 @@ export function AllSessionsView() {
                             <span
                               className={cn(
                                 "h-1.5 w-1.5 shrink-0 rounded-full",
-                                s.active ? "bg-emerald-500" : "bg-slate-300",
+                                s.active ? "bg-primary" : "bg-slate-300",
                               )}
                             />
                             <span className="font-medium">

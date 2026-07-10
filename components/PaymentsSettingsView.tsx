@@ -198,7 +198,7 @@ export function PaymentsSettingsView() {
           })}
 
           {savedFlash ? (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
+            <div className="rounded-lg border border-primary/25 bg-primary/10 px-3 py-2 text-xs text-primary">
               <Check className="mr-1 inline h-3.5 w-3.5" /> {savedFlash}
             </div>
           ) : null}
@@ -274,7 +274,7 @@ function ClinicCard({
             className={cn(
               "inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-sm ring-1 ring-inset",
               clinicKey === "americanhairline"
-                ? "from-emerald-500 to-teal-600 ring-emerald-200/60"
+                ? "from-[#6098FF] to-[#6098FF] ring-primary/60"
                 : "from-violet-500 to-fuchsia-600 ring-violet-200/60",
             )}
           >
@@ -368,7 +368,7 @@ function ProviderSubsection({
   const tintClasses =
     tint === "sky"
       ? "from-sky-500 to-indigo-600 ring-sky-200/60"
-      : "from-emerald-500 to-teal-600 ring-emerald-200/60";
+      : "from-[#6098FF] to-[#6098FF] ring-primary/60";
   return (
     <div className="overflow-hidden rounded-lg border bg-card">
       <header className="flex items-center justify-between border-b bg-secondary/20 px-4 py-2.5">
@@ -444,7 +444,7 @@ function AccountRowItem({
             {account.label}
           </span>
           {account.is_active ? (
-            <span className="rounded-full bg-emerald-600 px-2 py-0 text-[9.5px] font-bold uppercase tracking-wider text-white">
+            <span className="rounded-full bg-primary px-2 py-0 text-[9.5px] font-bold uppercase tracking-wider text-white">
               Active
             </span>
           ) : null}
@@ -462,7 +462,7 @@ function AccountRowItem({
         <div className="mt-0.5 text-[11px] text-muted-foreground">
           {account.provider === "razorpay" ? (
             <span className="inline-flex items-center gap-1">
-              <ShieldCheck className="h-3 w-3 text-emerald-600" /> Keys stored
+              <ShieldCheck className="h-3 w-3 text-primary" /> Keys stored
               {!account.has_webhook_secret ? (
                 <span className="ml-1 text-amber-700">
                   · webhook secret missing
@@ -471,7 +471,7 @@ function AccountRowItem({
             </span>
           ) : (
             <span className="inline-flex items-center gap-1">
-              <ShieldCheck className="h-3 w-3 text-emerald-600" /> Keys stored
+              <ShieldCheck className="h-3 w-3 text-primary" /> Keys stored
             </span>
           )}
           {account.created_by ? (
@@ -488,7 +488,7 @@ function AccountRowItem({
         >
           {copied ? (
             <>
-              <Check className="h-3 w-3 text-emerald-600" /> Copied
+              <Check className="h-3 w-3 text-primary" /> Copied
             </>
           ) : (
             <>
@@ -503,7 +503,7 @@ function AccountRowItem({
           className={cn(
             "inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-semibold transition",
             account.is_active
-              ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+              ? "border-primary/30 bg-primary/10 text-primary"
               : "bg-background hover:bg-accent",
             (busy || account.is_active) && "opacity-60",
           )}
@@ -611,7 +611,7 @@ function AddAccountDialog({
         onSubmit={submit}
         className="relative w-full max-w-[480px] overflow-hidden rounded-2xl bg-card shadow-2xl ring-1 ring-border animate-in fade-in-0 zoom-in-95"
       >
-        <div className="flex items-center justify-between border-b bg-gradient-to-r from-emerald-50 via-white to-teal-50 px-5 py-3.5">
+        <div className="flex items-center justify-between border-b bg-gradient-to-r from-primary/10 via-white to-[#6098FF]/10 px-5 py-3.5">
           <div>
             <h3 className="text-[15px] font-bold leading-tight">
               Add {isRzp ? "Razorpay" : "PayU"} account · {clinicLabel}
@@ -641,7 +641,7 @@ function AddAccountDialog({
                   ? `${clinicLabel} Razorpay (live)`
                   : `${clinicLabel} PayU (live)`
               }
-              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
           </Field>
 
@@ -652,7 +652,7 @@ function AddAccountDialog({
                   value={keyId}
                   onChange={(e) => setKeyId(e.target.value)}
                   placeholder="rzp_live_xxxxxxxxxxxx"
-                  className="h-10 w-full rounded-lg border border-input bg-background px-3 font-mono text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+                  className="h-10 w-full rounded-lg border border-input bg-background px-3 font-mono text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </Field>
               <Field label="Key Secret">
@@ -660,7 +660,7 @@ function AddAccountDialog({
                   type="password"
                   value={keySecret}
                   onChange={(e) => setKeySecret(e.target.value)}
-                  className="h-10 w-full rounded-lg border border-input bg-background px-3 font-mono text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+                  className="h-10 w-full rounded-lg border border-input bg-background px-3 font-mono text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </Field>
               <Field label="Webhook secret" optional>
@@ -668,7 +668,7 @@ function AddAccountDialog({
                   type="password"
                   value={webhookSecret}
                   onChange={(e) => setWebhookSecret(e.target.value)}
-                  className="h-10 w-full rounded-lg border border-input bg-background px-3 font-mono text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+                  className="h-10 w-full rounded-lg border border-input bg-background px-3 font-mono text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </Field>
             </>
@@ -683,7 +683,7 @@ function AddAccountDialog({
                 <input
                   value={clientId}
                   onChange={(e) => setClientId(e.target.value)}
-                  className="h-10 w-full rounded-lg border border-input bg-background px-3 font-mono text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+                  className="h-10 w-full rounded-lg border border-input bg-background px-3 font-mono text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </Field>
               <Field label="Client Secret">
@@ -691,14 +691,14 @@ function AddAccountDialog({
                   type="password"
                   value={clientSecret}
                   onChange={(e) => setClientSecret(e.target.value)}
-                  className="h-10 w-full rounded-lg border border-input bg-background px-3 font-mono text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+                  className="h-10 w-full rounded-lg border border-input bg-background px-3 font-mono text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </Field>
               <Field label="Merchant ID">
                 <input
                   value={merchantId}
                   onChange={(e) => setMerchantId(e.target.value)}
-                  className="h-10 w-full rounded-lg border border-input bg-background px-3 font-mono text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+                  className="h-10 w-full rounded-lg border border-input bg-background px-3 font-mono text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </Field>
               <Field label="Merchant Key" optional>
@@ -706,7 +706,7 @@ function AddAccountDialog({
                   value={merchantKey}
                   onChange={(e) => setMerchantKey(e.target.value)}
                   placeholder="(only needed for webhook verification)"
-                  className="h-10 w-full rounded-lg border border-input bg-background px-3 font-mono text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+                  className="h-10 w-full rounded-lg border border-input bg-background px-3 font-mono text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </Field>
               <Field label="Merchant Salt" optional>
@@ -715,7 +715,7 @@ function AddAccountDialog({
                   value={merchantSalt}
                   onChange={(e) => setMerchantSalt(e.target.value)}
                   placeholder="(only needed for webhook verification)"
-                  className="h-10 w-full rounded-lg border border-input bg-background px-3 font-mono text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+                  className="h-10 w-full rounded-lg border border-input bg-background px-3 font-mono text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </Field>
               <Field label="Environment">
@@ -728,7 +728,7 @@ function AddAccountDialog({
                       className={cn(
                         "rounded-md border px-3 py-1.5 text-xs font-semibold capitalize transition",
                         env === opt
-                          ? "border-emerald-400 bg-emerald-50 text-emerald-800"
+                          ? "border-primary/40 bg-primary/10 text-primary"
                           : "bg-background hover:bg-accent",
                       )}
                     >
@@ -768,7 +768,7 @@ function AddAccountDialog({
           <button
             type="submit"
             disabled={busy}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-2 text-xs font-bold text-white shadow-md hover:shadow-lg disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#6098FF] to-[#6098FF] px-4 py-2 text-xs font-bold text-white shadow-md hover:shadow-lg disabled:opacity-40"
           >
             {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
             Add account
@@ -821,7 +821,7 @@ function Toggle({
       disabled={disabled}
       className={cn(
         "relative inline-flex h-6 w-11 shrink-0 rounded-full transition",
-        checked ? "bg-emerald-600" : "bg-slate-300",
+        checked ? "bg-primary" : "bg-slate-300",
         disabled && "opacity-50",
       )}
     >

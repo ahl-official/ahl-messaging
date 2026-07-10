@@ -136,7 +136,7 @@ export function BookingDialog({
       >
         <div className="flex items-center justify-between border-b px-5 py-3.5">
           <div className="flex items-center gap-2 font-semibold text-gray-900">
-            <CalendarDays className="h-4.5 w-4.5 text-emerald-600" />
+            <CalendarDays className="h-4.5 w-4.5 text-primary" />
             Date Align{contactName ? ` — ${contactName}` : ""}
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
@@ -151,7 +151,7 @@ export function BookingDialog({
             <p className="mt-1 text-gray-500">Date set and confirmation sent to the client.</p>
             <button
               onClick={onClose}
-              className="mt-5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+              className="mt-5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
             >
               Done
             </button>
@@ -169,7 +169,7 @@ export function BookingDialog({
                   <button
                     onClick={() => shareLink(true)}
                     disabled={busy === "link"}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
                   >
                     {busy === "link" ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -190,7 +190,7 @@ export function BookingDialog({
                           setCopied(true);
                           setTimeout(() => setCopied(false), 1500);
                         }}
-                        className="flex items-center gap-1 text-xs font-medium text-emerald-700"
+                        className="flex items-center gap-1 text-xs font-medium text-primary"
                       >
                         {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                         {copied ? "Copied" : "Copy"}
@@ -236,7 +236,7 @@ export function BookingDialog({
                             key={i}
                             className="flex items-start gap-2 text-sm text-gray-700"
                           >
-                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
                             <span className="leading-snug">{t}</span>
                           </li>
                         ))}
@@ -254,7 +254,7 @@ export function BookingDialog({
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder="e.g. 1(for delhi) 201381-Aashirwad"
-                      className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+                      className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                     />
                     <div className="mb-4 mt-2.5 flex items-center gap-1.5">
                       <span className="mr-1 text-[11px] font-semibold text-gray-600">
@@ -282,7 +282,7 @@ export function BookingDialog({
                       type="button"
                       onClick={() => setDate(selectedDate)}
                       disabled={busy === selectedDate}
-                      className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                      className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
                     >
                       {busy === selectedDate ? (
                         <Loader2 className="h-4 w-4 animate-spin" />

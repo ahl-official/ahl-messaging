@@ -81,10 +81,10 @@ const STATUS_TONE: Record<
     dot: "bg-rose-500",
   },
   done: {
-    bg: "bg-emerald-50",
-    text: "text-emerald-700",
-    ring: "ring-emerald-200",
-    dot: "bg-emerald-500",
+    bg: "bg-primary/10",
+    text: "text-primary",
+    ring: "ring-primary/25",
+    dot: "bg-primary",
   },
   cancelled: {
     bg: "bg-secondary",
@@ -277,7 +277,7 @@ export function TasksView({
                 <button
                   type="button"
                   onClick={() => setCreating(true)}
-                  className="group inline-flex h-9 items-center gap-1.5 rounded-lg bg-white px-3 text-[12px] font-bold text-emerald-700 shadow-md transition hover:shadow-lg hover:brightness-105"
+                  className="group inline-flex h-9 items-center gap-1.5 rounded-lg bg-white px-3 text-[12px] font-bold text-primary shadow-md transition hover:shadow-lg hover:brightness-105"
                 >
                   <Plus className="h-3.5 w-3.5 transition-transform group-hover:rotate-90" />
                   New task
@@ -324,7 +324,7 @@ export function TasksView({
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Search title / description…"
-                className="h-9 w-64 rounded-lg border border-input bg-background pl-8 pr-3 text-xs font-medium outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+                className="h-9 w-64 rounded-lg border border-input bg-background pl-8 pr-3 text-xs font-medium outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
             </div>
           </div>
@@ -427,17 +427,17 @@ function TasksTabs({
               className={cn(
                 "group inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition",
                 active
-                  ? "bg-white text-emerald-800 shadow-lg shadow-emerald-900/25 ring-1 ring-white/40"
+                  ? "bg-white text-primary shadow-lg shadow-primary/25 ring-1 ring-white/40"
                   : "bg-white/10 text-white/85 ring-1 ring-inset ring-white/20 backdrop-blur hover:bg-white/15 hover:text-white",
               )}
             >
-              <Icon className={cn("h-4 w-4", active ? "text-emerald-700" : "text-white/80")} />
+              <Icon className={cn("h-4 w-4", active ? "text-primary" : "text-white/80")} />
               <span className="flex flex-col items-start leading-tight">
                 <span>{it.label}</span>
                 <span
                   className={cn(
                     "text-[10px] font-normal",
-                    active ? "text-emerald-700/70" : "text-white/60",
+                    active ? "text-primary/70" : "text-white/60",
                   )}
                 >
                   {it.sub}
@@ -532,8 +532,8 @@ function FilterSelect<T extends string>({
   label: string;
 }) {
   return (
-    <label className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-input bg-background px-2.5 text-[11px] font-semibold text-muted-foreground shadow-sm transition focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-200/40">
-      <span className="text-emerald-600">{icon}</span>
+    <label className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-input bg-background px-2.5 text-[11px] font-semibold text-muted-foreground shadow-sm transition focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/40">
+      <span className="text-primary">{icon}</span>
       <span className="sr-only">{label}</span>
       <select
         value={value}
@@ -618,7 +618,7 @@ function TaskRowCard({
   return (
     <article
       className={cn(
-        "group relative overflow-hidden rounded-xl border bg-card p-3 shadow-sm transition hover:border-emerald-300/60 hover:shadow",
+        "group relative overflow-hidden rounded-xl border bg-card p-3 shadow-sm transition hover:border-primary/30 hover:shadow",
         overdue && "border-rose-200/70 bg-rose-50/30",
       )}
     >
@@ -778,7 +778,7 @@ function StatusToggle({
         {busy ? (
           <Loader2 className="h-3 w-3 animate-spin text-foreground" />
         ) : task.status === "done" ? (
-          <Check className="h-3 w-3 text-emerald-700" />
+          <Check className="h-3 w-3 text-primary" />
         ) : (
           <span className={cn("h-2 w-2 rounded-full", tone.dot)} />
         )}
@@ -940,7 +940,7 @@ function TaskDetailModal({
       <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-card shadow-2xl ring-1 ring-border">
         <div className="flex items-center justify-between border-b px-5 py-3">
           <div className="flex items-center gap-2">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200">
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-inset ring-primary/25">
               <CheckCircle2 className="h-4 w-4" />
             </span>
             <div>
@@ -1035,7 +1035,7 @@ function TaskDetailModal({
                       className={cn(
                         "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset transition",
                         s === task.status
-                          ? "cursor-default bg-emerald-600 text-white ring-emerald-600"
+                          ? "cursor-default bg-primary text-white ring-primary"
                           : "bg-white text-foreground ring-border hover:bg-secondary",
                       )}
                     >
@@ -1069,7 +1069,7 @@ function TaskDetailModal({
                       className={cn(
                         "max-w-[80%] rounded-2xl px-3 py-1.5 text-xs shadow-sm",
                         c.member?.id === currentMemberId
-                          ? "ml-auto rounded-br-sm bg-emerald-600 text-white"
+                          ? "ml-auto rounded-br-sm bg-primary text-white"
                           : "rounded-bl-sm bg-secondary text-foreground",
                       )}
                     >
@@ -1116,7 +1116,7 @@ function TaskDetailModal({
                   type="button"
                   onClick={postComment}
                   disabled={busy || !draft.trim()}
-                  className="inline-flex h-8 items-center gap-1 rounded-md bg-emerald-600 px-3 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
+                  className="inline-flex h-8 items-center gap-1 rounded-md bg-primary px-3 text-xs font-semibold text-white shadow-sm hover:bg-primary/90 disabled:opacity-50"
                 >
                   {busy ? (
                     <Loader2 className="h-3 w-3 animate-spin" />
@@ -1194,7 +1194,7 @@ function ReportsTab({ stats }: { stats: Stats | null }) {
                   <td className="px-4 py-2 text-right tabular-nums">
                     {a.open}
                   </td>
-                  <td className="px-4 py-2 text-right tabular-nums text-emerald-700">
+                  <td className="px-4 py-2 text-right tabular-nums text-primary">
                     {a.done}
                   </td>
                   <td
@@ -1229,7 +1229,7 @@ function ReportCard({
     sky: "from-sky-50 to-sky-100 text-sky-800 ring-sky-200",
     violet: "from-violet-50 to-violet-100 text-violet-800 ring-violet-200",
     rose: "from-rose-50 to-rose-100 text-rose-800 ring-rose-200",
-    emerald: "from-emerald-50 to-emerald-100 text-emerald-800 ring-emerald-200",
+    emerald: "from-primary/10 to-primary/15 text-primary ring-primary/25",
   };
   return (
     <div

@@ -84,7 +84,7 @@ function isoDaysAgo(days: number): string {
 }
 
 const AVATAR_GRADIENTS = [
-  "from-emerald-500 to-teal-600",
+  "from-[#6098FF] to-[#6098FF]",
   "from-violet-500 to-purple-600",
   "from-sky-500 to-blue-600",
   "from-amber-500 to-orange-600",
@@ -702,7 +702,7 @@ function RangePicker({
             className={cn(
               "rounded-full px-3 py-1.5 text-[11px] font-semibold transition",
               active
-                ? "bg-white text-emerald-800 shadow"
+                ? "bg-white text-primary shadow"
                 : "text-white/80 hover:text-white",
             )}
           >
@@ -741,12 +741,12 @@ function KpiCard({
     }
   > = {
     emerald: {
-      iconBg: "bg-gradient-to-br from-emerald-500 to-teal-600",
+      iconBg: "bg-gradient-to-br from-[#6098FF] to-[#6098FF]",
       iconText: "text-white",
-      iconRing: "ring-emerald-200/60",
-      glow: "from-emerald-400/0 via-emerald-400/30 to-emerald-500/40",
-      label: "text-emerald-700",
-      sheen: "from-emerald-100/40",
+      iconRing: "ring-primary/60",
+      glow: "from-[#6098FF]/0 via-[#6098FF]/30 to-primary/40",
+      label: "text-primary",
+      sheen: "from-primary/15",
     },
     violet: {
       iconBg: "bg-gradient-to-br from-violet-500 to-purple-600",
@@ -860,7 +860,7 @@ function ScoreCell({
     typeof score === "number" && Number.isFinite(score) ? score : 0;
   const tone =
     safeTier === "green"
-      ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+      ? "bg-primary/10 text-primary ring-primary/25"
       : safeTier === "yellow"
         ? "bg-amber-50 text-amber-700 ring-amber-200"
         : "bg-rose-50 text-rose-700 ring-rose-200";
@@ -928,7 +928,7 @@ function DailyBreakdownTable({ rows }: { rows: DailyBreakdown[] }) {
                 <td className="px-3 py-2 text-right font-semibold tabular-nums text-teal-700">
                   {r.unique_patients.toLocaleString()}
                 </td>
-                <td className="px-3 py-2 text-right font-semibold tabular-nums text-emerald-700">
+                <td className="px-3 py-2 text-right font-semibold tabular-nums text-primary">
                   {r.outbound.toLocaleString()}
                 </td>
                 <td className="px-3 py-2 pr-5">

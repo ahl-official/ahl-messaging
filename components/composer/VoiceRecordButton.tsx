@@ -98,7 +98,7 @@ export function VoiceRecordButton({
         <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-700 tabular-nums">
           <span className="h-2 w-2 animate-pulse rounded-full bg-rose-500" /> {mmss}
         </span>
-        <button type="button" onClick={() => stop(false)} title="Send voice" className="text-emerald-600 hover:text-emerald-700">
+        <button type="button" onClick={() => stop(false)} title="Send voice" className="text-primary hover:text-primary">
           <Square className="h-4 w-4 fill-current" />
         </button>
       </div>

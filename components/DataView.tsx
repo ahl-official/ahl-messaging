@@ -162,7 +162,7 @@ export function DataView() {
               </div>
 
               {flash ? (
-                <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+                <div className="rounded-md border border-primary/25 bg-primary/10 px-3 py-2 text-sm text-primary">
                   {flash}
                 </div>
               ) : null}
@@ -280,10 +280,10 @@ function ContactRow({
             ) : null}
             {contact.business_number_label ? (
               <span
-                className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-800 ring-1 ring-inset ring-emerald-100"
+                className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary ring-1 ring-inset ring-primary/20"
                 title="WhatsApp number this chat is on"
               >
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                 {contact.business_number_label}
               </span>
             ) : null}
@@ -471,7 +471,7 @@ function TabButton({
 }) {
   const activeCls =
     tone === "emerald"
-      ? "bg-emerald-50 text-emerald-800 ring-1 ring-inset ring-emerald-200"
+      ? "bg-primary/10 text-primary ring-1 ring-inset ring-primary/25"
       : tone === "sky"
         ? "bg-sky-50 text-sky-800 ring-1 ring-inset ring-sky-200"
         : tone === "violet"

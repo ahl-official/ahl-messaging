@@ -278,7 +278,7 @@ function AssignControl({
                         isCurrent && "bg-secondary",
                       )}
                     >
-                      <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-semibold text-emerald-800">
+                      <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[10px] font-semibold text-primary">
                         {(label[0] ?? "?").toUpperCase()}
                       </span>
                       <div className="min-w-0 flex-1">
@@ -288,7 +288,7 @@ function AssignControl({
                         </p>
                       </div>
                       {isCurrent ? (
-                        <span className="text-[9px] font-semibold text-emerald-700">
+                        <span className="text-[9px] font-semibold text-primary">
                           Current
                         </span>
                       ) : null}
@@ -538,7 +538,7 @@ function CallButton({ contact, windowOpen }: { contact: Contact; windowOpen: boo
               ) : !permLoaded ? (
                 <span className="text-muted-foreground">Checking calling window…</span>
               ) : callWindow.canCall ? (
-                <span className="font-medium text-emerald-700">
+                <span className="font-medium text-primary">
                   WhatsApp calling open · {callWindowLeft}
                 </span>
               ) : callWindow.state === "expired" ? (
@@ -583,7 +583,7 @@ function CallButton({ contact, windowOpen }: { contact: Contact; windowOpen: boo
                     ) : p.key === "whatsapp" && !windowOpen ? (
                       <span className="text-[10px] text-muted-foreground">Window closed</span>
                     ) : p.key === "whatsapp" && callWindow.canCall ? (
-                      <span className="text-[10px] font-medium text-emerald-600">
+                      <span className="text-[10px] font-medium text-primary">
                         {callWindowLeft}
                       </span>
                     ) : pendingKey === p.key && EXTERNAL_DIALERS[p.key] ? (

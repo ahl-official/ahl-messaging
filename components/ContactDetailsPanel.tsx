@@ -345,10 +345,10 @@ export function ContactDetailsPanel({
                 >
                   {lsq.lead.status ? (
                     <span
-                      className="inline-flex max-w-full items-center gap-1 truncate rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 ring-1 ring-inset ring-emerald-200"
+                      className="inline-flex max-w-full items-center gap-1 truncate rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary ring-1 ring-inset ring-primary/25"
                       title={lsq.lead.status}
                     >
-                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
                       <span className="truncate">{lsq.lead.status}</span>
                     </span>
                   ) : null}
@@ -486,7 +486,7 @@ export function ContactDetailsPanel({
                     {
                       key: "primary" as const,
                       label: lsq.label || "Mumbai/Khar West",
-                      dot: "bg-emerald-400",
+                      dot: "bg-[#6098FF]",
                     },
                     {
                       key: "secondary" as const,
@@ -526,7 +526,7 @@ export function ContactDetailsPanel({
         {activeCrm === "primary" || !showCrmToggle ? (
         <div className="overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm">
           <div className="flex items-center gap-2 px-3.5 pt-3 pb-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[#6098FF]" />
             <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
               Client Info
             </span>
@@ -877,7 +877,7 @@ function InlineEmailEditor({
             type="button"
             onClick={save}
             disabled={saving}
-            className="inline-flex h-6 w-6 items-center justify-center rounded text-emerald-700 hover:bg-emerald-50 disabled:opacity-50"
+            className="inline-flex h-6 w-6 items-center justify-center rounded text-primary hover:bg-primary/10 disabled:opacity-50"
             aria-label="Save email"
           >
             {saving ? (
@@ -1056,7 +1056,7 @@ function EditableField({
                 type="button"
                 onClick={save}
                 disabled={saving}
-                className="inline-flex h-7 w-7 items-center justify-center rounded text-emerald-700 hover:bg-emerald-50 disabled:opacity-50"
+                className="inline-flex h-7 w-7 items-center justify-center rounded text-primary hover:bg-primary/10 disabled:opacity-50"
                 aria-label="Save"
                 title="Save (Enter)"
               >
@@ -1255,7 +1255,7 @@ function Field({
           onClick={onCopy}
           title={copied ? "Copied" : `Click to copy: ${copyValue ?? value}`}
           className={
-            "flex min-w-0 items-center gap-1 truncate transition-colors hover:text-emerald-700 " +
+            "flex min-w-0 items-center gap-1 truncate transition-colors hover:text-primary " +
             (mono ? "font-mono text-[12px] " : "text-[12.5px] font-medium ") +
             "text-foreground"
           }
@@ -1265,7 +1265,7 @@ function Field({
             className={
               "shrink-0 text-[9px] font-medium transition-opacity " +
               (copied
-                ? "text-emerald-700 opacity-100"
+                ? "text-primary opacity-100"
                 : "text-muted-foreground opacity-0 group-hover:opacity-100")
             }
           >
@@ -1348,7 +1348,7 @@ function SourceUrlField({ url }: { url: string }) {
             onClick={() => setOpen(true)}
             title="Play reel"
             aria-label="Play reel"
-            className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white shadow-sm transition hover:bg-emerald-700"
+            className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm transition hover:bg-primary/90"
           >
             <Play className="h-3 w-3 fill-current" />
           </button>
@@ -1358,7 +1358,7 @@ function SourceUrlField({ url }: { url: string }) {
           target="_blank"
           rel="noreferrer"
           title={url}
-          className="truncate text-[12.5px] font-medium text-foreground hover:text-emerald-700"
+          className="truncate text-[12.5px] font-medium text-foreground hover:text-primary"
         >
           {url}
         </a>
@@ -1370,7 +1370,7 @@ function SourceUrlField({ url }: { url: string }) {
           className={
             "shrink-0 text-[9px] font-medium transition-opacity " +
             (copied
-              ? "text-emerald-700 opacity-100"
+              ? "text-primary opacity-100"
               : "text-muted-foreground opacity-0 group-hover:opacity-100")
           }
         >
@@ -1575,9 +1575,9 @@ function LsqSyncStatus({
 
   const palette: Record<string, { bg: string; ring: string; text: string; label: string }> = {
     created: {
-      bg: "bg-emerald-50",
-      ring: "ring-emerald-200",
-      text: "text-emerald-900",
+      bg: "bg-primary/10",
+      ring: "ring-primary/25",
+      text: "text-primary",
       label: "Lead created in LSQ",
     },
     linked: {

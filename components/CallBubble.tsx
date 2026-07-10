@@ -34,7 +34,7 @@ export function CallBubble({ call }: { call: ChatCall }) {
       ? "Incoming call"
       : "Outgoing call";
   const tone = answered
-    ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+    ? "bg-primary/10 text-primary ring-primary/25"
     : "bg-rose-50 text-rose-700 ring-rose-200";
 
   const startDate = call.start_at ? new Date(call.start_at) : null;

@@ -238,21 +238,21 @@ export function HomeAssistant() {
           {/* Decorative gradient glow that bleeds through the header. */}
           <span
             aria-hidden
-            className="pointer-events-none absolute -left-16 -top-16 h-48 w-48 rounded-full bg-gradient-to-br from-emerald-300/40 via-teal-300/30 to-transparent blur-3xl"
+            className="pointer-events-none absolute -left-16 -top-16 h-48 w-48 rounded-full bg-gradient-to-br from-[#6098FF]/40 via-primary/30 to-transparent blur-3xl"
           />
           <span
             aria-hidden
             className="pointer-events-none absolute -right-20 -top-10 h-44 w-44 rounded-full bg-gradient-to-bl from-sky-300/25 via-indigo-300/15 to-transparent blur-3xl"
           />
-          <header className="relative flex items-center justify-between gap-3 border-b border-border/60 bg-gradient-to-r from-emerald-50/40 via-transparent to-sky-50/40 px-4 py-3">
+          <header className="relative flex items-center justify-between gap-3 border-b border-border/60 bg-gradient-to-r from-primary/10 via-transparent to-sky-50/40 px-4 py-3">
         <div className="flex items-center gap-3">
           <AssistantAvatar busy={busy || transcribing} listening={recording} />
           <div>
             <div className="flex items-center gap-1.5 text-sm font-semibold">
-              <span className="bg-gradient-to-br from-emerald-700 via-teal-700 to-sky-700 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-br from-[#1e56c7] via-primary to-[#6098FF] bg-clip-text text-transparent">
                 Assistant
               </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-100 to-sky-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-emerald-700 ring-1 ring-inset ring-emerald-200/60">
+              <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary/15 to-sky-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary ring-1 ring-inset ring-primary/60">
                 <Sparkles className="h-2.5 w-2.5" />
                 AI
               </span>
@@ -269,7 +269,7 @@ export function HomeAssistant() {
             title={speakReplies ? "Mute assistant voice" : "Speak responses"}
             className={cn(
               "inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition hover:bg-secondary hover:text-foreground",
-              speakReplies && "bg-emerald-50 text-emerald-700",
+              speakReplies && "bg-primary/10 text-primary",
             )}
           >
             {speakReplies ? (
@@ -326,7 +326,7 @@ export function HomeAssistant() {
                 className={cn(
                   "max-w-[88%] rounded-2xl px-3 py-2 text-sm leading-snug shadow-sm",
                   m.role === "user"
-                    ? "whitespace-pre-wrap rounded-br-sm bg-gradient-to-br from-emerald-700 to-teal-700 text-white"
+                    ? "whitespace-pre-wrap rounded-br-sm bg-gradient-to-br from-[#1e56c7] to-[#6098FF] text-white"
                     : "rounded-bl-sm bg-secondary text-foreground",
                 )}
               >
@@ -422,7 +422,7 @@ export function HomeAssistant() {
         onClick={() => setOpen((v) => !v)}
         className={cn(
           "group relative inline-flex h-16 w-16 items-center justify-center rounded-full bg-card shadow-lg ring-1 ring-border transition hover:scale-105 hover:shadow-xl",
-          open && "ring-2 ring-emerald-300",
+          open && "ring-2 ring-primary/30",
         )}
         title={open ? "Close assistant" : "AI assistant — chat, reports, actions"}
         aria-label="AI assistant"

@@ -932,7 +932,7 @@ export function CallOverlay() {
             className={cn(
               "flex items-center gap-3 px-5 py-4",
               phase === "ringing" && call?.direction === "inbound"
-                ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white"
+                ? "bg-gradient-to-br from-[#6098FF] to-primary text-white"
                 : isOutboundDial
                   ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white"
                   : phase === "in-call"
@@ -1033,7 +1033,7 @@ export function CallOverlay() {
                 <button
                   type="button"
                   onClick={handleAccept}
-                  className="inline-flex h-12 items-center gap-2 rounded-full bg-emerald-500 px-6 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-600"
+                  className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
                 >
                   <Phone className="h-4 w-4" />
                   Accept

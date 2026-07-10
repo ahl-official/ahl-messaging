@@ -50,7 +50,7 @@ interface Props {
 }
 
 const STATUS_BADGE: Record<string, string> = {
-  APPROVED: "bg-emerald-100 text-emerald-800",
+  APPROVED: "bg-primary/15 text-primary",
   PENDING: "bg-amber-100 text-amber-800",
   REJECTED: "bg-red-100 text-red-800",
   PAUSED: "bg-slate-200 text-slate-700",

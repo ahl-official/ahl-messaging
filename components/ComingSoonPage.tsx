@@ -19,7 +19,7 @@ const STATUS_LABEL: Record<NonNullable<Props["status"]>, string> = {
 const STATUS_CLASS: Record<NonNullable<Props["status"]>, string> = {
   "planned": "border-slate-200 bg-slate-50 text-slate-700",
   "in-development": "border-amber-200 bg-amber-50 text-amber-900",
-  "early-access": "border-emerald-200 bg-emerald-50 text-emerald-900",
+  "early-access": "border-primary/25 bg-primary/10 text-primary",
 };
 
 export function ComingSoonPage({

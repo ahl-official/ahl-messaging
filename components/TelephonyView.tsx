@@ -44,7 +44,7 @@ function CopyUrl({ url, id, copied, onCopy }: { url: string; id: string; copied:
     <div className="flex items-start gap-2">
       <code className="min-w-0 flex-1 break-all rounded-md border bg-secondary/30 px-3 py-2 font-mono text-[11px] leading-relaxed">{url}</code>
       <button type="button" onClick={() => onCopy(url, id)} className="shrink-0 rounded-md border px-2 py-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground" title="Copy URL">
-        {copied === id ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+        {copied === id ? <Check className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
       </button>
     </div>
   );
@@ -55,7 +55,7 @@ function Endpoint({ name, url, method, id, copied, onCopy, note }: { name: strin
     <div className="space-y-1.5">
       <div className="flex items-center gap-2">
         <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{name}</span>
-        {method ? <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 ring-1 ring-emerald-200">{method}</span> : null}
+        {method ? <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary ring-1 ring-primary/25">{method}</span> : null}
       </div>
       <CopyUrl url={url} id={id} copied={copied} onCopy={onCopy} />
       {note ? <p className="text-[11px] text-muted-foreground">{note}</p> : null}
@@ -68,7 +68,7 @@ function Field({ label, value, onChange, placeholder, type }: { label: string; v
     <div>
       <label className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</label>
       <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} type={type}
-        className="mt-1 w-full rounded-md border px-3 py-2 font-mono text-xs outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100" />
+        className="mt-1 w-full rounded-md border px-3 py-2 font-mono text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" />
     </div>
   );
 }
@@ -178,7 +178,7 @@ export function TelephonyView({ connectorKey }: { connectorKey: string }) {
           <div className="flex items-center gap-1 overflow-x-auto border-b bg-secondary/30 px-2 py-2">
             {OPERATORS.map((op) => (
               <button key={op} type="button" onClick={() => setOperator(op)}
-                className={"whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold transition " + (operator === op ? "bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-200" : "text-muted-foreground hover:bg-white/60")}>
+                className={"whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold transition " + (operator === op ? "bg-white text-primary shadow-sm ring-1 ring-primary/25" : "text-muted-foreground hover:bg-white/60")}>
                 {operator === op ? "✓ " : ""}{op}
               </button>
             ))}
@@ -192,7 +192,7 @@ export function TelephonyView({ connectorKey }: { connectorKey: string }) {
             <div className="w-52 shrink-0 space-y-0.5 border-r bg-secondary/10 p-2">
               {SECTIONS.map((s) => (
                 <button key={s.key} type="button" onClick={() => setSectionKey(s.key)}
-                  className={"block w-full rounded-md px-3 py-2 text-left text-xs font-semibold transition " + (sectionKey === s.key ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" : "text-foreground/70 hover:bg-secondary/50")}>
+                  className={"block w-full rounded-md px-3 py-2 text-left text-xs font-semibold transition " + (sectionKey === s.key ? "bg-primary/10 text-primary ring-1 ring-primary/25" : "text-foreground/70 hover:bg-secondary/50")}>
                   {s.label}
                 </button>
               ))}
@@ -208,9 +208,9 @@ export function TelephonyView({ connectorKey }: { connectorKey: string }) {
                     {vnums.map((v, i) => (
                       <div key={i} className="flex items-center gap-2">
                         <input value={v.number} onChange={(e) => setVnums((p) => p.map((x, j) => j === i ? { ...x, number: e.target.value } : x))} placeholder="+91 80XXXXXXXX"
-                          className="flex-1 rounded-md border px-3 py-2 font-mono text-xs outline-none focus:border-emerald-400" />
+                          className="flex-1 rounded-md border px-3 py-2 font-mono text-xs outline-none focus:border-primary" />
                         <input value={v.tag} onChange={(e) => setVnums((p) => p.map((x, j) => j === i ? { ...x, tag: e.target.value } : x))} placeholder="Tag (e.g. Sales Team)"
-                          className="flex-1 rounded-md border px-3 py-2 text-xs outline-none focus:border-emerald-400" />
+                          className="flex-1 rounded-md border px-3 py-2 text-xs outline-none focus:border-primary" />
                         <button type="button" onClick={() => setVnums((p) => p.filter((_, j) => j !== i))} className="rounded p-1.5 text-muted-foreground hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></button>
                       </div>
                     ))}
@@ -288,19 +288,19 @@ export function TelephonyView({ connectorKey }: { connectorKey: string }) {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Method</label>
-                      <select value={c2c.method} onChange={(e) => setC2c((p) => ({ ...p, method: e.target.value }))} className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-xs outline-none focus:border-emerald-400">
+                      <select value={c2c.method} onChange={(e) => setC2c((p) => ({ ...p, method: e.target.value }))} className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-xs outline-none focus:border-primary">
                         <option>POST</option><option>GET</option>
                       </select>
                     </div>
                     <div>
                       <label className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Request Type</label>
-                      <select value={c2c.reqType} onChange={(e) => setC2c((p) => ({ ...p, reqType: e.target.value }))} className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-xs outline-none focus:border-emerald-400">
+                      <select value={c2c.reqType} onChange={(e) => setC2c((p) => ({ ...p, reqType: e.target.value }))} className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-xs outline-none focus:border-primary">
                         <option>JSON</option><option>FORM</option>
                       </select>
                     </div>
                   </div>
                   <Field label="Agent number (call pehle ispe ring hoti hai)" value={c2c.agentNumber} onChange={(v) => setC2c((p) => ({ ...p, agentNumber: v }))} placeholder="+91 9XXXXXXXXX" />
-                  <div className={"rounded-md border px-3 py-2 text-[11px] " + (tokenSet ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-800")}>
+                  <div className={"rounded-md border px-3 py-2 text-[11px] " + (tokenSet ? "border-primary/25 bg-primary/10 text-primary" : "border-amber-200 bg-amber-50 text-amber-800")}>
                     {tokenSet ? "✓ Auth token set hai (TELEPHONY_AUTH_TOKEN env) — Bearer header auto lagega." : "⚠ Env Bearer token nahi mila. Niche custom header (Authorization / apikey) add kar sakte ho."}
                   </div>
 
@@ -320,14 +320,14 @@ export function TelephonyView({ connectorKey }: { connectorKey: string }) {
                           return (
                           <div key={i} className="flex items-center gap-2">
                             <input value={h.key} onChange={(e) => setC2c((p) => ({ ...p, headers: p.headers.map((x, j) => j === i ? { ...x, key: e.target.value } : x) }))} placeholder="Header name (e.g. Authorization)"
-                              className="w-44 shrink-0 rounded-md border px-3 py-2 font-mono text-xs outline-none focus:border-emerald-400" />
+                              className="w-44 shrink-0 rounded-md border px-3 py-2 font-mono text-xs outline-none focus:border-primary" />
                             <span className="text-muted-foreground">:</span>
                             <div className="relative flex-1">
                               <input type={shown ? "text" : "password"} value={h.value}
                                 onChange={(e) => setC2c((p) => ({ ...p, headers: p.headers.map((x, j) => j === i ? { ...x, value: e.target.value } : x) }))}
                                 onFocus={() => { if (h.value.includes("•")) setC2c((p) => ({ ...p, headers: p.headers.map((x, j) => j === i ? { ...x, value: "" } : x) })); }}
                                 placeholder="Value (e.g. Token abc123)"
-                                className="w-full rounded-md border px-3 py-2 pr-9 font-mono text-xs outline-none focus:border-emerald-400" />
+                                className="w-full rounded-md border px-3 py-2 pr-9 font-mono text-xs outline-none focus:border-primary" />
                               <button type="button" onClick={() => setRevealHdr((p) => { const n = new Set(p); n.has(i) ? n.delete(i) : n.add(i); return n; })}
                                 className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground" title={shown ? "Hide" : "Show"}>
                                 {shown ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
@@ -347,7 +347,7 @@ export function TelephonyView({ connectorKey }: { connectorKey: string }) {
                   <div>
                     <label className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Data template (mail-merge)</label>
                     <textarea value={c2c.dataTemplate} onChange={(e) => setC2c((p) => ({ ...p, dataTemplate: e.target.value }))} rows={6}
-                      className="mt-1 w-full rounded-md border px-3 py-2 font-mono text-[11px] outline-none focus:border-emerald-400" />
+                      className="mt-1 w-full rounded-md border px-3 py-2 font-mono text-[11px] outline-none focus:border-primary" />
                     <p className="mt-1 text-[11px] text-muted-foreground">
                       Available: <code>@leadPhone</code>, <code>@agentPhone</code>, <code>@agentEmail</code>, <code>@VirtualNumberTag</code> (ya <code>{"{{lead_phone}}"}</code> / <code>{"{{agent_phone}}"}</code> / <code>{"{{agent_email}}"}</code> / <code>{"{{virtual_number_tag}}"}</code>).
                     </p>
@@ -358,7 +358,7 @@ export function TelephonyView({ connectorKey }: { connectorKey: string }) {
                     <Field label="Response keyword (success check)" value={c2c.responseKeyword} onChange={(v) => setC2c((p) => ({ ...p, responseKeyword: v }))} placeholder="e.g. queued successfully" />
                     <div>
                       <label className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Response Type</label>
-                      <select value={c2c.responseType} onChange={(e) => setC2c((p) => ({ ...p, responseType: e.target.value }))} className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-xs outline-none focus:border-emerald-400">
+                      <select value={c2c.responseType} onChange={(e) => setC2c((p) => ({ ...p, responseType: e.target.value }))} className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-xs outline-none focus:border-primary">
                         <option>JSON</option><option>TEXT</option><option>XML</option>
                       </select>
                     </div>
@@ -368,12 +368,12 @@ export function TelephonyView({ connectorKey }: { connectorKey: string }) {
                   <Field label="Provider support email" value={c2c.supportEmail} onChange={(v) => setC2c((p) => ({ ...p, supportEmail: v }))} placeholder="support@operator.com" />
 
                   <label className="flex items-center gap-2 text-xs font-semibold">
-                    <input type="checkbox" checked={c2c.enabled} onChange={(e) => setC2c((p) => ({ ...p, enabled: e.target.checked }))} className="h-4 w-4 rounded border-input accent-emerald-600" />
+                    <input type="checkbox" checked={c2c.enabled} onChange={(e) => setC2c((p) => ({ ...p, enabled: e.target.checked }))} className="h-4 w-4 rounded border-input accent-primary" />
                     Enable Click-2-Call connector
                   </label>
 
                   <button type="button" onClick={saveC2c} disabled={savingC2c || !c2c.url.trim()}
-                    className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50">
+                    className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 disabled:opacity-50">
                     {savedC2c ? <Check className="h-3.5 w-3.5" /> : <Save className="h-3.5 w-3.5" />}
                     {savedC2c ? "Saved" : savingC2c ? "Saving…" : "Save Click-2-Call"}
                   </button>
@@ -387,7 +387,7 @@ export function TelephonyView({ connectorKey }: { connectorKey: string }) {
                   <Field label="Provider Disposition URL" value={dispo.url} onChange={(v) => setDispo((p) => ({ ...p, url: v }))} placeholder="https://...?call_session_id=<id>&agent_name=<name>" />
                   <div>
                     <label className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Method</label>
-                    <select value={dispo.method} onChange={(e) => setDispo((p) => ({ ...p, method: e.target.value }))} className="mt-1 w-40 rounded-md border bg-white px-3 py-2 text-xs outline-none focus:border-emerald-400">
+                    <select value={dispo.method} onChange={(e) => setDispo((p) => ({ ...p, method: e.target.value }))} className="mt-1 w-40 rounded-md border bg-white px-3 py-2 text-xs outline-none focus:border-primary">
                       <option>POST</option><option>GET</option>
                     </select>
                   </div>
@@ -432,9 +432,9 @@ export function TelephonyView({ connectorKey }: { connectorKey: string }) {
                   <div className="space-y-2">
                     {uaMap.map((m, i) => (
                       <div key={i} className="flex items-center gap-2">
-                        <input value={m.user} onChange={(e) => setUaMap((p) => p.map((x, j) => j === i ? { ...x, user: e.target.value } : x))} placeholder="Dashboard user name" className="flex-1 rounded-md border px-3 py-2 text-xs outline-none focus:border-emerald-400" />
+                        <input value={m.user} onChange={(e) => setUaMap((p) => p.map((x, j) => j === i ? { ...x, user: e.target.value } : x))} placeholder="Dashboard user name" className="flex-1 rounded-md border px-3 py-2 text-xs outline-none focus:border-primary" />
                         <span className="text-muted-foreground">→</span>
-                        <input value={m.agent} onChange={(e) => setUaMap((p) => p.map((x, j) => j === i ? { ...x, agent: e.target.value } : x))} placeholder="Agent extension / id" className="flex-1 rounded-md border px-3 py-2 font-mono text-xs outline-none focus:border-emerald-400" />
+                        <input value={m.agent} onChange={(e) => setUaMap((p) => p.map((x, j) => j === i ? { ...x, agent: e.target.value } : x))} placeholder="Agent extension / id" className="flex-1 rounded-md border px-3 py-2 font-mono text-xs outline-none focus:border-primary" />
                         <button type="button" onClick={() => setUaMap((p) => p.filter((_, j) => j !== i))} className="rounded p-1.5 text-muted-foreground hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></button>
                       </div>
                     ))}
@@ -466,7 +466,7 @@ function SubTabs({ tabs, active, onPick }: { tabs: [string, string][]; active: s
     <div className="flex gap-1 border-b">
       {tabs.map(([k, label]) => (
         <button key={k} type="button" onClick={() => onPick(k)}
-          className={"border-b-2 px-3 py-1.5 text-xs font-semibold transition " + (active === k ? "border-emerald-600 text-emerald-700" : "border-transparent text-muted-foreground hover:text-foreground")}>
+          className={"border-b-2 px-3 py-1.5 text-xs font-semibold transition " + (active === k ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground")}>
           {label}
         </button>
       ))}
@@ -483,7 +483,7 @@ function MappingTable({ fields, mapping, setMapping }: { fields: string[]; mappi
           <span className="w-40 shrink-0 font-mono text-[11px] text-muted-foreground">{f}</span>
           <span className="text-muted-foreground">→</span>
           <input value={mapping[f] ?? ""} onChange={(e) => setMapping((p) => ({ ...p, [f]: e.target.value }))} placeholder="provider field name"
-            className="flex-1 rounded-md border px-3 py-1.5 font-mono text-xs outline-none focus:border-emerald-400" />
+            className="flex-1 rounded-md border px-3 py-1.5 font-mono text-xs outline-none focus:border-primary" />
         </div>
       ))}
     </div>

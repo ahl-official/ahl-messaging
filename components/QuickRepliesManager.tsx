@@ -261,7 +261,7 @@ export function QuickRepliesManager({
           truth; this line just makes the binding explicit. */}
       <div className="rounded-lg border bg-card p-4">
         <div className="flex items-start gap-3">
-          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100">
+          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary ring-1 ring-primary/20">
             <Zap className="h-4 w-4" />
           </span>
           <div className="text-sm flex-1 min-w-0">
@@ -426,7 +426,7 @@ export function QuickRepliesManager({
               <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Buttons (optional)</div>
               {newButtons.map((b, i) => (
                 <div key={i} className="mt-1.5 flex flex-wrap items-center gap-2">
-                  <span className={"rounded px-1.5 py-0.5 text-[10px] font-semibold ring-1 " + (b.type === "url" ? "bg-sky-50 text-sky-700 ring-sky-200" : "bg-emerald-50 text-emerald-700 ring-emerald-200")}>
+                  <span className={"rounded px-1.5 py-0.5 text-[10px] font-semibold ring-1 " + (b.type === "url" ? "bg-sky-50 text-sky-700 ring-sky-200" : "bg-primary/10 text-primary ring-primary/25")}>
                     {b.type === "url" ? "Website URL" : "Quick Reply"}
                   </span>
                   <input
@@ -454,7 +454,7 @@ export function QuickRepliesManager({
                   type="button"
                   disabled={newButtons.filter((b) => b.type === "quick_reply").length >= 3}
                   onClick={() => setNewButtons((p) => [...p, { type: "quick_reply", text: "", url: "" }])}
-                  className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-50 disabled:opacity-40"
+                  className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold text-primary hover:bg-primary/10 disabled:opacity-40"
                 >
                   <Plus className="h-3 w-3" /> Quick Reply
                 </button>
@@ -557,7 +557,7 @@ export function QuickRepliesManager({
               <div className="flex min-h-0 flex-col border-b sm:border-b-0 sm:border-r">
                 <div className="flex items-center justify-between border-b px-3 py-2">
                   <span className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Quick replies ({copyQrIds.size})</span>
-                  <button type="button" onClick={() => setCopyQrIds(copyQrIds.size === (items?.length ?? 0) ? new Set() : new Set((items ?? []).map((q) => q.id)))} className="text-[11px] font-semibold text-emerald-700 hover:underline">
+                  <button type="button" onClick={() => setCopyQrIds(copyQrIds.size === (items?.length ?? 0) ? new Set() : new Set((items ?? []).map((q) => q.id)))} className="text-[11px] font-semibold text-primary hover:underline">
                     {copyQrIds.size === (items?.length ?? 0) ? "Clear" : "Select all"}
                   </button>
                 </div>
@@ -569,7 +569,7 @@ export function QuickRepliesManager({
                         checked={copyQrIds.has(q.id)}
                         onChange={() => setCopyQrIds((p) => { const n = new Set(p); n.has(q.id) ? n.delete(q.id) : n.add(q.id); return n; })}
                       />
-                      <code className="rounded bg-emerald-50 px-1 text-[10px] font-semibold text-emerald-800">/{q.shortcut}</code>
+                      <code className="rounded bg-primary/10 px-1 text-[10px] font-semibold text-primary">/{q.shortcut}</code>
                       <span className="truncate text-muted-foreground">{q.body}</span>
                     </label>
                   ))}
@@ -579,7 +579,7 @@ export function QuickRepliesManager({
               <div className="flex min-h-0 flex-col">
                 <div className="flex items-center justify-between border-b px-3 py-2">
                   <span className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Copy to numbers ({copyNumIds.size})</span>
-                  <button type="button" onClick={() => setCopyNumIds(copyNumIds.size === numbers.length ? new Set() : new Set(numbers.map((n) => n.phone_number_id)))} className="text-[11px] font-semibold text-emerald-700 hover:underline">
+                  <button type="button" onClick={() => setCopyNumIds(copyNumIds.size === numbers.length ? new Set() : new Set(numbers.map((n) => n.phone_number_id)))} className="text-[11px] font-semibold text-primary hover:underline">
                     {copyNumIds.size === numbers.length ? "Clear" : "Select all"}
                   </button>
                 </div>
@@ -596,7 +596,7 @@ export function QuickRepliesManager({
                           <button
                             type="button"
                             onClick={() => setCopyNumIds((p) => { const s = new Set(p); allOn ? groupIds.forEach((id) => s.delete(id)) : groupIds.forEach((id) => s.add(id)); return s; })}
-                            className="text-[10px] font-semibold text-emerald-700 hover:underline"
+                            className="text-[10px] font-semibold text-primary hover:underline"
                           >
                             {allOn ? "Clear" : "All"}
                           </button>
@@ -624,7 +624,7 @@ export function QuickRepliesManager({
               </div>
             </div>
             <footer className="flex items-center justify-between gap-3 border-t px-4 py-3">
-              <span className={"text-[11px] " + (copyDone ? "font-semibold text-emerald-700" : "text-muted-foreground")}>
+              <span className={"text-[11px] " + (copyDone ? "font-semibold text-primary" : "text-muted-foreground")}>
                 {copyDone ?? `${copyQrIds.size} reply → ${copyNumIds.size} number`}
               </span>
               <div className="flex gap-2">
@@ -633,7 +633,7 @@ export function QuickRepliesManager({
                   type="button"
                   onClick={runCopy}
                   disabled={copying || copyQrIds.size === 0 || copyNumIds.size === 0}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
                 >
                   {copying ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Copy className="h-3.5 w-3.5" />}
                   {copying ? "Copying…" : "Copy"}
@@ -752,7 +752,7 @@ function QuickReplyCard({
       ) : (
         <>
           <div className="mb-2 flex items-center justify-between gap-2">
-            <code className="rounded bg-emerald-50 px-1.5 py-0.5 text-[11px] font-semibold text-emerald-800 ring-1 ring-emerald-100">
+            <code className="rounded bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold text-primary ring-1 ring-primary/20">
               /{item.shortcut}
             </code>
             <div className="flex items-center gap-1">

@@ -31,7 +31,7 @@ interface Team {
 }
 
 const COLORS: Array<{ key: string; label: string; ring: string; bg: string; dot: string }> = [
-  { key: "emerald", label: "Emerald", ring: "ring-emerald-200", bg: "bg-emerald-50", dot: "bg-emerald-500" },
+  { key: "emerald", label: "Emerald", ring: "ring-primary/25", bg: "bg-primary/10", dot: "bg-primary" },
   { key: "sky",     label: "Sky",     ring: "ring-sky-200",     bg: "bg-sky-50",     dot: "bg-sky-500" },
   { key: "violet",  label: "Violet",  ring: "ring-violet-200",  bg: "bg-violet-50",  dot: "bg-violet-500" },
   { key: "amber",   label: "Amber",   ring: "ring-amber-200",   bg: "bg-amber-50",   dot: "bg-amber-500" },
@@ -131,7 +131,7 @@ export function TeamsView() {
           {/* New team form */}
           <section className="overflow-hidden rounded-2xl border bg-card shadow-sm">
             <header className="flex items-center gap-2 border-b bg-gradient-to-r from-secondary/40 to-transparent px-5 py-3.5">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-inset ring-primary/20">
                 <Plus className="h-3.5 w-3.5" />
               </span>
               <div>
@@ -327,7 +327,7 @@ function TeamRow({
         <button
           type="button"
           onClick={onEditPermissions}
-          className="inline-flex h-7 items-center justify-center gap-1 rounded-md bg-emerald-50 px-2 text-[11px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200 hover:bg-emerald-100"
+          className="inline-flex h-7 items-center justify-center gap-1 rounded-md bg-primary/10 px-2 text-[11px] font-semibold text-primary ring-1 ring-inset ring-primary/25 hover:bg-primary/15"
           title="Permissions for everyone in this team"
         >
           <KeyRound className="h-3 w-3" />

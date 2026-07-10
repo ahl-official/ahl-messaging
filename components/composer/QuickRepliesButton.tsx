@@ -177,7 +177,7 @@ export function QuickRepliesButton({ disabled, onPick, onSendRich, phoneNumberId
                       className="flex w-full flex-col gap-0.5 px-3 py-2 text-left transition hover:bg-secondary"
                     >
                       <span className="flex items-center gap-1.5">
-                        <code className="self-start rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-800 ring-1 ring-emerald-100">
+                        <code className="self-start rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary ring-1 ring-primary/20">
                           /{q.shortcut}
                         </code>
                         {isRichQuickReply(q) ? (

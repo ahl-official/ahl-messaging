@@ -164,7 +164,7 @@ export function TriggerFlowsTab({ bpid }: { bpid: string }) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="flex items-center gap-2 text-sm font-semibold">
-            <Workflow className="h-4 w-4 text-emerald-700" /> Trigger flows
+            <Workflow className="h-4 w-4 text-primary" /> Trigger flows
           </h2>
           <p className="text-[11px] text-muted-foreground">
             Keyword aaye to action steps chalein — AI ke bina.
@@ -185,7 +185,7 @@ export function TriggerFlowsTab({ bpid }: { bpid: string }) {
         </div>
       ) : null}
       {copied ? (
-        <div className="rounded-md border border-emerald-300/40 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+        <div className="rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-xs text-primary">
           Flow copied to {numbers.find((n) => n.phone_number_id === copied)?.label ?? "the number"} (added as disabled — enable it there).
         </div>
       ) : null}
@@ -220,7 +220,7 @@ export function TriggerFlowsTab({ bpid }: { bpid: string }) {
                 onClick={() => toggle(f)}
                 className={cn(
                   "relative h-5 w-9 shrink-0 rounded-full transition",
-                  f.enabled ? "bg-emerald-500" : "bg-slate-300",
+                  f.enabled ? "bg-primary" : "bg-slate-300",
                 )}
                 title={f.enabled ? "Enabled" : "Disabled"}
               >
@@ -279,7 +279,7 @@ export function TriggerFlowsTab({ bpid }: { bpid: string }) {
                                 {copyingTo === n.phone_number_id ? (
                                   <Loader2 className="mt-0.5 h-3.5 w-3.5 shrink-0 animate-spin" />
                                 ) : (
-                                  <Copy className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-700" />
+                                  <Copy className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
                                 )}
                                 <span className="min-w-0 flex-1">
                                   <span className="block truncate font-medium">{n.label}</span>

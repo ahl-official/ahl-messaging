@@ -246,7 +246,7 @@ export function TemplateSendDialog({ template, onClose, onSend, isInterakt, phon
               template.header_url &&
               (headerFormat === "IMAGE" || headerFormat === "VIDEO") &&
               !mediaPreview ? (
-                <div className="mb-2 rounded-md border border-emerald-200 bg-emerald-50/60 p-2">
+                <div className="mb-2 rounded-md border border-primary/25 bg-primary/10 p-2">
                   {headerFormat === "VIDEO" ? (
                     <video
                       src={template.header_url}
@@ -268,7 +268,7 @@ export function TemplateSendDialog({ template, onClose, onSend, isInterakt, phon
                         Preparing approved sample…
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 rounded bg-emerald-100 px-1.5 py-0.5 font-semibold text-emerald-800">
+                      <span className="inline-flex items-center gap-1 rounded bg-primary/15 px-1.5 py-0.5 font-semibold text-primary">
                         ✓ Approved sample ready
                       </span>
                     )}
@@ -317,14 +317,14 @@ export function TemplateSendDialog({ template, onClose, onSend, isInterakt, phon
                     <img src={mediaPreview} alt="Header" className="mt-2 max-h-32 rounded-md border" />
                   ) : null}
                   {mediaId ? (
-                    <div className="mt-1 inline-flex items-center gap-1 rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-800">
+                    <div className="mt-1 inline-flex items-center gap-1 rounded bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
                       ✓ Ready to send
                     </div>
                   ) : null}
                 </>
               ) : null}
               {isInterakt ? (
-                <p className="mt-1 text-[11px] font-medium text-emerald-700">
+                <p className="mt-1 text-[11px] font-medium text-primary">
                   ✓ Approved sample header automatically bheja jayega.
                 </p>
               ) : null}

@@ -114,12 +114,12 @@ export function SettingsTabs({
           fade blends the off-edge tabs into the hero's emerald gradient. */}
       {canLeft ? (
         <>
-          <div className="pointer-events-none absolute inset-y-0 left-6 z-[5] w-12 bg-gradient-to-r from-emerald-900 to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 left-6 z-[5] w-12 bg-gradient-to-r from-[#1a4ab8] to-transparent" />
           <button
             type="button"
             aria-label="Scroll tabs left"
             onClick={() => scrollBy(-1)}
-            className="absolute left-6 top-1/2 z-10 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border bg-card text-muted-foreground shadow-md transition hover:scale-110 hover:bg-emerald-50 hover:text-emerald-700"
+            className="absolute left-6 top-1/2 z-10 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border bg-card text-muted-foreground shadow-md transition hover:scale-110 hover:bg-primary/10 hover:text-primary"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -132,7 +132,7 @@ export function SettingsTabs({
             type="button"
             aria-label="Scroll tabs right"
             onClick={() => scrollBy(1)}
-            className="absolute right-6 top-1/2 z-10 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border bg-card text-muted-foreground shadow-md transition hover:scale-110 hover:bg-emerald-50 hover:text-emerald-700"
+            className="absolute right-6 top-1/2 z-10 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border bg-card text-muted-foreground shadow-md transition hover:scale-110 hover:bg-primary/10 hover:text-primary"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -155,14 +155,14 @@ export function SettingsTabs({
               className={cn(
                 "group inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition",
                 active
-                  ? "bg-white text-emerald-800 shadow-lg shadow-emerald-900/25 ring-1 ring-white/50"
+                  ? "bg-white text-primary shadow-lg shadow-primary/25 ring-1 ring-white/50"
                   : "bg-white/10 text-white/90 ring-1 ring-white/20 hover:bg-white/20 hover:text-white hover:ring-white/30",
               )}
             >
               <Icon
                 className={cn(
                   "h-4 w-4 shrink-0 transition",
-                  active ? "text-emerald-700" : "text-white/80 group-hover:text-white",
+                  active ? "text-primary" : "text-white/80 group-hover:text-white",
                 )}
               />
               {t.label}

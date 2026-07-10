@@ -235,7 +235,7 @@ function humanizeKey(k: string): string {
 
 function iconForEvent(name: string): { Icon: typeof Activity; tone: string } {
   const n = name.toLowerCase();
-  if (n.includes("whatsapp")) return { Icon: MessageSquare, tone: "text-emerald-600" };
+  if (n.includes("whatsapp")) return { Icon: MessageSquare, tone: "text-primary" };
   if (n.includes("call") || n.includes("phone")) return { Icon: Phone, tone: "text-blue-600" };
   if (n.includes("email")) return { Icon: Mail, tone: "text-violet-600" };
   if (n.includes("note")) return { Icon: StickyNote, tone: "text-amber-600" };

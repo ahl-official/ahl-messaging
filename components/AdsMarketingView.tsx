@@ -160,7 +160,7 @@ function NumberCard({ num, onSaved }: { num: NumberAds; onSaved: () => void }) {
           <div className="font-mono text-[11px] text-muted-foreground">{num.number}</div>
         </div>
         {num.token_set ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary ring-1 ring-inset ring-primary/25">
             <CheckCircle2 className="h-3.5 w-3.5" /> Token set
           </span>
         ) : (
@@ -226,7 +226,7 @@ function NumberCard({ num, onSaved }: { num: NumberAds; onSaved: () => void }) {
             <Trash2 className="h-3.5 w-3.5" /> Remove
           </button>
         ) : null}
-        {done ? <span className="text-xs font-medium text-emerald-600">Saved</span> : null}
+        {done ? <span className="text-xs font-medium text-primary">Saved</span> : null}
         {err ? <span className="text-xs text-destructive">{err}</span> : null}
       </div>
     </li>

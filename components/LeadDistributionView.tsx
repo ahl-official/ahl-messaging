@@ -160,7 +160,7 @@ export function LeadDistributionView() {
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ring-1 backdrop-blur transition",
                 config.enabled
-                  ? "bg-emerald-400/20 text-white ring-emerald-300/40"
+                  ? "bg-[#6098FF]/20 text-white ring-primary/40"
                   : "bg-white/15 text-white ring-white/25 hover:bg-white/25",
               )}
             >
@@ -181,7 +181,7 @@ export function LeadDistributionView() {
               className={cn(
                 "border-b-2 px-3 py-2.5 text-xs font-semibold capitalize transition whitespace-nowrap",
                 tab === t
-                  ? "border-emerald-600 text-emerald-700"
+                  ? "border-primary text-primary"
                   : "border-transparent text-muted-foreground hover:text-foreground",
               )}
             >
@@ -219,7 +219,7 @@ export function LeadDistributionView() {
               <section
                 className={cn(
                   "flex items-center gap-3 rounded-2xl border p-4 shadow-sm",
-                  config.enabled ? "border-emerald-300 bg-emerald-50" : "bg-card",
+                  config.enabled ? "border-primary/30 bg-primary/10" : "bg-card",
                 )}
               >
                 <div className="flex-1">
@@ -241,7 +241,7 @@ export function LeadDistributionView() {
                   title={config.enabled ? "Turn OFF" : "Turn ON (go live)"}
                   className={cn(
                     "relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors disabled:opacity-50",
-                    config.enabled ? "bg-emerald-600" : "bg-slate-300",
+                    config.enabled ? "bg-primary" : "bg-slate-300",
                   )}
                 >
                   <span
@@ -256,7 +256,7 @@ export function LeadDistributionView() {
               {/* Webhook */}
               <section className="rounded-2xl border bg-card p-4 shadow-sm">
                 <div className="flex items-center gap-2">
-                  <Webhook className="h-4 w-4 text-emerald-600" />
+                  <Webhook className="h-4 w-4 text-primary" />
                   <h2 className="text-sm font-bold">Webhook URL</h2>
                   <span className="text-[11px] text-muted-foreground">CRM Automation me ye URL POST pe set karo.</span>
                 </div>
@@ -275,7 +275,7 @@ export function LeadDistributionView() {
                     }}
                     className="inline-flex shrink-0 items-center gap-1 rounded-md border bg-background px-2.5 py-2 text-xs font-semibold hover:bg-secondary"
                   >
-                    {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                    {copied ? <Check className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
                     {copied ? "Copied" : "Copy"}
                   </button>
                 </div>
@@ -550,7 +550,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
                     <tr key={r.id} className="border-b last:border-0 hover:bg-secondary/30">
                       <td className="px-4 py-2.5">
                         <div className="flex items-center gap-1.5">
-                          <button type="button" onClick={() => setOpenRow(r)} className="font-semibold text-emerald-700 hover:underline">
+                          <button type="button" onClick={() => setOpenRow(r)} className="font-semibold text-primary hover:underline">
                             {r.name}
                           </button>
                           <button
@@ -584,12 +584,12 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
                             title={r.status === "Published" ? "On (live) — click to turn off" : "Off (draft) — click to turn on"}
                             className={cn(
                               "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors",
-                              r.status === "Published" ? "bg-emerald-600" : "bg-slate-300",
+                              r.status === "Published" ? "bg-primary" : "bg-slate-300",
                             )}
                           >
                             <span className={cn("inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform", r.status === "Published" ? "translate-x-4" : "translate-x-1")} />
                           </button>
-                          <span className={cn("text-[10px] font-semibold", r.status === "Published" ? "text-emerald-700" : "text-muted-foreground")}>
+                          <span className={cn("text-[10px] font-semibold", r.status === "Published" ? "text-primary" : "text-muted-foreground")}>
                             {r.status === "Published" ? "On" : "Off"}
                           </span>
                         </div>
@@ -599,7 +599,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
                         <button
                           type="button"
                           onClick={() => openReport(r)}
-                          className="mr-1 rounded p-1 text-muted-foreground hover:bg-emerald-50 hover:text-emerald-700"
+                          className="mr-1 rounded p-1 text-muted-foreground hover:bg-primary/10 hover:text-primary"
                           title="Report — sent count + numbers"
                         >
                           <Activity className="h-3.5 w-3.5" />
@@ -631,12 +631,12 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
             <Plus className="h-4 w-4" /> Create automation
           </button>
 
-          <section className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-3 shadow-sm">
+          <section className="rounded-2xl border border-primary/25 bg-primary/10 p-3 shadow-sm">
             <div className="flex items-center gap-1.5">
-              <Check className="h-3.5 w-3.5 text-emerald-600" />
-              <h3 className="text-xs font-bold text-emerald-900">Webhook connected</h3>
+              <Check className="h-3.5 w-3.5 text-primary" />
+              <h3 className="text-xs font-bold text-primary">Webhook connected</h3>
             </div>
-            <p className="mt-1 text-[10px] text-emerald-800/80">
+            <p className="mt-1 text-[10px] text-primary/80">
               Automations aapke existing CRM webhooks (Lead Stage Change) se hi chalti hain —
               koi alag webhook add karne ki zaroorat nahi.
             </p>
@@ -644,7 +644,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
 
           <section className="rounded-2xl border bg-card p-3 shadow-sm">
             <h3 className="text-xs font-bold">Related settings</h3>
-            <div className="mt-1.5 flex flex-col gap-1 text-[11px] font-semibold text-emerald-700">
+            <div className="mt-1.5 flex flex-col gap-1 text-[11px] font-semibold text-primary">
               <span className="cursor-default text-muted-foreground">Automation Failure Report</span>
               <span className="cursor-default text-muted-foreground">Automation Termination Report</span>
             </div>
@@ -686,18 +686,18 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
                               setName(t.name);
                             }}
                             className={cn(
-                              "relative block w-full overflow-hidden rounded-lg border bg-background px-3 py-2.5 text-left transition hover:border-emerald-400 hover:bg-emerald-50/40",
-                              t.recommended ? "border-emerald-300" : "border-input",
+                              "relative block w-full overflow-hidden rounded-lg border bg-background px-3 py-2.5 text-left transition hover:border-primary/40 hover:bg-primary/10",
+                              t.recommended ? "border-primary/30" : "border-input",
                             )}
                           >
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-semibold">{t.name}</span>
                               {t.recommended ? (
-                                <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-emerald-700">Distribution</span>
+                                <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-primary">Distribution</span>
                               ) : null}
                             </div>
                             <p className="text-[11px] text-muted-foreground">{t.desc}</p>
-                            <span className="absolute inset-x-0 bottom-0 h-0.5 bg-emerald-500" />
+                            <span className="absolute inset-x-0 bottom-0 h-0.5 bg-primary" />
                           </button>
                         ))}
                       </div>
@@ -709,7 +709,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
               <div className="space-y-3 p-4">
                 <div className="flex items-center justify-between rounded-md border bg-secondary/30 px-3 py-2 text-xs">
                   <span>Trigger: <b>{picked}</b></span>
-                  <button type="button" onClick={() => setPicked(null)} className="text-emerald-700 hover:underline">
+                  <button type="button" onClick={() => setPicked(null)} className="text-primary hover:underline">
                     change
                   </button>
                 </div>
@@ -721,7 +721,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Photos Received → Distribution"
-                    className="mt-1 w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-emerald-400"
+                    className="mt-1 w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-primary"
                   />
                 </label>
 
@@ -733,7 +733,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
                       <select
                         value={leadField}
                         onChange={(e) => setLeadField(e.target.value)}
-                        className="mt-1 w-full rounded-md border bg-background px-2 py-2 text-sm outline-none focus:border-emerald-400"
+                        className="mt-1 w-full rounded-md border bg-background px-2 py-2 text-sm outline-none focus:border-primary"
                       >
                         {LEAD_FIELDS.map((f) => (
                           <option key={f} value={f}>{f}</option>
@@ -748,7 +748,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
                           value={changeFrom}
                           onChange={(e) => setChangeFrom(e.target.value)}
                           placeholder="Any Stage"
-                          className="mt-1 w-full rounded-md border px-2 py-2 text-sm outline-none focus:border-emerald-400"
+                          className="mt-1 w-full rounded-md border px-2 py-2 text-sm outline-none focus:border-primary"
                         />
                       </label>
                       <label className="block text-xs font-semibold">
@@ -758,7 +758,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
                           value={changeTo}
                           onChange={(e) => setChangeTo(e.target.value)}
                           placeholder="Photos Received"
-                          className="mt-1 w-full rounded-md border px-2 py-2 text-sm outline-none focus:border-emerald-400"
+                          className="mt-1 w-full rounded-md border px-2 py-2 text-sm outline-none focus:border-primary"
                         />
                       </label>
                     </div>
@@ -776,7 +776,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
                     <select
                       value={runOnce ? "Yes" : "No"}
                       onChange={(e) => setRunOnce(e.target.value === "Yes")}
-                      className="mt-1 w-full rounded-md border bg-background px-2 py-2 text-sm outline-none focus:border-emerald-400"
+                      className="mt-1 w-full rounded-md border bg-background px-2 py-2 text-sm outline-none focus:border-primary"
                     >
                       <option>No</option>
                       <option>Yes</option>
@@ -787,7 +787,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
                     <select
                       value={scope}
                       onChange={(e) => setScope(e.target.value)}
-                      className="mt-1 w-full rounded-md border bg-background px-2 py-2 text-sm outline-none focus:border-emerald-400"
+                      className="mt-1 w-full rounded-md border bg-background px-2 py-2 text-sm outline-none focus:border-primary"
                     >
                       <option>Global</option>
                       <option>Restricted</option>
@@ -800,7 +800,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
                   <select
                     value={exitStage}
                     onChange={(e) => setExitStage(e.target.value)}
-                    className="mt-1 w-full rounded-md border bg-background px-2 py-2 text-sm outline-none focus:border-emerald-400"
+                    className="mt-1 w-full rounded-md border bg-background px-2 py-2 text-sm outline-none focus:border-primary"
                   >
                     <option value="">— none —</option>
                     {lsqStages.map((s) => (
@@ -815,7 +815,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
                     value={exitCondition}
                     onChange={(e) => setExitCondition(e.target.value)}
                     placeholder="e.g. Lead Source is Junk"
-                    className="mt-1 w-full rounded-md border px-2 py-2 text-sm outline-none focus:border-emerald-400"
+                    className="mt-1 w-full rounded-md border px-2 py-2 text-sm outline-none focus:border-primary"
                   />
                 </label>
 
@@ -901,7 +901,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
                     type="button"
                     disabled={saving || !name.trim()}
                     onClick={save}
-                    className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                    className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
                   >
                     {saving ? "Saving…" : "Save trigger"}
                   </button>
@@ -940,14 +940,14 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
                 if (e.key === "Enter") saveRename();
                 if (e.key === "Escape") setRenameTarget(null);
               }}
-              className="mt-3 w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+              className="mt-3 w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
               placeholder="Automation name"
             />
             <div className="mt-4 flex justify-end gap-2">
               <button type="button" onClick={() => setRenameTarget(null)} className="rounded-md border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-secondary">
                 Cancel
               </button>
-              <button type="button" onClick={saveRename} className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700">
+              <button type="button" onClick={saveRename} className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90">
                 Save
               </button>
             </div>
@@ -960,7 +960,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setReportRow(null)}>
           <div className="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-2 border-b px-4 py-3">
-              <Activity className="h-4 w-4 text-emerald-600" />
+              <Activity className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-bold">{reportRow.name} — report</h3>
               <button type="button" onClick={() => setReportRow(null)} className="ml-auto rounded p-1 text-muted-foreground hover:bg-secondary">
                 <X className="h-4 w-4" />
@@ -986,7 +986,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
                     <div className="border-b px-4 py-3">
                       <div className="grid grid-cols-4 gap-2">
                         {([
-                          ["sent", "Sent", report.sent.length, "border-emerald-400 bg-emerald-50", "text-emerald-700"],
+                          ["sent", "Sent", report.sent.length, "border-primary/40 bg-primary/10", "text-primary"],
                           ["scheduled", "Scheduled", report.scheduled.length, "border-sky-400 bg-sky-50", "text-sky-700"],
                           ["failed", "Failed", report.failed.length, "border-rose-400 bg-rose-50", "text-rose-700"],
                           ["queue", "Queue", report.queue.length, "border-amber-400 bg-amber-50", "text-amber-700"],
@@ -1008,7 +1008,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
                       <div className="mt-2.5 flex items-center gap-2 text-[11px] text-muted-foreground">
                         <span className="whitespace-nowrap font-semibold text-foreground">{report.completed}/{report.recipients} complete</span>
                         <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
-                          <div className="h-full rounded-full bg-emerald-500" style={{ width: `${progress}%` }} />
+                          <div className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }} />
                         </div>
                         <span className="whitespace-nowrap">{report.in_progress} in progress · {report.steps} steps</span>
                       </div>
@@ -1019,7 +1019,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
                         value={reportSearch}
                         onChange={(e) => setReportSearch(e.target.value)}
                         placeholder="Number / lead # / name se search karo…"
-                        className="w-full rounded-md border bg-secondary/30 px-2.5 py-1.5 text-xs outline-none focus:border-emerald-400"
+                        className="w-full rounded-md border bg-secondary/30 px-2.5 py-1.5 text-xs outline-none focus:border-primary"
                       />
                     </div>
                     {/* List */}
@@ -1045,7 +1045,7 @@ function AutomationsPanel({ webhookUrl, lsqStages }: { webhookUrl: string; lsqSt
                                 <td className="px-4 py-2 font-mono">{r.mobile || "—"}</td>
                                 <td className="px-3 py-2 text-muted-foreground">{r.lead_number || "—"}</td>
                                 <td className="px-3 py-2">{r.name || "—"}</td>
-                                <td className="px-3 py-2 font-medium text-emerald-700">{r.template}</td>
+                                <td className="px-3 py-2 font-medium text-primary">{r.template}</td>
                                 <td className="px-3 py-2 text-muted-foreground">{istDateTime(r.at)}</td>
                               </tr>
                             ))}
@@ -1151,7 +1151,7 @@ function ExecutionsPanel({ lsqStages }: { lsqStages: string[] }) {
     });
   const tint: Record<string, string> = {
     pending: "bg-amber-50 text-amber-700 ring-amber-200",
-    assigned: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+    assigned: "bg-primary/10 text-primary ring-primary/25",
     skipped: "bg-slate-100 text-slate-500 ring-slate-200",
   };
 
@@ -1263,7 +1263,7 @@ function ExecutionsPanel({ lsqStages }: { lsqStages: string[] }) {
                   {e.owner_email || e.owner_name ? (
                     <div className="mt-0.5 text-[11px]">
                       <span className="text-muted-foreground">Assigned to: </span>
-                      <span className="font-medium text-emerald-700">{e.owner_name || e.owner_email}</span>
+                      <span className="font-medium text-primary">{e.owner_name || e.owner_email}</span>
                       {e.owner_name && e.owner_email ? (
                         <span className="text-muted-foreground"> · {e.owner_email}</span>
                       ) : null}
@@ -1370,7 +1370,7 @@ function ReportPanel({ allAgents }: { allAgents: Agent[] }) {
               onClick={() => setBrand(b)}
               className={cn(
                 "rounded-md px-2.5 py-1 text-xs font-semibold",
-                brand === b ? "bg-emerald-600 text-white" : "border bg-background hover:bg-secondary",
+                brand === b ? "bg-primary text-white" : "border bg-background hover:bg-secondary",
               )}
             >
               {b}
@@ -1606,7 +1606,7 @@ function LsqAssignmentPanel({ lsqStages }: { lsqStages: string[] }) {
               }}
               className={cn(
                 "rounded-md px-2 py-1 text-xs font-semibold capitalize",
-                gran === g ? "bg-emerald-600 text-white" : "border bg-background hover:bg-secondary",
+                gran === g ? "bg-primary text-white" : "border bg-background hover:bg-secondary",
               )}
             >
               {g === "all" ? "All time" : g}
@@ -1660,7 +1660,7 @@ function LsqAssignmentPanel({ lsqStages }: { lsqStages: string[] }) {
                   {l.stage ? <span className="rounded-full bg-secondary px-1.5 py-0.5 text-[10px]">{l.stage}</span> : null}
                   <span className="ml-auto text-[11px]">
                     <span className="text-muted-foreground">Assigned to: </span>
-                    <span className="font-medium text-emerald-700">{l.owner_name || l.owner_email || "—"}</span>
+                    <span className="font-medium text-primary">{l.owner_name || l.owner_email || "—"}</span>
                   </span>
                 </li>
               ))}
@@ -1682,7 +1682,7 @@ function LsqAssignmentPanel({ lsqStages }: { lsqStages: string[] }) {
             onClick={() => setPoolFilter("in")}
             className={cn(
               "rounded-full px-2 py-0.5 ring-1 ring-inset",
-              poolFilter === "in" ? "bg-emerald-600 text-white ring-emerald-600" : "bg-emerald-50 text-emerald-700 ring-emerald-200 hover:bg-emerald-100",
+              poolFilter === "in" ? "bg-primary text-white ring-primary" : "bg-primary/10 text-primary ring-primary/25 hover:bg-primary/15",
             )}
           >
             In our pool: {data.in_pool_count}
@@ -1723,7 +1723,7 @@ function LsqAssignmentPanel({ lsqStages }: { lsqStages: string[] }) {
                     <span className="text-muted-foreground">{expanded ? "▾" : "▸"}</span>
                     <span className="font-medium">{o.name}</span>
                     {o.in_pool ? (
-                      <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                      <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary ring-1 ring-inset ring-primary/25">
                         in pool
                       </span>
                     ) : (
@@ -1735,7 +1735,7 @@ function LsqAssignmentPanel({ lsqStages }: { lsqStages: string[] }) {
                   </div>
                   <div className="mt-1 flex items-center gap-2 pl-5">
                     <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
-                      <div className="h-full rounded-full bg-emerald-500" style={{ width: `${Math.round((o.count / maxCount) * 100)}%` }} />
+                      <div className="h-full rounded-full bg-primary" style={{ width: `${Math.round((o.count / maxCount) * 100)}%` }} />
                     </div>
                     <span className="text-[10px] text-muted-foreground">{o.email}</span>
                   </div>
@@ -1834,7 +1834,7 @@ function GroupsSection({
   return (
     <section className="rounded-2xl border bg-card p-4 shadow-sm">
       <div className="flex items-center gap-2">
-        <Split className="h-4 w-4 text-emerald-600" />
+        <Split className="h-4 w-4 text-primary" />
         <h2 className="text-sm font-bold">Stage groups ({groups.length})</h2>
         <span className="text-[11px] text-muted-foreground">Har stage ki leads sirf chune gaye agents ko.</span>
         <button
@@ -1952,7 +1952,7 @@ function GroupCard({
           onClick={() => setDraft({ ...draft, enabled: !draft.enabled })}
           className={cn(
             "rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset",
-            draft.enabled ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-slate-100 text-slate-500 ring-slate-200",
+            draft.enabled ? "bg-primary/10 text-primary ring-primary/25" : "bg-slate-100 text-slate-500 ring-slate-200",
           )}
         >
           {draft.enabled ? "On" : "Off"}
@@ -2029,7 +2029,7 @@ function GroupCard({
                   key={a.lsq_id}
                   className={cn(
                     "flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-xs hover:bg-secondary/60",
-                    checked && "bg-emerald-50",
+                    checked && "bg-primary/10",
                   )}
                 >
                   <input
@@ -2043,9 +2043,9 @@ function GroupCard({
                           : [...draft.agent_ids, a.lsq_id],
                       })
                     }
-                    className="accent-emerald-600"
+                    className="accent-primary"
                   />
-                  <span className="w-6 shrink-0 text-center font-semibold tabular-nums text-emerald-700">{a.priority ?? "—"}</span>
+                  <span className="w-6 shrink-0 text-center font-semibold tabular-nums text-primary">{a.priority ?? "—"}</span>
                   <span className="truncate">{a.agent_name || a.agent_email}</span>
                   <span className="ml-auto shrink-0 text-[10px] text-muted-foreground">{a.international_lead || "National"}</span>
                 </label>
@@ -2199,7 +2199,7 @@ function AgentsSection({
   return (
     <section className="rounded-2xl border bg-card p-4 shadow-sm">
       <div className="flex flex-wrap items-center gap-2">
-        <Users className="h-4 w-4 text-emerald-600" />
+        <Users className="h-4 w-4 text-primary" />
         <h2 className="text-sm font-bold">Sales agents ({agents.length})</h2>
         <button
           type="button"
@@ -2223,7 +2223,7 @@ function AgentsSection({
             }}
             className={cn(
               "rounded-md px-2 py-1 font-semibold capitalize",
-              gran === g ? "bg-emerald-600 text-white" : "border bg-background hover:bg-secondary",
+              gran === g ? "bg-primary text-white" : "border bg-background hover:bg-secondary",
             )}
           >
             {g === "all" ? "All time" : g}
@@ -2379,7 +2379,7 @@ function AgentsSection({
                       title={a.is_active ? "Active — click to turn off" : "Off — click to turn on"}
                       className={cn(
                         "relative inline-flex h-5 w-9 items-center rounded-full transition-colors",
-                        a.is_active ? "bg-emerald-500" : "bg-slate-300",
+                        a.is_active ? "bg-primary" : "bg-slate-300",
                       )}
                     >
                       <span

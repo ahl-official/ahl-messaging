@@ -13,24 +13,24 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
 
-    --primary: 158 80% 27%;
+    --primary: 219 76% 53%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 16% 96%;
+    --secondary: 219 40% 96%;
     --secondary-foreground: 0 0% 10%;
 
-    --muted: 210 16% 96%;
+    --muted: 219 30% 96%;
     --muted-foreground: 215 16% 47%;
 
-    --accent: 158 60% 95%;
-    --accent-foreground: 158 80% 18%;
+    --accent: 219 100% 96%;
+    --accent-foreground: 219 76% 40%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 158 80% 27%;
+    --ring: 219 76% 53%;
 
     --radius: 0.5rem;
   }
@@ -150,7 +150,7 @@
 }
 @keyframes campaign-bump {
   0%   { transform: scale(1); color: inherit; }
-  35%  { transform: scale(1.18); color: rgb(5 150 105); } /* emerald-600 */
+  35%  { transform: scale(1.18); color: rgb(46 109 226); }
   100% { transform: scale(1); color: inherit; }
 }
 @keyframes campaign-glow {
@@ -219,16 +219,21 @@
   animation: auth-pulse-ring 2.4s ease-out infinite;
 }
 .auth-gradient-bg {
-  background: linear-gradient(120deg, rgb(46, 109, 226) 0%, #0693e3 35%, rgb(46, 109, 226) 65%, #0693e3 100%);
+  background: linear-gradient(120deg, #2e6de2 0%, #6098ff 35%, #2e6de2 65%, #6098ff 100%);
   background-size: 200% 200%;
   animation: auth-gradient-shift 16s ease infinite;
 }
 
-/* Login page — blue palette scoped to sign-in only */
+/* Shared AHL hero gradient — settings, home, premium headers */
+.ahl-hero-gradient {
+  background: linear-gradient(to bottom right, #1a4ab8 0%, #2e6de2 45%, #4a7ee8 100%);
+}
+
+/* Login page — same blue palette as the rest of the app */
 .login-page {
   --primary: 219 76% 53%;
   --ring: 219 76% 53%;
-  --accent: 199 95% 95%;
+  --accent: 219 100% 96%;
   --accent-foreground: 219 76% 40%;
 }
 .auth-shimmer-button {
@@ -279,25 +284,22 @@
 
 /* WhatsApp-style chat wallpaper. Soft, low-contrast — never fights bubbles. */
 .chat-wallpaper {
-  background-color: hsl(150 20% 97%);
+  background-color: hsl(219 40% 98%);
   background-image:
-    radial-gradient(at 20% 20%, hsla(158, 60%, 40%, 0.04) 0, transparent 45%),
-    radial-gradient(at 80% 80%, hsla(158, 50%, 40%, 0.05) 0, transparent 50%),
-    radial-gradient(rgba(14,124,90,0.06) 1px, transparent 1px);
+    radial-gradient(at 20% 20%, hsla(219, 76%, 53%, 0.04) 0, transparent 45%),
+    radial-gradient(at 80% 80%, hsla(219, 100%, 69%, 0.05) 0, transparent 50%),
+    radial-gradient(rgba(46,109,226,0.06) 1px, transparent 1px);
   background-size: auto, auto, 24px 24px;
 }
 
-/* Outbound bubble — soft mint with a faint green tint. Subtle enough that
-   inbound (white) and outbound bubbles read as siblings rather than as the
-   old dark vs light contrast. Dark-emerald body text + sky-blue read ticks
-   stay legible against this near-white base. */
+/* Outbound bubble — soft blue tint. */
 .bubble-out {
-  background-image: linear-gradient(180deg, #F0FDF4 0%, #DCFCE7 100%);
+  background-image: linear-gradient(180deg, #eef4ff 0%, #d9e6ff 100%);
   box-shadow:
     0 1px 0 rgba(255,255,255,0.6) inset,
-    0 1px 2px rgba(11,120,90,0.06),
-    0 4px 12px -10px rgba(11,120,90,0.18);
-  border: 1px solid rgba(16,185,129,0.32);
+    0 1px 2px rgba(46,109,226,0.06),
+    0 4px 12px -10px rgba(46,109,226,0.18);
+  border: 1px solid rgba(96,152,255,0.32);
 }
 .bubble-in {
   box-shadow:
@@ -421,11 +423,11 @@
 /* Send button — soft primary halo + lift on hover. */
 .btn-send {
   position: relative;
-  background-image: linear-gradient(180deg, #10b981 0%, #0E7C5A 100%);
+  background-image: linear-gradient(180deg, #6098FF 0%, #2E6DE2 100%);
   box-shadow:
     0 1px 0 rgba(255,255,255,0.15) inset,
-    0 6px 18px -8px rgba(14,124,90,0.55),
-    0 1px 2px rgba(8,79,56,0.20);
+    0 6px 18px -8px rgba(46,109,226,0.55),
+    0 1px 2px rgba(30,86,199,0.20);
   transition: transform 0.12s ease, box-shadow 0.18s ease, filter 0.15s ease;
 }
 .btn-send:hover:not(:disabled) {
@@ -433,8 +435,8 @@
   filter: brightness(1.04);
   box-shadow:
     0 1px 0 rgba(255,255,255,0.18) inset,
-    0 10px 24px -8px rgba(14,124,90,0.65),
-    0 2px 4px rgba(8,79,56,0.22);
+    0 10px 24px -8px rgba(46,109,226,0.65),
+    0 2px 4px rgba(30,86,199,0.22);
 }
 .btn-send:disabled {
   background-image: none;

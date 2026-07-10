@@ -212,7 +212,7 @@ function Block({
         </span>
       </div>
       {sub ? (
-        <div className="mb-1.5 inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700">
+        <div className="mb-1.5 inline-flex items-center gap-1 text-[10px] font-medium text-primary">
           <UserCheck className="h-3 w-3" />
           {sub}
         </div>

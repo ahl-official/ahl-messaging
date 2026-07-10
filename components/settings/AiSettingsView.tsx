@@ -126,7 +126,7 @@ export function AiSettingsView() {
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition",
                   active
-                    ? "bg-emerald-600 text-white shadow-sm"
+                    ? "bg-primary text-white shadow-sm"
                     : "text-muted-foreground hover:bg-secondary",
                 )}
               >
@@ -270,13 +270,13 @@ function PromptCard({
             {error ? (
               <span className="text-xs text-rose-600">{error}</span>
             ) : savedAt && !dirty ? (
-              <span className="text-xs text-emerald-600">Saved</span>
+              <span className="text-xs text-primary">Saved</span>
             ) : null}
             <button
               type="button"
               onClick={save}
               disabled={saving || !dirty}
-              className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
             >
               {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
               Save
@@ -342,13 +342,13 @@ function LanguageCard({ initial }: { initial: Lang }) {
           {error ? (
             <span className="text-xs text-rose-600">{error}</span>
           ) : savedAt && !dirty ? (
-            <span className="text-xs text-emerald-600">Saved</span>
+            <span className="text-xs text-primary">Saved</span>
           ) : null}
           <button
             type="button"
             onClick={save}
             disabled={saving || !dirty}
-            className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
           >
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
             Save
@@ -418,7 +418,7 @@ function BookingTemplateCard({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="booking_confirmation"
-              className="w-full rounded-lg border px-3 py-2 font-mono text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+              className="w-full rounded-lg border px-3 py-2 font-mono text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
             <p className="mt-1 text-[10px] text-muted-foreground">
               Exact name from Meta — lowercase, numbers, underscores only.
@@ -433,7 +433,7 @@ function BookingTemplateCard({
               value={lang}
               onChange={(e) => setLang(e.target.value)}
               placeholder="en_US"
-              className="w-full rounded-lg border px-3 py-2 font-mono text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+              className="w-full rounded-lg border px-3 py-2 font-mono text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
             <p className="mt-1 text-[10px] text-muted-foreground">
               Must match the template’s language.
@@ -444,13 +444,13 @@ function BookingTemplateCard({
           {error ? (
             <span className="text-xs text-rose-600">{error}</span>
           ) : savedAt && !dirty ? (
-            <span className="text-xs text-emerald-600">Saved</span>
+            <span className="text-xs text-primary">Saved</span>
           ) : null}
           <button
             type="button"
             onClick={save}
             disabled={saving || !dirty}
-            className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
           >
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
             Save

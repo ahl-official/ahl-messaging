@@ -493,7 +493,7 @@ export function TemplateCreate({ businessName, initialTemplate }: Props) {
                 Re-submits to Meta for review
               </span>
             ) : initialTemplate?.status === "APPROVED" ? (
-              <span className="hidden sm:inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-800 ring-1 ring-emerald-200">
+              <span className="hidden sm:inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary ring-1 ring-primary/25">
                 Changes will be resubmitted for review
               </span>
             ) : initialTemplate?.status === "PENDING" ? (
@@ -504,7 +504,7 @@ export function TemplateCreate({ businessName, initialTemplate }: Props) {
           ) : null}
           <span className="h-5 w-px bg-border" />
           <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white text-[10px] font-bold">W</span>
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white text-[10px] font-bold">W</span>
             WhatsApp
           </span>
         </div>
@@ -760,7 +760,7 @@ export function TemplateCreate({ businessName, initialTemplate }: Props) {
                                 ? "Video size should not exceed 16MB. MP4."
                                 : "PDF or Word doc, max 100MB."}
                             {headerHandle ? (
-                              <div className="mt-1 inline-flex items-center gap-1 rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-800">
+                              <div className="mt-1 inline-flex items-center gap-1 rounded bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
                                 ✓ Uploaded
                               </div>
                             ) : null}
@@ -894,7 +894,7 @@ export function TemplateCreate({ businessName, initialTemplate }: Props) {
                                     <span className="underline">Upload {carouselFormat.toLowerCase()}</span>
                                   )}
                                 </label>
-                                {c.handle ? <div className="mt-1 text-center text-[10px] font-semibold text-emerald-700">✓ Uploaded</div> : null}
+                                {c.handle ? <div className="mt-1 text-center text-[10px] font-semibold text-primary">✓ Uploaded</div> : null}
                               </div>
                               <div className="min-w-0 flex-1 space-y-2">
                                 <textarea
@@ -1061,7 +1061,7 @@ export function TemplateCreate({ businessName, initialTemplate }: Props) {
         </div>
 
         {/* Preview */}
-        <aside className="hidden w-[340px] shrink-0 border-l bg-emerald-50/50 p-4 lg:block">
+        <aside className="hidden w-[340px] shrink-0 border-l bg-primary/10 p-4 lg:block">
           <div className="sticky top-4">
             <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
               Actual Preview
@@ -1294,7 +1294,7 @@ function WhatsAppPhonePreview({
       </div>
       <div className="overflow-hidden rounded-[26px] bg-[#efe7dd]">
         {/* iOS-style status bar */}
-        <div className="flex items-center justify-between bg-emerald-700 px-3 py-[2px] text-[9px] font-medium text-white/90">
+        <div className="flex items-center justify-between bg-primary px-3 py-[2px] text-[9px] font-medium text-white/90">
           <span className="tabular-nums">{time}</span>
           <span className="opacity-80">●●● 5G</span>
         </div>
@@ -1316,7 +1316,7 @@ function WhatsAppPhonePreview({
           </div>
           <div className="min-w-0 flex-1 leading-tight">
             <div className="truncate text-[12px] font-semibold">{businessName}</div>
-            <div className="text-[9px] text-emerald-100/85">online</div>
+            <div className="text-[9px] text-white/85">online</div>
           </div>
           <div className="flex items-center gap-2 text-white/85">
             <Phone className="h-3.5 w-3.5" />
@@ -1406,7 +1406,7 @@ function WhatsAppPhonePreview({
           <span className="flex-1 rounded-full bg-white px-2 py-0.5 shadow-inner">
             Message
           </span>
-          <span className="text-emerald-700">🎙</span>
+          <span className="text-primary">🎙</span>
         </div>
       </div>
     </div>

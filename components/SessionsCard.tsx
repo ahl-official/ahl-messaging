@@ -113,7 +113,7 @@ export function SessionsCard({ scope, memberId }: Props) {
       <header className="mb-3 flex items-center justify-between gap-3">
         <div>
           <h2 className="inline-flex items-center gap-2 text-sm font-semibold">
-            <Monitor className="h-4 w-4 text-emerald-600" />
+            <Monitor className="h-4 w-4 text-primary" />
             {scope === "self" ? "Your active sessions" : "Active sessions"}
             <span className="rounded-full bg-secondary px-1.5 py-0.5 text-[10px] font-bold text-muted-foreground">
               {activeCount}
@@ -162,7 +162,7 @@ export function SessionsCard({ scope, memberId }: Props) {
                 className={cn(
                   "mt-0.5 inline-flex h-2 w-2 shrink-0 rounded-full",
                   s.active
-                    ? "bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.15)]"
+                    ? "bg-primary shadow-[0_0_0_3px_rgba(16,185,129,0.15)]"
                     : "bg-slate-300",
                 )}
               />
@@ -170,7 +170,7 @@ export function SessionsCard({ scope, memberId }: Props) {
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <span>{s.device ?? "Unknown device"}</span>
                   {s.is_current ? (
-                    <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
+                    <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold text-primary">
                       This device
                     </span>
                   ) : null}

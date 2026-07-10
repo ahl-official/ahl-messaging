@@ -128,7 +128,7 @@ const STATUS_TONE: Record<Campaign["status"], string> = {
   draft: "bg-secondary text-foreground/70 ring-border",
   scheduled: "bg-amber-50 text-amber-800 ring-amber-200",
   sending: "bg-sky-50 text-sky-800 ring-sky-200",
-  completed: "bg-emerald-50 text-emerald-800 ring-emerald-200",
+  completed: "bg-primary/10 text-primary ring-primary/25",
   canceled: "bg-secondary text-muted-foreground ring-border",
   failed: "bg-rose-50 text-rose-800 ring-rose-200",
 };
@@ -211,7 +211,7 @@ function CreateChooser({
 }) {
   return (
     <div className="flex h-full flex-col bg-secondary/30">
-      <header className="relative overflow-hidden border-b bg-gradient-to-br from-emerald-700 via-emerald-800 to-slate-900 text-white">
+      <header className="relative overflow-hidden border-b ahl-hero-gradient text-white">
         <div className="relative mx-auto max-w-3xl px-6 py-6">
           <div className="flex items-start gap-3">
             <button
@@ -273,14 +273,14 @@ function ChooserCard({
       onClick={onSelect}
       className={cn(
         "group flex h-full flex-col items-start gap-3 rounded-2xl border bg-card p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg",
-        tone === "emerald" ? "hover:border-emerald-300" : "hover:border-violet-300",
+        tone === "emerald" ? "hover:border-primary/30" : "hover:border-violet-300",
       )}
     >
       <span
         className={cn(
           "inline-flex h-11 w-11 items-center justify-center rounded-xl ring-1 ring-inset",
           tone === "emerald"
-            ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+            ? "bg-primary/10 text-primary ring-primary/25"
             : "bg-violet-50 text-violet-700 ring-violet-200",
         )}
       >
@@ -293,7 +293,7 @@ function ChooserCard({
       <span
         className={cn(
           "mt-auto inline-flex items-center gap-1 text-xs font-semibold transition group-hover:gap-1.5",
-          tone === "emerald" ? "text-emerald-700" : "text-violet-700",
+          tone === "emerald" ? "text-primary" : "text-violet-700",
         )}
       >
         Continue
@@ -409,7 +409,7 @@ function CampaignsList({
             <button
               type="button"
               onClick={onCreate}
-              className="group inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-semibold text-emerald-800 shadow-lg shadow-emerald-900/25 ring-1 ring-white/40 transition hover:shadow-xl active:scale-[0.98]"
+              className="group inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-semibold text-primary shadow-lg shadow-primary/25 ring-1 ring-white/40 transition hover:shadow-xl active:scale-[0.98]"
             >
               <Plus className="h-3.5 w-3.5 transition group-hover:rotate-90" />
               New campaign
@@ -753,7 +753,7 @@ function CampaignRow({
     campaign.status === "sending"
       ? "bg-sky-50 text-sky-700 ring-sky-200"
       : campaign.status === "completed"
-        ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+        ? "bg-primary/10 text-primary ring-primary/25"
         : campaign.status === "failed"
           ? "bg-rose-50 text-rose-700 ring-rose-200"
           : campaign.status === "canceled"
@@ -798,7 +798,7 @@ function CampaignRow({
       onKeyDown={(e) => (e.key === "Enter" ? onOpen() : null)}
       className="group flex cursor-pointer items-center gap-3 px-4 py-3 transition hover:bg-secondary/40"
     >
-      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200">
+      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-inset ring-primary/25">
         <TypeIcon className="h-4 w-4" />
       </span>
       <span className="min-w-0 flex-1">
@@ -813,8 +813,8 @@ function CampaignRow({
       </span>
 
       <Num n={campaign.sent_count} label="Sent" tint="text-sky-700" />
-      <Num n={campaign.delivered_count} label="Deliv." tint="text-emerald-700" />
-      <Num n={campaign.read_count} label="Read" tint="text-emerald-800" />
+      <Num n={campaign.delivered_count} label="Deliv." tint="text-primary" />
+      <Num n={campaign.read_count} label="Read" tint="text-primary" />
       <Num n={campaign.replied_count} label="Repl." tint="text-violet-700" />
       <Num n={campaign.failed_count} label="Failed" tint={campaign.failed_count > 0 ? "text-rose-600" : "text-muted-foreground"} />
 
@@ -910,7 +910,7 @@ function CampaignCard({ campaign, onOpen }: { campaign: Campaign; onOpen: () => 
           "absolute inset-x-0 top-0 h-0.5",
           isMagic
             ? "bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500"
-            : "bg-gradient-to-r from-emerald-500 to-emerald-700",
+            : "bg-gradient-to-r from-primary to-[#1e56c7]",
         )}
       />
 
@@ -922,7 +922,7 @@ function CampaignCard({ campaign, onOpen }: { campaign: Campaign; onOpen: () => 
               "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset",
               isMagic
                 ? "bg-violet-50 text-violet-700 ring-violet-200"
-                : "bg-emerald-50 text-emerald-700 ring-emerald-200",
+                : "bg-primary/10 text-primary ring-primary/25",
             )}
           >
             <TypeIcon className="h-4 w-4" />
@@ -977,7 +977,7 @@ function CampaignCard({ campaign, onOpen }: { campaign: Campaign; onOpen: () => 
                 {campaign.sent_count.toLocaleString()}
               </span>
               <span className="text-muted-foreground"> / {campaign.total_recipients.toLocaleString()}</span>
-              <span className="ml-1.5 font-semibold text-emerald-700">{sentPct}%</span>
+              <span className="ml-1.5 font-semibold text-primary">{sentPct}%</span>
             </span>
           </div>
           <div
@@ -990,10 +990,10 @@ function CampaignCard({ campaign, onOpen }: { campaign: Campaign; onOpen: () => 
               className={cn(
                 "h-full rounded-full transition-all duration-500",
                 campaign.status === "completed"
-                  ? "bg-gradient-to-r from-emerald-500 to-emerald-600"
+                  ? "bg-gradient-to-r from-[#6098FF] to-primary"
                   : campaign.status === "failed" || campaign.status === "canceled"
                     ? "bg-gradient-to-r from-rose-400 to-rose-500"
-                    : "bg-gradient-to-r from-sky-400 to-emerald-500",
+                    : "bg-gradient-to-r from-sky-400 to-primary",
               )}
               style={{ width: `${Math.max(2, sentPct)}%` }}
             />
@@ -1133,7 +1133,7 @@ function Stat({
 function EmptyState({ onCreate }: { onCreate: () => void }) {
   return (
     <div className="rounded-xl border-2 border-dashed bg-card/50 p-10 text-center">
-      <div className="mx-auto mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-50 text-emerald-700">
+      <div className="mx-auto mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-primary/10 text-primary">
         <Megaphone className="h-6 w-6" />
       </div>
       <h2 className="text-base font-semibold">No campaigns yet</h2>
@@ -1455,10 +1455,10 @@ function CreateWizard({ onClose, onCreated }: { onClose: () => void; onCreated: 
   return (
     <div className="flex h-full flex-col bg-secondary/30">
       {/* Premium gradient hero with stepper */}
-      <header className="relative overflow-hidden border-b bg-gradient-to-br from-emerald-700 via-emerald-800 to-slate-900 text-white">
+      <header className="relative overflow-hidden border-b ahl-hero-gradient text-white">
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-24 right-1/4 h-72 w-72 rounded-full bg-emerald-300/15 blur-3xl"
+          className="pointer-events-none absolute -top-24 right-1/4 h-72 w-72 rounded-full bg-[#6098FF]/15 blur-3xl"
         />
         <div className="relative mx-auto max-w-3xl px-6 py-6">
           <div className="flex items-start gap-3">
@@ -1496,9 +1496,9 @@ function CreateWizard({ onClose, onCreated }: { onClose: () => void; onCreated: 
                       className={cn(
                         "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full ring-2 transition",
                         isDone
-                          ? "bg-emerald-300 text-emerald-900 ring-emerald-300"
+                          ? "bg-[#6098FF] text-primary ring-primary/30"
                           : isActive
-                            ? "bg-white text-emerald-800 ring-white shadow-lg shadow-emerald-900/30"
+                            ? "bg-white text-primary ring-white shadow-lg shadow-primary/30"
                             : "bg-white/10 text-white/60 ring-white/20",
                       )}
                     >
@@ -1516,7 +1516,7 @@ function CreateWizard({ onClose, onCreated }: { onClose: () => void; onCreated: 
                   <span
                     className={cn(
                       "h-1 rounded-full transition-all",
-                      isDone ? "bg-emerald-300" : isActive ? "bg-white" : "bg-white/10",
+                      isDone ? "bg-[#6098FF]" : isActive ? "bg-white" : "bg-white/10",
                     )}
                   />
                 </li>
@@ -1940,7 +1940,7 @@ function Step2Template({
                       className={cn(
                         "rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ring-1 ring-inset",
                         isApproved
-                          ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+                          ? "bg-primary/10 text-primary ring-primary/25"
                           : t.status === "PENDING"
                             ? "bg-amber-50 text-amber-800 ring-amber-200"
                             : "bg-rose-50 text-rose-700 ring-rose-200",
@@ -2069,7 +2069,7 @@ function DetectedVariables({
 
   if (keys.length === 0) {
     return (
-      <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-[11px] text-emerald-900">
+      <div className="rounded-md border border-primary/25 bg-primary/10 px-3 py-2 text-[11px] text-primary">
         <Check className="mr-1.5 inline h-3 w-3" />
         No variables in this template — recipients only need <code className="font-mono">wa_id</code> in the CSV.
       </div>
@@ -2547,7 +2547,7 @@ function CsvPreview({ csvText }: { csvText: string }) {
           Detected columns
         </span>
         {hasWaId ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-emerald-200">
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary ring-1 ring-primary/25">
             <Check className="h-2.5 w-2.5" /> wa_id present
           </span>
         ) : (
@@ -2986,14 +2986,14 @@ function LsqFilterPanel({
       {/* Direct LSQ pull — fetches matching leads live from LSQ rather
           than from the cached lsq_stage column. Useful when contacts
           haven't been synced yet (e.g. fresh leads created today). */}
-      <div className="rounded-lg border border-emerald-300 bg-emerald-50/60 p-3">
+      <div className="rounded-lg border border-primary/30 bg-primary/10 p-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <div className="flex items-center gap-2 text-sm font-semibold text-emerald-900">
+            <div className="flex items-center gap-2 text-sm font-semibold text-primary">
               <Sparkles className="h-3.5 w-3.5" />
               Fetch live from LSQ
             </div>
-            <p className="mt-0.5 text-[11px] text-emerald-900/85">
+            <p className="mt-0.5 text-[11px] text-primary/85">
               Pulls all matching leads directly from CRM (not the local cache). Up to 5,000 leads.
             </p>
           </div>
@@ -3007,7 +3007,7 @@ function LsqFilterPanel({
                 !createdAfter &&
                 !createdBefore)
             }
-            className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 disabled:opacity-50"
           >
             {pulling ? (
               <Loader2 className="h-3 w-3 animate-spin" />
@@ -3026,9 +3026,9 @@ function LsqFilterPanel({
 
         {directLeads !== null && pullStats ? (
           <div className="mt-3 space-y-2">
-            <div className="flex flex-wrap items-center gap-2 rounded-md bg-white/70 px-3 py-2 text-[11px] ring-1 ring-emerald-200">
-              <Check className="h-3 w-3 text-emerald-600" />
-              <span className="font-semibold text-emerald-900">
+            <div className="flex flex-wrap items-center gap-2 rounded-md bg-white/70 px-3 py-2 text-[11px] ring-1 ring-primary/25">
+              <Check className="h-3 w-3 text-primary" />
+              <span className="font-semibold text-primary">
                 {pullStats.fetched.toLocaleString()} leads fetched
               </span>
               <span className="text-muted-foreground">
@@ -3045,20 +3045,20 @@ function LsqFilterPanel({
                   setDirectLeads(null);
                   setPullStats(null);
                 }}
-                className="ml-auto text-[10px] font-semibold text-emerald-700 hover:underline"
+                className="ml-auto text-[10px] font-semibold text-primary hover:underline"
               >
                 Reset
               </button>
             </div>
             {/* Preview first 50 — with stage + source so the operator can sanity-check the filter. */}
-            <div className="overflow-hidden rounded-md border border-emerald-200 bg-white text-[11px]">
-              <ul className="max-h-60 divide-y divide-emerald-100/60 overflow-y-auto">
+            <div className="overflow-hidden rounded-md border border-primary/25 bg-white text-[11px]">
+              <ul className="max-h-60 divide-y divide-primary/20 overflow-y-auto">
                 {directLeads.slice(0, 50).map((l) => (
                   <li key={l.wa_id} className="flex items-center gap-2 px-3 py-1.5">
                     <span className="font-mono tabular-nums text-muted-foreground">{maskPhone(formatPhone(l.wa_id))}</span>
                     <span className="w-28 shrink-0 truncate">{l.display_name ? maskName(l.display_name) : <span className="text-muted-foreground/60">No name</span>}</span>
                     {l.stage ? (
-                      <span className="shrink-0 truncate rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] text-emerald-700">{l.stage}</span>
+                      <span className="shrink-0 truncate rounded bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary">{l.stage}</span>
                     ) : null}
                     {l.source || l.sub_source ? (
                       <span className="ml-auto truncate text-[10px] text-muted-foreground" title={[l.source, l.sub_source].filter(Boolean).join(" · ")}>
@@ -3174,14 +3174,14 @@ function Step4Schedule({
 
       {/* Recipient summary — total + full list (so the operator sees exactly
           how many / who will get the message before sending). */}
-      <div className="overflow-hidden rounded-xl border border-emerald-200 bg-emerald-50/40">
-        <div className="flex items-center gap-2 border-b border-emerald-200 bg-emerald-50 px-3 py-2">
+      <div className="overflow-hidden rounded-xl border border-primary/25 bg-primary/10">
+        <div className="flex items-center gap-2 border-b border-primary/25 bg-primary/10 px-3 py-2">
           {recipientLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin text-emerald-700" />
+            <Loader2 className="h-4 w-4 animate-spin text-primary" />
           ) : (
-            <Users className="h-4 w-4 text-emerald-700" />
+            <Users className="h-4 w-4 text-primary" />
           )}
-          <span className="text-sm font-semibold text-emerald-900">
+          <span className="text-sm font-semibold text-primary">
             {recipientLoading
               ? "Fetching recipients…"
               : recipientCount !== null
@@ -3189,7 +3189,7 @@ function Step4Schedule({
                 : "Recipients"}
           </span>
           {!recipientLoading ? (
-            <span className="text-[11px] text-emerald-700">— inko message jayega</span>
+            <span className="text-[11px] text-primary">— inko message jayega</span>
           ) : null}
         </div>
         {recipientLoading ? (
@@ -3197,7 +3197,7 @@ function Step4Schedule({
             LSQ se leads fetch ho rahe hain…
           </div>
         ) : recipientLeads && recipientLeads.length > 0 ? (
-          <ul className="max-h-56 divide-y divide-emerald-100/60 overflow-y-auto text-[11px]">
+          <ul className="max-h-56 divide-y divide-primary/20 overflow-y-auto text-[11px]">
             {recipientLeads.map((l) => (
               <li key={l.wa_id} className="flex items-center gap-2 px-3 py-1.5">
                 <span className="font-mono tabular-nums text-muted-foreground">{maskPhone(formatPhone(l.wa_id))}</span>
@@ -3519,7 +3519,7 @@ function CampaignDetail({ id, onBack }: { id: string; onBack: () => void }) {
           "relative overflow-hidden border-b text-white",
           isMagic
             ? "bg-gradient-to-br from-violet-700 via-fuchsia-800 to-purple-900"
-            : "bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-900",
+            : "ahl-hero-gradient",
         )}
       >
         <div
@@ -3615,7 +3615,7 @@ function CampaignDetail({ id, onBack }: { id: string; onBack: () => void }) {
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-black/20 ring-1 ring-white/10">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-amber-300 via-emerald-300 to-emerald-100 transition-all duration-700"
+                className="h-full rounded-full bg-gradient-to-r from-amber-300 via-[#6098FF] to-primary/15 transition-all duration-700"
                 style={{ width: `${Math.max(2, sentPct)}%` }}
               />
             </div>
@@ -3790,8 +3790,8 @@ function FunnelCard({ campaign }: { campaign: Campaign }) {
   const steps = [
     { label: "Recipients", value: total, of: null as number | null, color: "bg-secondary" },
     { label: "Sent", value: campaign.sent_count, of: total, color: "bg-sky-500" },
-    { label: "Delivered", value: campaign.delivered_count, of: campaign.sent_count, color: "bg-emerald-400" },
-    { label: "Read", value: campaign.read_count, of: campaign.delivered_count, color: "bg-emerald-600" },
+    { label: "Delivered", value: campaign.delivered_count, of: campaign.sent_count, color: "bg-[#6098FF]" },
+    { label: "Read", value: campaign.read_count, of: campaign.delivered_count, color: "bg-primary" },
     { label: "Replied", value: campaign.replied_count, of: campaign.read_count, color: "bg-primary" },
   ];
   return (
@@ -3907,8 +3907,8 @@ function EngagementTimeline({ recipients }: { recipients: Recipient[] }) {
                 ) : null}
                 <div className="flex w-full flex-1 flex-col-reverse gap-px overflow-hidden rounded-t">
                   {seg(b.sent, "bg-sky-300", "sent")}
-                  {seg(b.delivered, "bg-emerald-400", "delivered")}
-                  {seg(b.read, "bg-emerald-600", "read")}
+                  {seg(b.delivered, "bg-[#6098FF]", "delivered")}
+                  {seg(b.read, "bg-primary", "read")}
                   {seg(b.replied, "bg-primary", "replied")}
                   {seg(b.failed, "bg-rose-400", "failed")}
                 </div>
@@ -3918,8 +3918,8 @@ function EngagementTimeline({ recipients }: { recipients: Recipient[] }) {
         </div>
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
           <LegendDot color="bg-sky-300" label="Sent" />
-          <LegendDot color="bg-emerald-400" label="Delivered" />
-          <LegendDot color="bg-emerald-600" label="Read" />
+          <LegendDot color="bg-[#6098FF]" label="Delivered" />
+          <LegendDot color="bg-primary" label="Read" />
           <LegendDot color="bg-primary" label="Replied" />
           <LegendDot color="bg-rose-400" label="Failed" />
         </div>
@@ -3985,7 +3985,7 @@ function FailureBreakdown({ recipients, campaignId, onRetried }: { recipients: R
             <>Send-once guard ne {skipped.length} skip kiya (already received, ya purana attempt). Retry se phir bhej sakte ho.</>
           ) : (
             <>
-              <Check className="mx-auto mb-1.5 h-5 w-5 text-emerald-500" />
+              <Check className="mx-auto mb-1.5 h-5 w-5 text-primary" />
               No failures yet.
             </>
           )}
@@ -4101,20 +4101,20 @@ function PkgContainer({
   hasData: boolean;
 }) {
   return (
-    <div className="rounded-lg border border-emerald-200 bg-emerald-50/40 p-3">
+    <div className="rounded-lg border border-primary/25 bg-primary/10 p-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-emerald-900">{title}</span>
-        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+        <span className="text-xs font-semibold text-primary">{title}</span>
+        <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary">
           {bucket?.count ?? 0}
         </span>
       </div>
-      <div className="mt-1 text-lg font-semibold tabular-nums text-emerald-900">
+      <div className="mt-1 text-lg font-semibold tabular-nums text-primary">
         {inr(bucket?.total_value ?? 0)}
-        <span className="ml-1 text-[10px] font-normal text-emerald-700">total package value</span>
+        <span className="ml-1 text-[10px] font-normal text-primary">total package value</span>
       </div>
       <ul className="mt-2 max-h-48 space-y-1 overflow-y-auto">
         {(bucket?.items ?? []).map((i) => (
-          <li key={i.wa_id} className="rounded-md bg-white px-2 py-1.5 text-[11px] ring-1 ring-emerald-100">
+          <li key={i.wa_id} className="rounded-md bg-white px-2 py-1.5 text-[11px] ring-1 ring-primary/20">
             <div className="flex items-center justify-between gap-2">
               <span className="truncate font-medium">{i.name || i.wa_id}</span>
               <span className="shrink-0 font-semibold tabular-nums">{inr(i.package_value)}</span>
@@ -4456,11 +4456,11 @@ function RateHero({
   const palette =
     variant === "emerald"
       ? {
-          bg: "bg-gradient-to-br from-emerald-50 via-emerald-50 to-white",
-          ring: "ring-emerald-100",
-          accent: "text-emerald-700",
-          fill: "bg-gradient-to-r from-emerald-400 to-emerald-600",
-          chipBg: "bg-emerald-600",
+          bg: "bg-gradient-to-br from-primary/10 via-primary/10 to-white",
+          ring: "ring-primary/20",
+          accent: "text-primary",
+          fill: "bg-gradient-to-r from-[#6098FF] to-primary",
+          chipBg: "bg-primary",
         }
       : {
           bg: "bg-gradient-to-br from-violet-50 via-fuchsia-50 to-white",
@@ -4532,7 +4532,7 @@ function StatusChip({
   const palettes: Record<string, { bg: string; text: string; ring: string; iconBg: string }> = {
     slate: { bg: "bg-slate-50", text: "text-slate-900", ring: "ring-slate-200", iconBg: "bg-slate-200 text-slate-700" },
     sky: { bg: "bg-sky-50", text: "text-sky-900", ring: "ring-sky-200", iconBg: "bg-sky-100 text-sky-700" },
-    emerald: { bg: "bg-emerald-50", text: "text-emerald-900", ring: "ring-emerald-200", iconBg: "bg-emerald-100 text-emerald-700" },
+    emerald: { bg: "bg-primary/10", text: "text-primary", ring: "ring-primary/25", iconBg: "bg-primary/15 text-primary" },
     amber: { bg: "bg-amber-50", text: "text-amber-900", ring: "ring-amber-200", iconBg: "bg-amber-100 text-amber-700" },
     violet: { bg: "bg-violet-50", text: "text-violet-900", ring: "ring-violet-200", iconBg: "bg-violet-100 text-violet-700" },
     rose: { bg: "bg-rose-50", text: "text-rose-900", ring: "ring-rose-200", iconBg: "bg-rose-100 text-rose-700" },
@@ -4679,8 +4679,8 @@ function RecipientStatusBadge({ status }: { status: string }) {
     pending: "bg-secondary text-muted-foreground",
     sending: "bg-amber-50 text-amber-800 ring-amber-200",
     sent: "bg-sky-50 text-sky-800 ring-sky-200",
-    delivered: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-    read: "bg-emerald-100 text-emerald-800 ring-emerald-200",
+    delivered: "bg-primary/10 text-primary ring-primary/25",
+    read: "bg-primary/15 text-primary ring-primary/25",
     replied: "bg-primary/10 text-primary ring-primary/30",
     failed: "bg-rose-50 text-rose-700 ring-rose-200",
     skipped: "bg-secondary text-muted-foreground",
@@ -4817,7 +4817,7 @@ function RecurringList({ onBack }: { onBack: () => void }) {
                     <span
                       className={cn(
                         "mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset",
-                        d.enabled ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-slate-100 text-slate-400 ring-slate-200",
+                        d.enabled ? "bg-primary/10 text-primary ring-primary/25" : "bg-slate-100 text-slate-400 ring-slate-200",
                       )}
                     >
                       <Clock className="h-4 w-4" />
@@ -4828,7 +4828,7 @@ function RecurringList({ onBack }: { onBack: () => void }) {
                         <span
                           className={cn(
                             "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ring-1 ring-inset",
-                            d.enabled ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-slate-100 text-slate-500 ring-slate-200",
+                            d.enabled ? "bg-primary/10 text-primary ring-primary/25" : "bg-slate-100 text-slate-500 ring-slate-200",
                           )}
                         >
                           {d.enabled ? "On" : "Off"}
@@ -4867,7 +4867,7 @@ function RecurringList({ onBack }: { onBack: () => void }) {
                           "rounded-md px-2.5 py-1.5 text-xs font-semibold ring-1 ring-inset transition disabled:opacity-50",
                           d.enabled
                             ? "bg-amber-50 text-amber-700 ring-amber-200 hover:bg-amber-100"
-                            : "bg-emerald-50 text-emerald-700 ring-emerald-200 hover:bg-emerald-100",
+                            : "bg-primary/10 text-primary ring-primary/25 hover:bg-primary/15",
                         )}
                       >
                         {d.enabled ? "Disable" : "Enable"}

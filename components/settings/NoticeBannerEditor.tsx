@@ -19,7 +19,7 @@ interface Settings {
 
 const TONE_PREVIEW: Record<Tone, string> = {
   info: "border-sky-200 bg-sky-50 text-sky-800",
-  success: "border-emerald-200 bg-emerald-50 text-emerald-800",
+  success: "border-primary/25 bg-primary/10 text-primary",
   warning: "border-amber-200 bg-amber-50 text-amber-900",
   danger: "border-rose-200 bg-rose-50 text-rose-800",
 };
@@ -128,7 +128,7 @@ export function NoticeBannerEditor() {
             type="checkbox"
             checked={enabled}
             onChange={(e) => setEnabled(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-border accent-emerald-600"
+            className="mt-0.5 h-4 w-4 rounded border-border accent-primary"
           />
           <div>
             <div className="text-sm font-medium">Show notice banner</div>
@@ -152,7 +152,7 @@ export function NoticeBannerEditor() {
                   (tone === t
                     ? TONE_PREVIEW[t] + " ring-2 ring-offset-1 " + (
                         t === "info" ? "ring-sky-400" :
-                        t === "success" ? "ring-emerald-400" :
+                        t === "success" ? "ring-primary/40" :
                         t === "warning" ? "ring-amber-400" :
                         "ring-rose-400"
                       )

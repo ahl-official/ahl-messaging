@@ -26,7 +26,7 @@ export function ForgotPasswordForm() {
   if (sentTo) {
     return (
       <div className="space-y-4 text-center">
-        <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200">
+        <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary ring-1 ring-inset ring-primary/25">
           <CheckCircle2 className="h-7 w-7" />
         </div>
         <div className="space-y-1.5">

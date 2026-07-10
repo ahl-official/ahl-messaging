@@ -78,10 +78,10 @@ export function PortfolioNumberPicker({
               }}
               className={cn(
                 "relative flex min-w-[180px] items-center gap-2.5 rounded-xl border bg-card px-3 py-2.5 text-left transition",
-                selected ? "border-emerald-400 ring-1 ring-emerald-200" : "border-input hover:border-foreground/20 hover:bg-secondary/40",
+                selected ? "border-primary/40 ring-1 ring-primary/25" : "border-input hover:border-foreground/20 hover:bg-secondary/40",
               )}
             >
-              <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg", selected ? "bg-emerald-100 text-emerald-700" : "bg-secondary text-muted-foreground")}>
+              <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg", selected ? "bg-primary/15 text-primary" : "bg-secondary text-muted-foreground")}>
                 <Icon className="h-4 w-4" />
               </span>
               <span className="min-w-0">
@@ -90,7 +90,7 @@ export function PortfolioNumberPicker({
                   <span className="font-semibold text-foreground">{onCount}</span>/{g.rows.length} on
                 </span>
               </span>
-              {selected ? <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-emerald-500" /> : null}
+              {selected ? <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary" /> : null}
             </button>
           );
         })}

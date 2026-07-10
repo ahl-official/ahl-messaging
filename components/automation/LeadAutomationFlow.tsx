@@ -144,7 +144,7 @@ const PREFIX: Record<LeadNodeType, string> = {
 
 function branchColor(b: string): string {
   const k = b.toLowerCase();
-  if (k === "yes" || k === "if" || k === "true") return "#10b981"; // emerald
+  if (k === "yes" || k === "if" || k === "true") return "#2E6DE2"; // emerald
   if (k === "no" || k === "else" || k === "false") return "#f43f5e"; // rose
   if (k === "elseif") return "#f59e0b"; // amber
   return "#64748b"; // slate
@@ -159,7 +159,7 @@ function branchLabel(b: string): string {
   return b;
 }
 function barColor(t: LeadNodeType): string {
-  if (t === "trigger") return "#10b981";
+  if (t === "trigger") return "#2E6DE2";
   if (t === "wait") return "#f59e0b";
   if (t === "send_template") return "#8b5cf6"; // violet — message
   return "#38bdf8"; // sky — actions
@@ -276,7 +276,7 @@ function InsertEdge(props: EdgeProps) {
               type="button"
               title="Insert a node here"
               onClick={() => setMenuOpen((v) => !v)}
-              className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-emerald-300 bg-white text-emerald-700 shadow-sm hover:bg-emerald-50"
+              className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-primary/30 bg-white text-primary shadow-sm hover:bg-primary/10"
             >
               <Plus className="h-3 w-3" />
             </button>
@@ -286,7 +286,7 @@ function InsertEdge(props: EdgeProps) {
                   <button
                     type="button"
                     onClick={() => { ops?.onPaste(id); setMenuOpen(false); }}
-                    className="mb-1 flex w-full items-center gap-2 border-b px-3 py-1.5 text-left text-xs font-semibold text-emerald-700 hover:bg-emerald-50"
+                    className="mb-1 flex w-full items-center gap-2 border-b px-3 py-1.5 text-left text-xs font-semibold text-primary hover:bg-primary/10"
                   >
                     <Copy className="h-3.5 w-3.5" />
                     Paste copied node
@@ -301,7 +301,7 @@ function InsertEdge(props: EdgeProps) {
                       onClick={() => { ops?.onInsert(id, a.type); setMenuOpen(false); }}
                       className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs hover:bg-secondary"
                     >
-                      <Icon className="h-3.5 w-3.5 text-emerald-700" />
+                      <Icon className="h-3.5 w-3.5 text-primary" />
                       {a.label}
                     </button>
                   );
@@ -742,7 +742,7 @@ export function LeadAutomationFlow({
           type="button"
           onClick={save}
           disabled={saving}
-          className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
         >
           <Save className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save flow"}
         </button>
@@ -759,7 +759,7 @@ export function LeadAutomationFlow({
                 key={p.type}
                 type="button"
                 onClick={() => addNode(p.type)}
-                className="flex w-full items-center gap-2 rounded-md border bg-background px-2 py-1.5 text-left text-xs font-semibold hover:border-emerald-300 hover:bg-emerald-50/40"
+                className="flex w-full items-center gap-2 rounded-md border bg-background px-2 py-1.5 text-left text-xs font-semibold hover:border-primary/30 hover:bg-primary/10"
               >
                 <PIcon className="h-3.5 w-3.5 text-slate-500" /> {p.label}
                 <Plus className="ml-auto h-3 w-3 text-muted-foreground" />
@@ -770,7 +770,7 @@ export function LeadAutomationFlow({
             <button
               type="button"
               onClick={pasteNode}
-              className="mt-1 flex w-full items-center gap-2 rounded-md border border-emerald-300 bg-emerald-50 px-2 py-1.5 text-left text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
+              className="mt-1 flex w-full items-center gap-2 rounded-md border border-primary/30 bg-primary/10 px-2 py-1.5 text-left text-xs font-semibold text-primary hover:bg-primary/15"
               title="Paste the copied node at the bottom"
             >
               <Copy className="h-3.5 w-3.5" /> Paste {copiedData.nodeId}
@@ -818,7 +818,7 @@ export function LeadAutomationFlow({
                 <span className="text-xs font-bold">{selected.data.nodeId}</span>
                 {selected.id !== TRIGGER_ID ? (
                   <div className="flex items-center gap-1">
-                    <button type="button" onClick={copyNode} className={`rounded p-1 ${copiedData === selected.data ? "text-emerald-600" : "text-muted-foreground hover:text-emerald-600"}`} title="Copy node — then paste from an edge (+) or the Add-node panel">
+                    <button type="button" onClick={copyNode} className={`rounded p-1 ${copiedData === selected.data ? "text-primary" : "text-muted-foreground hover:text-primary"}`} title="Copy node — then paste from an edge (+) or the Add-node panel">
                       <Copy className="h-3.5 w-3.5" />
                     </button>
                     <button type="button" onClick={removeSelected} className="rounded p-1 text-muted-foreground hover:text-destructive" title="Delete node">
@@ -838,7 +838,7 @@ export function LeadAutomationFlow({
                     <select
                       value={tLeadField}
                       onChange={(e) => setTLeadField(e.target.value)}
-                      className="mt-1 w-full rounded-md border bg-white px-2 py-1.5 text-xs outline-none focus:border-emerald-400"
+                      className="mt-1 w-full rounded-md border bg-white px-2 py-1.5 text-xs outline-none focus:border-primary"
                     >
                       {["Lead Stage", "Lead Source", "Owner", "Mobile Number", "Phone Number"].map((f) => (
                         <option key={f} value={f}>{f}</option>
@@ -848,11 +848,11 @@ export function LeadAutomationFlow({
                   <div className="grid grid-cols-2 gap-2">
                     <label className="block text-[11px] font-semibold">
                       Changes from
-                      <input list="trig-stages" value={tFrom} onChange={(e) => setTFrom(e.target.value)} className="mt-1 w-full rounded-md border px-2 py-1.5 text-xs outline-none focus:border-emerald-400" />
+                      <input list="trig-stages" value={tFrom} onChange={(e) => setTFrom(e.target.value)} className="mt-1 w-full rounded-md border px-2 py-1.5 text-xs outline-none focus:border-primary" />
                     </label>
                     <label className="block text-[11px] font-semibold">
                       to — Start stage
-                      <input list="trig-stages" value={tTo} onChange={(e) => setTTo(e.target.value)} placeholder="Photos Received" className="mt-1 w-full rounded-md border px-2 py-1.5 text-xs outline-none focus:border-emerald-400" />
+                      <input list="trig-stages" value={tTo} onChange={(e) => setTTo(e.target.value)} placeholder="Photos Received" className="mt-1 w-full rounded-md border px-2 py-1.5 text-xs outline-none focus:border-primary" />
                     </label>
                   </div>
                   <datalist id="trig-stages">
@@ -863,14 +863,14 @@ export function LeadAutomationFlow({
                   <div className="grid grid-cols-2 gap-2">
                     <label className="block text-[11px] font-semibold">
                       Run once per Lead
-                      <select value={tRunOnce ? "Yes" : "No"} onChange={(e) => setTRunOnce(e.target.value === "Yes")} className="mt-1 w-full rounded-md border bg-white px-2 py-1.5 text-xs outline-none focus:border-emerald-400">
+                      <select value={tRunOnce ? "Yes" : "No"} onChange={(e) => setTRunOnce(e.target.value === "Yes")} className="mt-1 w-full rounded-md border bg-white px-2 py-1.5 text-xs outline-none focus:border-primary">
                         <option>No</option>
                         <option>Yes</option>
                       </select>
                     </label>
                     <label className="block text-[11px] font-semibold">
                       Scope
-                      <select value={tScope} onChange={(e) => setTScope(e.target.value)} className="mt-1 w-full rounded-md border bg-white px-2 py-1.5 text-xs outline-none focus:border-emerald-400">
+                      <select value={tScope} onChange={(e) => setTScope(e.target.value)} className="mt-1 w-full rounded-md border bg-white px-2 py-1.5 text-xs outline-none focus:border-primary">
                         <option>Global</option>
                         <option>Restricted</option>
                       </select>
@@ -878,7 +878,7 @@ export function LeadAutomationFlow({
                   </div>
                   <label className="block text-[11px] font-semibold">
                     Exit stage
-                    <select value={tExitStage} onChange={(e) => setTExitStage(e.target.value)} className="mt-1 w-full rounded-md border bg-white px-2 py-1.5 text-xs outline-none focus:border-emerald-400">
+                    <select value={tExitStage} onChange={(e) => setTExitStage(e.target.value)} className="mt-1 w-full rounded-md border bg-white px-2 py-1.5 text-xs outline-none focus:border-primary">
                       <option value="">— none —</option>
                       {lsqStages.map((s) => (
                         <option key={s} value={s}>{s}</option>
@@ -887,7 +887,7 @@ export function LeadAutomationFlow({
                   </label>
                   <label className="block text-[11px] font-semibold">
                     Exit condition <span className="font-normal text-muted-foreground">(optional)</span>
-                    <input value={tExitCond} onChange={(e) => setTExitCond(e.target.value)} placeholder="e.g. Lead Source is Junk" className="mt-1 w-full rounded-md border px-2 py-1.5 text-xs outline-none focus:border-emerald-400" />
+                    <input value={tExitCond} onChange={(e) => setTExitCond(e.target.value)} placeholder="e.g. Lead Source is Junk" className="mt-1 w-full rounded-md border px-2 py-1.5 text-xs outline-none focus:border-primary" />
                   </label>
                 </div>
               ) : (
@@ -897,7 +897,7 @@ export function LeadAutomationFlow({
                     <input
                       value={selected.data.title}
                       onChange={(e) => patchSelected({ title: e.target.value })}
-                      className="mt-1 w-full rounded-md border px-2 py-1.5 text-xs outline-none focus:border-emerald-400"
+                      className="mt-1 w-full rounded-md border px-2 py-1.5 text-xs outline-none focus:border-primary"
                     />
                   </label>
                   {selected.data.node_type !== "wait" && selected.data.node_type !== "send_template" ? (
@@ -907,7 +907,7 @@ export function LeadAutomationFlow({
                         value={selected.data.subtitle}
                         onChange={(e) => patchSelected({ subtitle: e.target.value })}
                         rows={3}
-                        className="mt-1 w-full resize-none rounded-md border px-2 py-1.5 text-xs outline-none focus:border-emerald-400"
+                        className="mt-1 w-full resize-none rounded-md border px-2 py-1.5 text-xs outline-none focus:border-primary"
                         placeholder='e.g. Phone Number starts with "+91-"'
                       />
                     </label>
@@ -929,12 +929,12 @@ export function LeadAutomationFlow({
                               min={0}
                               value={amount}
                               onChange={(e) => setWait(Math.max(0, Number(e.target.value) || 0), unit)}
-                              className="w-20 rounded-md border px-2 py-1.5 text-sm outline-none focus:border-emerald-400"
+                              className="w-20 rounded-md border px-2 py-1.5 text-sm outline-none focus:border-primary"
                             />
                             <select
                               value={unit}
                               onChange={(e) => setWait(amount, e.target.value)}
-                              className="flex-1 rounded-md border bg-white px-2 py-1.5 text-sm outline-none focus:border-emerald-400"
+                              className="flex-1 rounded-md border bg-white px-2 py-1.5 text-sm outline-none focus:border-primary"
                             >
                               {WAIT_UNITS.map((u) => (
                                 <option key={u} value={u}>{u}</option>
@@ -955,7 +955,7 @@ export function LeadAutomationFlow({
                   <button
                     type="button"
                     onClick={openCondModal}
-                    className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 px-2 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700"
+                    className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary px-2 py-1.5 text-xs font-semibold text-white hover:bg-primary/90"
                   >
                     <GitBranch className="h-3.5 w-3.5" /> Select condition
                   </button>
@@ -981,7 +981,7 @@ export function LeadAutomationFlow({
                       <input
                         value={(selected.data.branches ?? []).join(", ")}
                         onChange={(e) => patchSelected({ branches: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })}
-                        className="mt-1 w-full rounded-md border px-2 py-1.5 text-xs outline-none focus:border-emerald-400"
+                        className="mt-1 w-full rounded-md border px-2 py-1.5 text-xs outline-none focus:border-primary"
                         placeholder="yes, no"
                       />
                       <span className="mt-0.5 block text-[10px] text-muted-foreground">yes/if=green, no/else=red, elseif=amber</span>
@@ -1069,7 +1069,7 @@ export function LeadAutomationFlow({
                         type="time"
                         value={selected.data.sendTime ?? ""}
                         onChange={(e) => patchSelected({ sendTime: e.target.value || undefined })}
-                        className="rounded-md border bg-white px-2 py-1.5 text-sm outline-none focus:border-emerald-400"
+                        className="rounded-md border bg-white px-2 py-1.5 text-sm outline-none focus:border-primary"
                       />
                       {selected.data.sendTime ? (
                         <button
@@ -1113,7 +1113,7 @@ export function LeadAutomationFlow({
                 <select
                   value={rowField}
                   onChange={(e) => { setRowField(e.target.value); setRowValue(""); setRowValues([]); }}
-                  className="w-full rounded-md border bg-white px-2 py-1.5 text-xs outline-none focus:border-emerald-400"
+                  className="w-full rounded-md border bg-white px-2 py-1.5 text-xs outline-none focus:border-primary"
                 >
                   {CONDITION_FIELDS.map((f) => (
                     <option key={f} value={f}>{f}</option>
@@ -1122,7 +1122,7 @@ export function LeadAutomationFlow({
                 <select
                   value={rowOp}
                   onChange={(e) => setRowOp(e.target.value)}
-                  className="w-full rounded-md border bg-white px-2 py-1.5 text-xs outline-none focus:border-emerald-400"
+                  className="w-full rounded-md border bg-white px-2 py-1.5 text-xs outline-none focus:border-primary"
                 >
                   {CONDITION_OPERATORS.map((o) => (
                     <option key={o} value={o}>{o}</option>
@@ -1148,12 +1148,12 @@ export function LeadAutomationFlow({
                       value={rowValue}
                       onChange={(e) => setRowValue(e.target.value)}
                       placeholder="Value"
-                      className="w-full rounded-md border bg-white px-2 py-1.5 text-xs outline-none focus:border-emerald-400"
+                      className="w-full rounded-md border bg-white px-2 py-1.5 text-xs outline-none focus:border-primary"
                     />
                   );
                 })()}
                 <div className="flex gap-2">
-                  <button type="button" onClick={addDraftCondition} className="flex-1 rounded-md bg-emerald-500 px-2 py-1.5 text-xs font-semibold text-white hover:bg-emerald-600">
+                  <button type="button" onClick={addDraftCondition} className="flex-1 rounded-md bg-primary px-2 py-1.5 text-xs font-semibold text-white hover:bg-primary/90">
                     Add Condition
                   </button>
                   <button type="button" onClick={() => { setRowField(CONDITION_FIELDS[0]); setRowOp(CONDITION_OPERATORS[0]); setRowValue(""); }} className="rounded-md border bg-white px-2 py-1.5 text-xs font-semibold hover:bg-secondary">

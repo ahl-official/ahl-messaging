@@ -87,7 +87,7 @@ export function CallingSettingsView() {
   return (
     <div className="mx-auto max-w-3xl space-y-8 p-6">
       <header className="flex items-start gap-3">
-        <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+        <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
           <PhoneCall className="h-5 w-5" />
         </span>
         <div>
@@ -317,7 +317,7 @@ function AgentBinding({ agent }: { agent: AgentRow }) {
           {saving ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
           ) : saved ? (
-            <Check className="h-3.5 w-3.5 text-emerald-600" />
+            <Check className="h-3.5 w-3.5 text-primary" />
           ) : (
             "Save"
           )}

@@ -47,11 +47,11 @@ export function BulkStatusProgressBar() {
     <div className="fixed bottom-5 left-5 z-[60] w-72 max-w-[calc(100vw-2.5rem)] overflow-hidden rounded-xl border bg-popover text-popover-foreground shadow-2xl ring-1 ring-border">
       <div className="flex items-center gap-2 px-3 py-2">
         {task.running ? (
-          <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-emerald-600" />
+          <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-primary" />
         ) : task.status === "stopped" ? (
           <Square className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
         ) : failed === 0 ? (
-          <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+          <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-primary" />
         ) : (
           <XCircle className="h-3.5 w-3.5 shrink-0 text-amber-600" />
         )}
@@ -77,9 +77,9 @@ export function BulkStatusProgressBar() {
               className={cn(
                 "h-full rounded-full transition-all",
                 task.running
-                  ? "bg-emerald-500"
+                  ? "bg-primary"
                   : failed === 0
-                    ? "bg-emerald-500"
+                    ? "bg-primary"
                     : "bg-amber-500",
               )}
               style={{ width: `${pct}%` }}

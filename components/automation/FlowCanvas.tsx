@@ -155,12 +155,12 @@ function TriggerNode({ data }: NodeProps<TriggerData>) {
   const isNewContact = data.triggerType === "new_contact";
   const isFirstMessage = data.triggerType === "first_message";
   return (
-    <div className="w-72 rounded-xl border border-emerald-300 bg-emerald-50/80 shadow-sm">
-      <div className="flex items-center gap-2 border-b border-emerald-200 px-3 py-2 text-xs font-semibold text-emerald-800">
+    <div className="w-72 rounded-xl border border-primary/30 bg-primary/20 shadow-sm">
+      <div className="flex items-center gap-2 border-b border-primary/25 px-3 py-2 text-xs font-semibold text-primary">
         <Zap className="h-3.5 w-3.5" /> When to trigger the workflow
       </div>
       <div className="space-y-2 px-3 py-2">
-        <div className="rounded-md bg-white px-2 py-1.5 text-[11px] text-slate-600 ring-1 ring-inset ring-emerald-100">
+        <div className="rounded-md bg-white px-2 py-1.5 text-[11px] text-slate-600 ring-1 ring-inset ring-primary/20">
           {isNewContact
             ? "A new number messages for the first time"
             : isFirstMessage
@@ -171,18 +171,18 @@ function TriggerNode({ data }: NodeProps<TriggerData>) {
         </div>
 
         {isNewContact ? (
-          <div className="rounded-md bg-white px-2 py-1.5 text-[10px] text-muted-foreground ring-1 ring-inset ring-emerald-100">
+          <div className="rounded-md bg-white px-2 py-1.5 text-[10px] text-muted-foreground ring-1 ring-inset ring-primary/20">
             Fires once when a brand-new contact (number we&apos;ve never chatted with) sends their first message. No keywords needed.
           </div>
         ) : isFirstMessage ? (
-          <div className="rounded-md bg-white px-2 py-1.5 text-[10px] text-muted-foreground ring-1 ring-inset ring-emerald-100">
+          <div className="rounded-md bg-white px-2 py-1.5 text-[10px] text-muted-foreground ring-1 ring-inset ring-primary/20">
             Fires on the first message of a new conversation — when ANY client (new or returning) messages after a quiet gap (24h+). No keywords needed.
           </div>
         ) : isTemplate ? (
           <select
             value={data.templateName}
             onChange={(e) => data.onTemplate(e.target.value)}
-            className="nodrag w-full rounded-md border bg-white px-2 py-1.5 text-[11px] outline-none focus:border-emerald-400"
+            className="nodrag w-full rounded-md border bg-white px-2 py-1.5 text-[11px] outline-none focus:border-primary"
           >
             <option value="">Any template</option>
             {data.templateName && !(data.templates ?? []).includes(data.templateName) ? (
@@ -200,12 +200,12 @@ function TriggerNode({ data }: NodeProps<TriggerData>) {
                 onChange={(e) => data.onPhrases(e.target.value)}
                 placeholder="keywords: price, hello, hi"
                 disabled={data.match === "any"}
-                className="nodrag flex-1 rounded-md border bg-white px-2 py-1.5 text-[11px] outline-none focus:border-emerald-400 disabled:bg-slate-50 disabled:text-muted-foreground"
+                className="nodrag flex-1 rounded-md border bg-white px-2 py-1.5 text-[11px] outline-none focus:border-primary disabled:bg-slate-50 disabled:text-muted-foreground"
               />
               <select
                 value={data.match}
                 onChange={(e) => data.onMatch(e.target.value)}
-                className="nodrag rounded-md border bg-white px-1.5 py-1.5 text-[10px] outline-none focus:border-emerald-400"
+                className="nodrag rounded-md border bg-white px-1.5 py-1.5 text-[10px] outline-none focus:border-primary"
                 title="Match mode"
               >
                 <option value="any">any message</option>
@@ -215,7 +215,7 @@ function TriggerNode({ data }: NodeProps<TriggerData>) {
               </select>
             </div>
             {data.match === "any" ? (
-              <div className="rounded-md bg-white px-2 py-1.5 text-[10px] text-muted-foreground ring-1 ring-inset ring-emerald-100">
+              <div className="rounded-md bg-white px-2 py-1.5 text-[10px] text-muted-foreground ring-1 ring-inset ring-primary/20">
                 Fires on ANY message from the client — keywords ignored.
               </div>
             ) : null}
@@ -233,7 +233,7 @@ function TriggerNode({ data }: NodeProps<TriggerData>) {
           </>
         )}
       </div>
-      <Handle type="source" position={Position.Right} className="!h-2.5 !w-2.5 !bg-emerald-500" />
+      <Handle type="source" position={Position.Right} className="!h-2.5 !w-2.5 !bg-primary" />
     </div>
   );
 }
@@ -255,7 +255,7 @@ function ActionNode({ data }: NodeProps<NodeData>) {
     (data.node_type === "message_buttons" || data.node_type === "message_image_buttons") && Array.isArray(data.config.buttons)
       ? (data.config.buttons as Array<{ label?: string }>)
       : [];
-  const selRing = data.selected ? "border-emerald-400 ring-2 ring-emerald-300/40" : "border-slate-200";
+  const selRing = data.selected ? "border-primary/40 ring-2 ring-primary/40" : "border-slate-200";
 
   // Rich "Send a Message" card (text / image / video / buttons).
   if (isMessage) {
@@ -282,7 +282,7 @@ function ActionNode({ data }: NodeProps<NodeData>) {
               </div>
             )
           ) : null}
-          <div className="whitespace-pre-wrap break-words rounded-xl bg-emerald-50/70 px-3 py-2.5 text-center text-xs leading-relaxed text-sky-800">
+          <div className="whitespace-pre-wrap break-words rounded-xl bg-primary/10 px-3 py-2.5 text-center text-xs leading-relaxed text-sky-800">
             {body ? renderWaText(body) : <span className="text-muted-foreground">Empty message</span>}
           </div>
           {buttons.map((b, i) => (
@@ -299,7 +299,7 @@ function ActionNode({ data }: NodeProps<NodeData>) {
                 type="source"
                 position={Position.Right}
                 style={{ position: "absolute", right: -7, top: "50%", transform: "translateY(-50%)" }}
-                className="!h-3 !w-3 !bg-emerald-500"
+                className="!h-3 !w-3 !bg-primary"
               />
             </div>
           ))}
@@ -316,25 +316,25 @@ function ActionNode({ data }: NodeProps<NodeData>) {
     <div className={cn("w-64 rounded-xl border bg-white shadow-sm", selRing)}>
       <Handle type="target" position={Position.Left} className="!h-2.5 !w-2.5 !bg-slate-400" />
       <div className="flex items-center gap-2 rounded-t-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700">
-        <Icon className="h-3.5 w-3.5 text-emerald-700" /> {nodeTitle(data.node_type)}
+        <Icon className="h-3.5 w-3.5 text-primary" /> {nodeTitle(data.node_type)}
       </div>
       <div className="px-3 py-2 text-[11px] text-slate-600">
         <div className="line-clamp-2 whitespace-pre-wrap break-words">{summarise(data.node_type, data.config)}</div>
       </div>
       {isCondition ? (
         <div className="flex items-center justify-between border-t px-3 py-1.5 text-[10px] font-semibold">
-          <span className="text-emerald-600">True</span>
+          <span className="text-primary">True</span>
           <span className="text-rose-500">False</span>
-          <Handle id="true" type="source" position={Position.Right} style={{ top: "auto", bottom: 22 }} className="!h-2.5 !w-2.5 !bg-emerald-500" />
+          <Handle id="true" type="source" position={Position.Right} style={{ top: "auto", bottom: 22 }} className="!h-2.5 !w-2.5 !bg-primary" />
           <Handle id="false" type="source" position={Position.Right} style={{ top: "auto", bottom: 6 }} className="!h-2.5 !w-2.5 !bg-rose-500" />
         </div>
       ) : isWaitReply ? (
         <div className="flex items-center justify-between border-t px-3 py-1.5 text-[10px] font-semibold">
-          <span className="text-emerald-600">Reply</span>
+          <span className="text-primary">Reply</span>
           <span className="text-amber-500">Timeout</span>
           {/* default (unlabeled) handle = reply path; "timeout" handle fires
               when the wait time elapses with no reply. */}
-          <Handle type="source" position={Position.Right} style={{ top: "auto", bottom: 22 }} className="!h-2.5 !w-2.5 !bg-emerald-500" />
+          <Handle type="source" position={Position.Right} style={{ top: "auto", bottom: 22 }} className="!h-2.5 !w-2.5 !bg-primary" />
           <Handle id="timeout" type="source" position={Position.Right} style={{ top: "auto", bottom: 6 }} className="!h-2.5 !w-2.5 !bg-amber-500" />
         </div>
       ) : (
@@ -400,7 +400,7 @@ function ButtonEdge(props: EdgeProps) {
               type="button"
               title="Insert a node here"
               onClick={() => setMenuOpen((v) => !v)}
-              className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-emerald-300 bg-white text-emerald-700 shadow-sm hover:bg-emerald-50"
+              className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-primary/30 bg-white text-primary shadow-sm hover:bg-primary/10"
             >
               <Plus className="h-3 w-3" />
             </button>
@@ -418,7 +418,7 @@ function ButtonEdge(props: EdgeProps) {
                       }}
                       className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs hover:bg-secondary"
                     >
-                      <Icon className="h-3.5 w-3.5 text-emerald-700" />
+                      <Icon className="h-3.5 w-3.5 text-primary" />
                       {a.label}
                     </button>
                   );
@@ -825,11 +825,11 @@ export function FlowCanvas({
                     className={cn(
                       "flex w-full items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-xs font-medium",
                       active
-                        ? "border-emerald-400 bg-emerald-50 text-emerald-800"
+                        ? "border-primary/40 bg-primary/10 text-primary"
                         : "bg-card hover:border-primary hover:bg-secondary",
                     )}
                   >
-                    <t.icon className={cn("h-4 w-4 shrink-0", active ? "text-emerald-600" : "text-emerald-700")} /> {t.label}
+                    <t.icon className={cn("h-4 w-4 shrink-0", active ? "text-primary" : "text-primary")} /> {t.label}
                   </button>
                 );
               })}
@@ -848,7 +848,7 @@ export function FlowCanvas({
                     onClick={() => addAction(a.type)}
                     className="flex w-full items-center gap-2 rounded-lg border bg-card px-2.5 py-2 text-left text-xs font-medium hover:border-primary hover:bg-secondary"
                   >
-                    <a.icon className="h-4 w-4 shrink-0 text-emerald-700" /> {a.label}
+                    <a.icon className="h-4 w-4 shrink-0 text-primary" /> {a.label}
                   </button>
                 ))}
               </div>
@@ -1004,7 +1004,7 @@ function NodeConfig({
                     <input
                       value={b.url ?? ""}
                       onChange={(e) => setBtns(buttons.map((x, j) => (j === i ? { ...x, url: e.target.value } : x)))}
-                      className={cn(inputCls, "mt-1 text-[10px]", isLink && "border-emerald-300")}
+                      className={cn(inputCls, "mt-1 text-[10px]", isLink && "border-primary/30")}
                       placeholder="Link URL (optional) — https://…"
                     />
                   </div>
@@ -1025,7 +1025,7 @@ function NodeConfig({
                 type="checkbox"
                 checked={Boolean(c.remind_on_invalid)}
                 onChange={(e) => onSet({ remind_on_invalid: e.target.checked })}
-                className="h-4 w-4 accent-emerald-600"
+                className="h-4 w-4 accent-primary"
               />
             </label>
             {c.remind_on_invalid ? (
@@ -1136,7 +1136,7 @@ function NodeConfig({
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
-                  <input value={b.url ?? ""} onChange={(e) => setBtns(btns.map((x, j) => (j === i ? { ...x, url: e.target.value } : x)))} className={cn(inputCls, "mt-1 text-[10px]", (b.url ?? "").trim() && "border-emerald-300")} placeholder="Link URL (optional) — https://…" />
+                  <input value={b.url ?? ""} onChange={(e) => setBtns(btns.map((x, j) => (j === i ? { ...x, url: e.target.value } : x)))} className={cn(inputCls, "mt-1 text-[10px]", (b.url ?? "").trim() && "border-primary/30")} placeholder="Link URL (optional) — https://…" />
                 </div>
               ))}
             </div>

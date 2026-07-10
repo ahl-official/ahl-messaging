@@ -232,7 +232,7 @@ export function ConnectWhatsAppButton({ onConnected }: { onConnected?: () => voi
           type="button"
           onClick={launch}
           disabled={busy}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-2.5 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 disabled:opacity-50"
         >
           {busy ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -243,7 +243,7 @@ export function ConnectWhatsAppButton({ onConnected }: { onConnected?: () => voi
         </button>
       </div>
       {error ? <p className="text-xs text-destructive">{error}</p> : null}
-      {note ? <p className="text-xs text-emerald-700">{note}</p> : null}
+      {note ? <p className="text-xs text-primary">{note}</p> : null}
     </div>
   );
 }

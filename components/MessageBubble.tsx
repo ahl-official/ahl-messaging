@@ -99,7 +99,7 @@ function LocationCard({
         <span
           className={cn(
             "mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full",
-            isOut ? "bg-emerald-200 text-emerald-700" : "bg-rose-100 text-rose-600",
+            isOut ? "bg-primary/20 text-primary" : "bg-rose-100 text-rose-600",
           )}
         >
           <MapPin className="h-3.5 w-3.5" />
@@ -139,10 +139,10 @@ function StatusTicks({ status, failed }: { status: Message["status"]; failed?: b
   }
   if (status === "delivered") {
     return (
-      <CheckCheck className="h-3.5 w-3.5 text-emerald-900/55" aria-label="Delivered" strokeWidth={2.4} />
+      <CheckCheck className="h-3.5 w-3.5 text-primary/55" aria-label="Delivered" strokeWidth={2.4} />
     );
   }
-  return <Check className="h-3.5 w-3.5 text-emerald-900/45" aria-label="Sent" strokeWidth={2.4} />;
+  return <Check className="h-3.5 w-3.5 text-primary/45" aria-label="Sent" strokeWidth={2.4} />;
 }
 
 // Resolve the URL we should actually feed to <img> / <audio> / <video>.
@@ -464,7 +464,7 @@ export function MessageBubble({
       <div
         className={cn(
           "max-w-[78%] overflow-hidden rounded-2xl bg-white shadow-sm ring-1",
-          isOut ? "ring-emerald-300 rounded-br-sm" : "ring-border rounded-bl-sm",
+          isOut ? "ring-primary/30 rounded-br-sm" : "ring-border rounded-bl-sm",
           failed && "ring-rose-300",
         )}
       >
@@ -479,14 +479,14 @@ export function MessageBubble({
               <video
                 src={message.media_url}
                 controls
-                className="block w-full max-h-96 overflow-hidden rounded-lg object-contain ring-2 ring-emerald-400/80"
+                className="block w-full max-h-96 overflow-hidden rounded-lg object-contain ring-2 ring-primary/40/80"
               />
             ) : (message.media_mime_type ?? "").startsWith("application/") ? (
               <a
                 href={message.media_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 rounded-lg ring-2 ring-emerald-400/80 bg-white px-3 py-2 text-xs font-medium text-emerald-800 transition hover:ring-emerald-500"
+                className="flex items-center gap-2 rounded-lg ring-2 ring-primary/40/80 bg-white px-3 py-2 text-xs font-medium text-primary transition hover:ring-primary/100"
               >
                 📄 Open document
               </a>
@@ -494,7 +494,7 @@ export function MessageBubble({
               <button
                 type="button"
                 onClick={() => setPreviewing(true)}
-                className="block w-full overflow-hidden rounded-lg ring-2 ring-emerald-400/80 bg-white transition hover:ring-emerald-500"
+                className="block w-full overflow-hidden rounded-lg ring-2 ring-primary/40/80 bg-white transition hover:ring-primary/100"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -512,7 +512,7 @@ export function MessageBubble({
         <div className="px-3.5 py-2.5">
           {/* Group messages — show who in the group sent it. */}
           {!isOut && message.sender_name ? (
-            <p className="mb-0.5 text-[11px] font-semibold text-emerald-700">
+            <p className="mb-0.5 text-[11px] font-semibold text-primary">
               {message.sender_name}
             </p>
           ) : null}
@@ -545,11 +545,11 @@ export function MessageBubble({
           className={cn(
             "flex items-center justify-between gap-2 border-t px-3 py-1.5 text-[10px]",
             isOut
-              ? "border-emerald-100/80 bg-emerald-50/60"
+              ? "border-primary/20/80 bg-primary/10"
               : "border-border/60 bg-secondary/40",
           )}
         >
-          <span className="inline-flex items-center gap-1 font-semibold uppercase tracking-wide text-emerald-700">
+          <span className="inline-flex items-center gap-1 font-semibold uppercase tracking-wide text-primary">
             <ClipboardList className="h-3 w-3" />
             Template
           </span>
@@ -602,7 +602,7 @@ export function MessageBubble({
           isOut ? "rounded-br-sm" : "rounded-bl-sm",
         )}
       >
-        <div className="flex items-center gap-2.5 border-b bg-gradient-to-br from-emerald-500 to-emerald-600 px-3.5 py-2.5 text-white">
+        <div className="flex items-center gap-2.5 border-b bg-gradient-to-br from-[#6098FF] to-primary px-3.5 py-2.5 text-white">
           <PhoneCall className="h-4 w-4" />
           <div className="text-[11px] font-semibold uppercase tracking-wider">
             Call permission request
@@ -612,7 +612,7 @@ export function MessageBubble({
           <p className="whitespace-pre-wrap break-words leading-relaxed text-foreground">
             {message.content || "WhatsApp call permission requested."}
           </p>
-          <div className="mt-2 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-[11px] text-emerald-800">
+          <div className="mt-2 rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1.5 text-[11px] text-primary">
             The client sees an &quot;Allow&quot; button on their WhatsApp. Once they tap it, the call rings on this device.
           </div>
         </div>
@@ -659,7 +659,7 @@ export function MessageBubble({
           className={cn(
             "flex items-center gap-2.5 border-b px-3.5 py-2.5 text-white",
             granted
-              ? "bg-gradient-to-br from-emerald-500 to-emerald-600"
+              ? "bg-gradient-to-br from-[#6098FF] to-primary"
               : "bg-gradient-to-br from-rose-500 to-rose-600",
           )}
         >
@@ -709,7 +709,7 @@ export function MessageBubble({
           : isOut
             ? failed
               ? "bubble-failed text-rose-900 rounded-br-sm px-3.5 py-2"
-              : "bubble-out text-emerald-950 rounded-br-sm px-3.5 py-2"
+              : "bubble-out text-[#1a4ab8] rounded-br-sm px-3.5 py-2"
             : "bubble-in bg-card text-foreground border border-slate-300 rounded-bl-sm px-3.5 py-2",
         isMedia && !isSticker && "px-2 py-2",
         // Location map card hugs the bubble edge (WhatsApp-style). No
@@ -771,7 +771,7 @@ export function MessageBubble({
       <div
         className={cn(
           "mt-1 flex items-center justify-end gap-1 text-[10px] px-1.5",
-          isOut ? (failed ? "text-rose-800" : "text-emerald-900/70") : "text-muted-foreground",
+          isOut ? (failed ? "text-rose-800" : "text-primary/70") : "text-muted-foreground",
         )}
       >
         <span>{formatTime(message.timestamp)}</span>
@@ -787,11 +787,11 @@ export function MessageBubble({
       {/* Interactive reply buttons (non-template sends) — show the same
           tappable-button look the client received on WhatsApp. */}
       {!isTemplate && message.template_buttons && message.template_buttons.length > 0 ? (
-        <div className="mt-1.5 space-y-1 border-t border-emerald-100/70 pt-1.5">
+        <div className="mt-1.5 space-y-1 border-t border-primary/20/70 pt-1.5">
           {message.template_buttons.map((b, idx) => (
             <div
               key={`${b.text ?? "btn"}-${idx}`}
-              className="flex items-center justify-center gap-1.5 rounded-md bg-white/70 px-2 py-1 text-[12px] font-medium text-emerald-700"
+              className="flex items-center justify-center gap-1.5 rounded-md bg-white/70 px-2 py-1 text-[12px] font-medium text-primary"
             >
               <Reply className="h-3 w-3" />
               {b.text || `Button ${idx + 1}`}
@@ -863,8 +863,8 @@ function QuotedReplyInline({
     <div
       className={cn(
         "mb-1 overflow-hidden rounded-md border-l-4 px-2 py-1 text-[11px]",
-        direction === "outbound" ? "border-emerald-500" : "border-sky-500",
-        parentIsOut ? "bg-emerald-100/60" : "bg-secondary/70",
+        direction === "outbound" ? "border-primary" : "border-sky-500",
+        parentIsOut ? "bg-primary/15/60" : "bg-secondary/70",
       )}
     >
       <div className="font-semibold text-foreground/80">{label}</div>
@@ -1048,7 +1048,7 @@ function EditMessageDialog({
           type="button"
           onClick={save}
           disabled={busy}
-          className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2 py-1 text-[11px] font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="inline-flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-[11px] font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
         >
           {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
           Save
@@ -1138,7 +1138,7 @@ function TemplateButton({
   else if (button.type === "COPY_CODE") label = button.text ?? "Copy code";
   else if (button.type === "QUICK_REPLY") label = button.text ?? "Reply";
   return (
-    <div className="border-t border-gray-100 px-3 py-2 text-center text-[12px] font-semibold text-emerald-700">
+    <div className="border-t border-gray-100 px-3 py-2 text-center text-[12px] font-semibold text-primary">
       {button.type === "URL" ? (
         <span className="inline-flex items-center gap-1">
           <span className="text-base">↗</span>
@@ -1177,7 +1177,7 @@ function SenderBadge({
 }) {
   const palette: Record<typeof tone, string> = {
     emerald:
-      "bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-800",
+      "bg-gradient-to-br from-primary/15 to-primary/20 text-primary",
     violet:
       "bg-gradient-to-br from-violet-100 to-violet-200 text-violet-800",
     sky: "bg-gradient-to-br from-sky-100 to-sky-200 text-sky-800",

@@ -33,19 +33,19 @@ export function PageLoader({ label = "Loading", inline }: Props) {
       aria-busy="true"
     >
       {/* Top indeterminate progress bar */}
-      <div className="absolute left-0 right-0 top-0 h-[2px] overflow-hidden bg-emerald-100/40">
-        <div className="animate-loader-progress h-full w-[30%] rounded-full bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+      <div className="absolute left-0 right-0 top-0 h-[2px] overflow-hidden bg-primary/15/40">
+        <div className="animate-loader-progress h-full w-[30%] rounded-full bg-gradient-to-r from-[#6098FF] via-primary to-[#6098FF] shadow-[0_0_8px_rgba(46,109,226,0.6)]" />
       </div>
 
       <div className="flex flex-col items-center gap-5">
         {/* Minimal ring spinner — single emerald arc rotating on a soft track. */}
         <div className="relative h-12 w-12">
-          <div className="absolute inset-0 rounded-full border-2 border-emerald-100/80" />
-          <div className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-emerald-500 border-r-emerald-500/60" />
+          <div className="absolute inset-0 rounded-full border-2 border-primary/20/80" />
+          <div className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-primary border-r-primary/60" />
         </div>
 
         {/* Shimmer text */}
-        <div className="animate-loader-shimmer bg-gradient-to-r from-emerald-900 via-emerald-400 to-emerald-900 bg-clip-text text-[13px] font-semibold tracking-[0.18em] text-transparent uppercase">
+        <div className="animate-loader-shimmer bg-gradient-to-r from-[#1a4ab8] via-[#6098FF] to-[#1a4ab8] bg-clip-text text-[13px] font-semibold tracking-[0.18em] text-transparent uppercase">
           {label}
         </div>
       </div>

@@ -115,15 +115,15 @@ export function NotificationToasts({
           className={cn(
             "pointer-events-auto group relative flex w-full items-start gap-3 overflow-hidden rounded-xl border bg-card p-3 text-left shadow-lg ring-1 ring-black/5",
             "translate-y-0 opacity-100 transition-all duration-200",
-            "hover:border-emerald-300 hover:shadow-xl",
+            "hover:border-primary/30 hover:shadow-xl",
           )}
         >
           {/* Left accent — emerald like the inbound bubbles in the chat */}
           <span
             aria-hidden
-            className="absolute inset-y-0 left-0 w-1 bg-emerald-500"
+            className="absolute inset-y-0 left-0 w-1 bg-primary"
           />
-          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200">
+          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary ring-1 ring-inset ring-primary/25">
             <MessageSquare className="h-4 w-4" />
           </span>
           <div className="min-w-0 flex-1 pl-1">

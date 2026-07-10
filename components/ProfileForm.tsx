@@ -150,7 +150,7 @@ export function ProfileForm({ initial }: Props) {
 
             <div className="mt-5 flex items-center justify-end gap-2 border-t pt-4">
               {savedAt && !saving ? (
-                <span className="mr-auto text-xs text-emerald-700">
+                <span className="mr-auto text-xs text-primary">
                   ✓ Saved
                 </span>
               ) : null}

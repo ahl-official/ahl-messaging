@@ -56,14 +56,14 @@ const TONE: Record<
   }
 > = {
   emerald: {
-    cardBg: "from-emerald-50/60 via-card to-sky-50/40",
-    blob1: "bg-emerald-200/40",
+    cardBg: "from-primary/10 via-card to-sky-50/40",
+    blob1: "bg-primary/20/40",
     blob2: "bg-sky-200/40",
-    pingRing: "bg-emerald-400/30",
-    iconTile: "from-emerald-500 to-teal-600",
-    iconShadow: "shadow-emerald-700/30",
-    ctaBg: "from-emerald-500 via-emerald-600 to-emerald-700",
-    ctaShadow: "shadow-emerald-700/30",
+    pingRing: "bg-[#6098FF]/30",
+    iconTile: "from-[#6098FF] to-[#6098FF]",
+    iconShadow: "shadow-primary/30",
+    ctaBg: "from-[#6098FF] via-primary to-[#1e56c7]",
+    ctaShadow: "shadow-primary/30",
   },
   sky: {
     cardBg: "from-sky-50/60 via-card to-indigo-50/40",

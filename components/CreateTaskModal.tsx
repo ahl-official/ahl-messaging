@@ -174,7 +174,7 @@ export function CreateTaskModal({
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
       <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-2xl ring-1 ring-border animate-in fade-in-0 zoom-in-95">
         {/* Premium gradient header */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700 px-5 py-4 text-white">
+        <div className="relative overflow-hidden bg-gradient-to-br from-primary via-[#6098FF] to-[#1e56c7] px-5 py-4 text-white">
           <span
             aria-hidden
             className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-white/15 blur-2xl"
@@ -232,7 +232,7 @@ export function CreateTaskModal({
         <div className="space-y-3.5 px-5 py-4">
           <div>
             <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-              <Sparkles className="h-3 w-3 text-emerald-600" />
+              <Sparkles className="h-3 w-3 text-primary" />
               What to do
             </label>
             <textarea
@@ -245,14 +245,14 @@ export function CreateTaskModal({
                   ? "e.g. Call back tomorrow morning, share package details on WhatsApp"
                   : "Describe the task — what, why, when"
               }
-              className="mt-1.5 w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed outline-none transition placeholder:text-muted-foreground/70 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+              className="mt-1.5 w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed outline-none transition placeholder:text-muted-foreground/70 focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
           </div>
 
           {/* Priority chip row */}
           <div>
             <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-              <Flag className="h-3 w-3 text-emerald-600" />
+              <Flag className="h-3 w-3 text-primary" />
               Priority
             </label>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -267,7 +267,7 @@ export function CreateTaskModal({
                     className={cn(
                       "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ring-inset transition",
                       active
-                        ? "bg-gradient-to-br from-emerald-600 to-emerald-700 text-white shadow-sm shadow-emerald-700/20 ring-emerald-700"
+                        ? "bg-gradient-to-br from-primary to-[#1e56c7] text-white shadow-sm shadow-primary/20 ring-primary"
                         : cn(meta.chip, meta.ring, "hover:scale-[1.02]"),
                     )}
                   >
@@ -287,7 +287,7 @@ export function CreateTaskModal({
           {/* Assignee */}
           <div>
             <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-              <Users className="h-3 w-3 text-emerald-600" />
+              <Users className="h-3 w-3 text-primary" />
               Assign to
             </label>
             <div className="relative mt-1.5">
@@ -307,7 +307,7 @@ export function CreateTaskModal({
               <select
                 value={assignedTo}
                 onChange={(e) => setAssignedTo(e.target.value)}
-                className="h-10 w-full appearance-none rounded-lg border border-input bg-background pl-10 pr-3 text-sm font-medium outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+                className="h-10 w-full appearance-none rounded-lg border border-input bg-background pl-10 pr-3 text-sm font-medium outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
               >
                 <option value="">Pick a team member…</option>
                 {members.map((m) => (
@@ -323,14 +323,14 @@ export function CreateTaskModal({
           {showDue || dueAt ? (
             <div>
               <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                <Calendar className="h-3 w-3 text-emerald-600" />
+                <Calendar className="h-3 w-3 text-primary" />
                 Due
               </label>
               <input
                 type="datetime-local"
                 value={dueAt}
                 onChange={(e) => setDueAt(e.target.value)}
-                className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+                className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
             </div>
           ) : (
@@ -367,8 +367,8 @@ export function CreateTaskModal({
             disabled={busy || !description.trim() || !assignedTo}
             className={cn(
               "group inline-flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-xs font-bold text-white shadow-md transition-all disabled:opacity-40",
-              "bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700",
-              "hover:shadow-lg hover:shadow-emerald-600/30 hover:brightness-105",
+              "bg-gradient-to-br from-[#6098FF] via-primary to-[#1e56c7]",
+              "hover:shadow-lg hover:shadow-primary/30 hover:brightness-105",
               "disabled:cursor-not-allowed disabled:shadow-none",
             )}
           >
@@ -412,7 +412,7 @@ function Avatar({ name }: { name: string }) {
       .map((w) => w[0]?.toUpperCase())
       .join("") || "?";
   return (
-    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-[9px] font-bold text-white ring-2 ring-card">
+    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-[#6098FF] to-[#6098FF] text-[9px] font-bold text-white ring-2 ring-card">
       {initials}
     </span>
   );

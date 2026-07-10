@@ -437,17 +437,17 @@ function AutomationTabs({
             className={cn(
               "group inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition",
               active
-                ? "bg-white text-emerald-800 shadow-lg shadow-emerald-900/25 ring-1 ring-white/40"
+                ? "bg-white text-primary shadow-lg shadow-primary/25 ring-1 ring-white/40"
                 : "bg-white/10 text-white/85 ring-1 ring-inset ring-white/20 backdrop-blur hover:bg-white/15 hover:text-white",
             )}
           >
-            <Icon className={cn("h-4 w-4", active ? "text-emerald-700" : "text-white/80")} />
+            <Icon className={cn("h-4 w-4", active ? "text-primary" : "text-white/80")} />
             <span className="flex flex-col items-start leading-tight">
               <span>{it.label}</span>
               <span
                 className={cn(
                   "text-[10px] font-normal",
-                  active ? "text-emerald-700/70" : "text-white/60",
+                  active ? "text-primary/70" : "text-white/60",
                 )}
               >
                 {it.sub}
@@ -679,7 +679,7 @@ function TestPatientsCard() {
         "rounded-2xl border shadow-sm transition",
         active
           ? "border-amber-300 bg-gradient-to-br from-amber-50 to-amber-50/30"
-          : "border-emerald-200 bg-gradient-to-br from-emerald-50/60 to-emerald-50/20",
+          : "border-primary/25 bg-gradient-to-br from-primary/10 to-primary/5",
       )}
     >
       <div className="flex items-start gap-3 px-4 py-3.5">
@@ -688,7 +688,7 @@ function TestPatientsCard() {
             "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset",
             active
               ? "bg-amber-100 text-amber-700 ring-amber-200"
-              : "bg-emerald-100 text-emerald-700 ring-emerald-200",
+              : "bg-primary/15 text-primary ring-primary/25",
           )}
         >
           <FlaskConical className="h-5 w-5" />
@@ -703,13 +703,13 @@ function TestPatientsCard() {
                 "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ring-1 ring-inset",
                 active
                   ? "bg-amber-100 text-amber-800 ring-amber-200"
-                  : "bg-emerald-100 text-emerald-800 ring-emerald-200",
+                  : "bg-primary/15 text-primary ring-primary/25",
               )}
             >
               <span
                 className={cn(
                   "h-1.5 w-1.5 rounded-full",
-                  active ? "bg-amber-500" : "bg-emerald-500",
+                  active ? "bg-amber-500" : "bg-primary",
                 )}
               />
               {active ? `${waIds.length} client${waIds.length === 1 ? "" : "s"}` : "Production · everyone"}
@@ -763,7 +763,7 @@ function TestPatientsCard() {
               disabled={saving || !draft.trim()}
               className={cn(
                 "inline-flex h-9 items-center gap-1.5 rounded-md px-3 text-[12px] font-semibold text-white shadow-sm transition disabled:opacity-50",
-                active ? "bg-amber-600 hover:bg-amber-700" : "bg-emerald-600 hover:bg-emerald-700",
+                active ? "bg-amber-600 hover:bg-amber-700" : "bg-primary hover:bg-primary/90",
               )}
             >
               {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
@@ -858,7 +858,7 @@ function StatsStrip({
         className={cn(
           "flex min-w-[100px] items-center gap-2.5 rounded-xl px-3 py-2 text-left ring-1 ring-inset backdrop-blur-sm transition",
           usageOpen
-            ? "bg-white text-emerald-800 ring-white shadow-lg shadow-emerald-900/25"
+            ? "bg-white text-primary ring-white shadow-lg shadow-primary/25"
             : "bg-white/10 text-white ring-white/15 hover:bg-white/15",
         )}
         aria-expanded={usageOpen}
@@ -868,7 +868,7 @@ function StatsStrip({
           className={cn(
             "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset",
             usageOpen
-              ? "bg-emerald-100 text-emerald-700 ring-emerald-200"
+              ? "bg-primary/15 text-primary ring-primary/25"
               : "bg-white/15 text-white/85 ring-white/10",
           )}
         >
@@ -878,7 +878,7 @@ function StatsStrip({
           <div
             className={cn(
               "text-[16px] font-extrabold tabular-nums",
-              usageOpen ? "text-emerald-800" : "text-white",
+              usageOpen ? "text-primary" : "text-white",
             )}
           >
             {cost30d === null
@@ -890,7 +890,7 @@ function StatsStrip({
           <div
             className={cn(
               "text-[9.5px] font-semibold uppercase tracking-[0.08em]",
-              usageOpen ? "text-emerald-700/70" : "text-white/65",
+              usageOpen ? "text-primary/70" : "text-white/65",
             )}
           >
             30d Cost
@@ -994,7 +994,7 @@ function UsagePopover({
         className="fixed z-[71] w-[min(560px,calc(100vw-2rem))] overflow-hidden rounded-2xl border bg-card text-foreground shadow-2xl ring-1 ring-border animate-in fade-in-0 zoom-in-95"
         style={{ top: pos.top, right: pos.right }}
       >
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b bg-gradient-to-br from-emerald-50 via-card to-card px-4 py-3">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b bg-gradient-to-br from-primary/10 via-card to-card px-4 py-3">
         <div className="flex items-center gap-2">
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-amber-100 text-amber-700 ring-1 ring-inset ring-amber-200">
             <Wallet className="h-4 w-4" />
@@ -1125,7 +1125,7 @@ function UsagePeriodToggle({
           className={cn(
             "rounded px-2 py-0.5 text-[11px] font-semibold transition",
             period === o.id
-              ? "bg-emerald-600 text-white"
+              ? "bg-primary text-white"
               : "text-muted-foreground hover:bg-secondary",
           )}
         >
@@ -1151,7 +1151,7 @@ function UsageTile({
 }) {
   const tones: Record<typeof tone, string> = {
     amber: "bg-amber-50 text-amber-700 ring-amber-200",
-    emerald: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+    emerald: "bg-primary/10 text-primary ring-primary/25",
     slate: "bg-slate-50 text-slate-700 ring-slate-200",
   };
   return (
@@ -1226,10 +1226,10 @@ function TrainerFloat({
             onClick={() => onOpenChange(false)}
             className="fixed inset-0 z-[68] bg-slate-900/30 backdrop-blur-[1px]"
           />
-          <div className="fixed bottom-5 right-5 top-20 z-[70] flex w-[min(460px,calc(100vw-40px))] flex-col overflow-hidden rounded-2xl border bg-card shadow-2xl ring-1 ring-emerald-100/60">
-            <header className="flex items-center justify-between gap-2 border-b bg-gradient-to-br from-emerald-50 via-card to-card px-4 py-3">
+          <div className="fixed bottom-5 right-5 top-20 z-[70] flex w-[min(460px,calc(100vw-40px))] flex-col overflow-hidden rounded-2xl border bg-card shadow-2xl ring-1 ring-primary/20">
+            <header className="flex items-center justify-between gap-2 border-b bg-gradient-to-br from-primary/10 via-card to-card px-4 py-3">
               <div className="flex items-center gap-2">
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-primary/15 text-primary ring-1 ring-inset ring-primary/25">
                   <Brain className="h-4 w-4" />
                 </span>
                 <div>
@@ -1285,7 +1285,7 @@ function TrainerFloat({
         onClick={() => onOpenChange(!open)}
         aria-label={open ? "Close agent trainer" : "Open agent trainer"}
         className={cn(
-          "group fixed z-[55] hidden md:inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-xl shadow-emerald-900/30 ring-2 ring-white/70 transition-all duration-300 ease-out hover:scale-110 hover:shadow-2xl hover:shadow-emerald-900/40",
+          "group fixed z-[55] hidden md:inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#6098FF] to-[#1e56c7] text-white shadow-xl shadow-primary/30 ring-2 ring-white/70 transition-all duration-300 ease-out hover:scale-110 hover:shadow-2xl hover:shadow-primary/40",
           flat
             ? "bottom-5 right-[17.5rem]"
             : "bottom-[16.5rem] right-5",
@@ -1295,7 +1295,7 @@ function TrainerFloat({
       >
         <span
           aria-hidden
-          className="pointer-events-none absolute inset-0 rounded-full bg-emerald-400/30 blur-md transition group-hover:bg-emerald-300/40"
+          className="pointer-events-none absolute inset-0 rounded-full bg-[#6098FF]/30 blur-md transition group-hover:bg-[#6098FF]/40"
         />
         <Brain className="relative h-6 w-6" />
       </button>
@@ -1353,13 +1353,13 @@ function StatTile({
   tone: "emerald" | "amber" | "slate" | "muted";
 }) {
   const toneClasses = {
-    emerald: "from-emerald-50 to-emerald-50/30 ring-emerald-100",
+    emerald: "from-primary/10 to-primary/5 ring-primary/20",
     amber: "from-amber-50 to-amber-50/30 ring-amber-100",
     slate: "from-slate-50 to-white ring-border",
     muted: "from-secondary to-secondary/30 ring-border",
   }[tone];
   const iconTone = {
-    emerald: "bg-emerald-500/10 text-emerald-600",
+    emerald: "bg-primary/10 text-primary",
     amber: "bg-amber-500/10 text-amber-600",
     slate: "bg-slate-500/10 text-slate-600",
     muted: "bg-muted-foreground/10 text-muted-foreground",
@@ -1459,8 +1459,8 @@ function NumberPicker({
               className={cn(
                 "group relative flex items-center gap-2.5 rounded-xl border p-3 text-left transition",
                 active
-                  ? "border-emerald-400 bg-gradient-to-br from-emerald-50 via-white to-white shadow-md shadow-emerald-100"
-                  : "border-input bg-card hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50/30 hover:shadow-md",
+                  ? "border-primary/40 bg-gradient-to-br from-primary/10 via-white to-white shadow-md shadow-primary/20"
+                  : "border-input bg-card hover:-translate-y-0.5 hover:border-primary/25 hover:bg-primary/10 hover:shadow-md",
               )}
             >
               <span
@@ -1471,8 +1471,8 @@ function NumberPicker({
                       ? "bg-violet-100 text-violet-700 ring-violet-200"
                       : "bg-violet-50 text-violet-600 ring-violet-100"
                     : active
-                      ? "bg-emerald-100 text-emerald-700 ring-emerald-200"
-                      : "bg-secondary text-muted-foreground ring-border group-hover:ring-emerald-200",
+                      ? "bg-primary/15 text-primary ring-primary/25"
+                      : "bg-secondary text-muted-foreground ring-border group-hover:ring-primary/25",
                 )}
               >
                 {g.isEvolution ? (
@@ -1489,7 +1489,7 @@ function NumberPicker({
                   <span
                     className={cn(
                       "font-bold",
-                      on > 0 ? "text-emerald-700" : "text-muted-foreground",
+                      on > 0 ? "text-primary" : "text-muted-foreground",
                     )}
                   >
                     {on}
@@ -1498,7 +1498,7 @@ function NumberPicker({
                 </div>
               </div>
               {active ? (
-                <span className="absolute right-2 top-2 inline-flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.18)]" />
+                <span className="absolute right-2 top-2 inline-flex h-2 w-2 rounded-full bg-primary shadow-[0_0_0_3px_rgba(16,185,129,0.18)]" />
               ) : null}
             </button>
           );
@@ -1556,8 +1556,8 @@ function NumberChip({
       className={cn(
         "group relative flex min-w-0 items-center gap-2.5 rounded-xl border p-2.5 text-left transition",
         selected
-          ? "border-emerald-400 bg-gradient-to-br from-emerald-50 via-white to-white shadow-sm shadow-emerald-100"
-          : "border-input bg-card hover:-translate-y-px hover:border-emerald-200 hover:bg-emerald-50/30 hover:shadow-sm",
+          ? "border-primary/40 bg-gradient-to-br from-primary/10 via-white to-white shadow-sm shadow-primary/20"
+          : "border-input bg-card hover:-translate-y-px hover:border-primary/25 hover:bg-primary/10 hover:shadow-sm",
       )}
     >
       {/* Active indicator — small dot at top-right of the tile. */}
@@ -1566,7 +1566,7 @@ function NumberChip({
         className={cn(
           "absolute right-1.5 top-1.5 inline-flex h-1.5 w-1.5 rounded-full",
           isOn
-            ? "bg-emerald-500 shadow-[0_0_0_2.5px_rgba(16,185,129,0.18)]"
+            ? "bg-primary shadow-[0_0_0_2.5px_rgba(16,185,129,0.18)]"
             : "bg-muted-foreground/30",
         )}
       />
@@ -1574,8 +1574,8 @@ function NumberChip({
         className={cn(
           "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ring-1 ring-inset transition",
           selected
-            ? "bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-800 ring-emerald-300"
-            : "bg-secondary text-muted-foreground ring-border group-hover:ring-emerald-200",
+            ? "bg-gradient-to-br from-primary/15 to-primary/20 text-primary ring-primary/30"
+            : "bg-secondary text-muted-foreground ring-border group-hover:ring-primary/25",
         )}
       >
         {initialsOf(label)}
@@ -1600,11 +1600,11 @@ function StatusPill({ on }: { on: boolean }) {
       className={cn(
         "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset",
         on
-          ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+          ? "bg-primary/10 text-primary ring-primary/25"
           : "bg-secondary text-muted-foreground ring-border",
       )}
     >
-      <span className={cn("h-1.5 w-1.5 rounded-full", on ? "bg-emerald-500" : "bg-muted-foreground/40")} />
+      <span className={cn("h-1.5 w-1.5 rounded-full", on ? "bg-primary" : "bg-muted-foreground/40")} />
       {on ? "Active" : "Off"}
     </span>
   );
@@ -1714,11 +1714,11 @@ function CopyConfigMenu({ sourceBpid }: { sourceBpid: string }) {
         title="Copy this number's full AI setup to another number"
         className="inline-flex items-center gap-1.5 rounded-md border bg-card px-2.5 py-1.5 text-xs font-semibold text-foreground shadow-sm transition hover:bg-secondary"
       >
-        <Copy className="h-3.5 w-3.5 text-emerald-700" />
+        <Copy className="h-3.5 w-3.5 text-primary" />
         Copy to number
       </button>
       {done ? (
-        <span className="ml-2 text-[11px] font-medium text-emerald-600">
+        <span className="ml-2 text-[11px] font-medium text-primary">
           Copied to {numbers.find((n) => n.phone_number_id === done)?.label ?? "number"} (auto-reply off there)
         </span>
       ) : null}
@@ -1735,7 +1735,7 @@ function CopyConfigMenu({ sourceBpid }: { sourceBpid: string }) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search name or number…"
-              className="w-full rounded-md border bg-background px-2 py-1.5 text-xs outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
+              className="w-full rounded-md border bg-background px-2 py-1.5 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary/40"
             />
           </div>
           <div className="max-h-72 overflow-y-auto">
@@ -1760,7 +1760,7 @@ function CopyConfigMenu({ sourceBpid }: { sourceBpid: string }) {
                       {busy === n.phone_number_id ? (
                         <Loader2 className="mt-0.5 h-3.5 w-3.5 shrink-0 animate-spin" />
                       ) : (
-                        <Copy className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-700" />
+                        <Copy className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
                       )}
                       <span className="min-w-0 flex-1">
                         <span className="block truncate font-medium">{n.label}</span>
@@ -1991,7 +1991,7 @@ function NumberConfigCard({
       <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b bg-gradient-to-b from-card to-secondary/20 px-5 py-4">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-sm font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-sm font-semibold text-primary ring-1 ring-inset ring-primary/25">
             {initialsOf(label)}
           </span>
           <div className="min-w-0">
@@ -2115,7 +2115,7 @@ function NumberConfigCard({
                   className={cn(
                     "flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-xs transition",
                     model === opt.value
-                      ? "border-emerald-300 bg-emerald-50/50 shadow-sm"
+                      ? "border-primary/30 bg-primary/10 shadow-sm"
                       : "hover:bg-secondary",
                   )}
                 >
@@ -2140,7 +2140,7 @@ function NumberConfigCard({
               step={0.1}
               value={temperature}
               onChange={(e) => setTemperature(Number(e.target.value))}
-              className="mt-2 w-full accent-emerald-600"
+              className="mt-2 w-full accent-primary"
             />
             <div className="flex justify-between text-[10px] text-muted-foreground">
               <span>Strict</span>
@@ -2352,7 +2352,7 @@ function NumberConfigCard({
         <div className="flex items-center justify-between gap-3 px-5 py-3">
           <div className="text-xs text-muted-foreground">
             {savedAt ? (
-              <span className="inline-flex items-center gap-1 text-emerald-700">
+              <span className="inline-flex items-center gap-1 text-primary">
                 <Check className="h-3.5 w-3.5" />
                 Saved
               </span>
@@ -2932,10 +2932,10 @@ function HealthChip({
   if (health.state === "ok") {
     return (
       <span
-        className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-100"
+        className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary hover:bg-primary/15"
         title={`Live ping OK · ${health.model ?? ""} · click to recheck`}
       >
-        <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+        <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
         API working
       </span>
     );
@@ -3012,13 +3012,13 @@ function StageAllowList({
         {stages.map((s) => (
           <span
             key={s}
-            className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200"
+            className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary ring-1 ring-inset ring-primary/25"
           >
             {s}
             <button
               type="button"
               onClick={() => remove(s)}
-              className="text-emerald-700/70 hover:text-emerald-900"
+              className="text-primary/70 hover:text-primary/90"
               aria-label={`Remove ${s}`}
             >
               ×
@@ -3227,7 +3227,7 @@ function ImageTriggerRow({
           type="checkbox"
           checked={trigger.gate_by_stage !== false}
           onChange={(e) => onChange({ gate_by_stage: e.target.checked })}
-          className="h-3.5 w-3.5 rounded border-border accent-emerald-600"
+          className="h-3.5 w-3.5 rounded border-border accent-primary"
         />
         Only fire when lead&apos;s stage is in the allow-list above
       </label>
@@ -4292,7 +4292,7 @@ function ProviderToggle({
       className={cn(
         "flex flex-col items-start gap-0.5 rounded-lg border px-3 py-2 text-left text-xs transition",
         active
-          ? "border-emerald-300 bg-emerald-50/50 shadow-sm"
+          ? "border-primary/30 bg-primary/10 shadow-sm"
           : "hover:bg-secondary",
       )}
     >
@@ -4305,8 +4305,8 @@ function ProviderToggle({
 function OllamaStatusLine({ health }: { health: OllamaHealth }) {
   if (health.ok) {
     return (
-      <div className="mt-1.5 inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200">
-        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+      <div className="mt-1.5 inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-[10px] font-medium text-primary ring-1 ring-inset ring-primary/25">
+        <span className="h-1.5 w-1.5 rounded-full bg-primary" />
         Connected · {health.models.length} {health.models.length === 1 ? "model" : "models"} pulled
       </div>
     );
@@ -4375,7 +4375,7 @@ function Switch({
       onClick={() => onChange(!checked)}
       className={cn(
         "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors",
-        checked ? "bg-emerald-500" : "bg-muted",
+        checked ? "bg-primary" : "bg-muted",
       )}
     >
       <span
@@ -4404,10 +4404,10 @@ function ActivityFeed({
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-semibold">Recent activity</h2>
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary ring-1 ring-inset ring-primary/25">
               <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#6098FF] opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
               </span>
               Live
             </span>
@@ -4462,7 +4462,7 @@ function ActivityRow({ log }: { log: LogRow }) {
   // through into the feed before being finalized.
   const cfg =
     {
-      success: { Icon: CheckCircle2, ring: "bg-emerald-50 text-emerald-600 ring-emerald-100" },
+      success: { Icon: CheckCircle2, ring: "bg-primary/10 text-primary ring-primary/20" },
       failed: { Icon: XCircle, ring: "bg-rose-50 text-rose-600 ring-rose-100" },
       skipped: { Icon: PauseCircle, ring: "bg-secondary text-muted-foreground ring-border" },
       processing: { Icon: Loader2, ring: "bg-sky-50 text-sky-600 ring-sky-100" },
@@ -4633,7 +4633,7 @@ function EmptyNumbersState() {
   return (
     <div className="grid place-items-center rounded-xl border-2 border-dashed bg-card/50 px-6 py-16 text-center">
       <div>
-        <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+        <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">
           <Sparkles className="h-6 w-6" />
         </div>
         <div className="text-sm font-semibold">No WhatsApp numbers yet</div>
@@ -4830,7 +4830,7 @@ function QualityReviewView({
         </div>
       ) : logs.length === 0 ? (
         <div className="rounded-xl border border-dashed bg-secondary/40 px-6 py-10 text-center">
-          <CheckCircle2 className="mx-auto h-7 w-7 text-emerald-500" />
+          <CheckCircle2 className="mx-auto h-7 w-7 text-primary" />
           <div className="mt-2 text-sm font-semibold">All caught up</div>
           <p className="mt-0.5 text-[12px] text-muted-foreground">
             {selectedRow
@@ -4949,15 +4949,15 @@ function QualityMasterDetail({
                 className={cn(
                   "group flex w-full items-center gap-2.5 rounded-xl border p-2.5 text-left transition",
                   active
-                    ? "border-emerald-400 bg-gradient-to-br from-emerald-50 via-white to-white shadow-sm shadow-emerald-100"
-                    : "border-input bg-card hover:-translate-y-px hover:border-emerald-200 hover:bg-emerald-50/30 hover:shadow-sm",
+                    ? "border-primary/40 bg-gradient-to-br from-primary/10 via-white to-white shadow-sm shadow-primary/20"
+                    : "border-input bg-card hover:-translate-y-px hover:border-primary/25 hover:bg-primary/10 hover:shadow-sm",
                 )}
               >
                 <span
                   className={cn(
                     "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ring-1 ring-inset",
                     active
-                      ? "bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-800 ring-emerald-300"
+                      ? "bg-gradient-to-br from-primary/15 to-primary/20 text-primary ring-primary/30"
                       : "bg-secondary text-muted-foreground ring-border",
                   )}
                 >
@@ -4975,7 +4975,7 @@ function QualityMasterDetail({
                   className={cn(
                     "inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full px-1.5 text-[10px] font-bold tabular-nums",
                     active
-                      ? "bg-emerald-600 text-white"
+                      ? "bg-primary text-white"
                       : "bg-amber-100 text-amber-800 ring-1 ring-inset ring-amber-200",
                   )}
                 >
@@ -5157,8 +5157,8 @@ function ReviewRow({
           </div>
           <p className="mt-0.5 whitespace-pre-wrap leading-snug">{inboundText}</p>
         </div>
-        <div className="rounded-lg border-l-4 border-l-emerald-400 bg-emerald-50/40 px-3 py-2">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-emerald-700">
+        <div className="rounded-lg border-l-4 border-l-[#6098FF] bg-primary/10 px-3 py-2">
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-primary">
             Bot replied
           </div>
           <p className="mt-0.5 whitespace-pre-wrap leading-snug">
@@ -5257,7 +5257,7 @@ function ReviewRow({
             type="button"
             onClick={() => onRate("good")}
             disabled={busy}
-            className="inline-flex items-center gap-1 rounded-md border border-emerald-300 bg-emerald-50 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-50"
+            className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary/10 px-2.5 py-1.5 text-[11px] font-semibold text-primary hover:bg-primary/15 disabled:opacity-50"
           >
             <CheckCircle2 className="h-3.5 w-3.5" />
             Good

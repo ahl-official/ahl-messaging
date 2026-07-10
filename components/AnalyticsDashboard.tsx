@@ -286,7 +286,7 @@ function FilterBar({
                 className={cn(
                   "rounded-full px-3 py-1 text-xs font-semibold transition",
                   rangeKey === r.key
-                    ? "bg-emerald-600 text-white shadow-sm"
+                    ? "bg-primary text-white shadow-sm"
                     : "text-muted-foreground hover:bg-secondary",
                 )}
               >
@@ -403,7 +403,7 @@ function KpiCard({
   accent: "emerald" | "sky" | "violet" | "amber" | "teal" | "rose";
 }) {
   const palette: Record<typeof accent, string> = {
-    emerald: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+    emerald: "bg-primary/10 text-primary ring-primary/25",
     sky: "bg-sky-50 text-sky-700 ring-sky-200",
     violet: "bg-violet-50 text-violet-700 ring-violet-200",
     amber: "bg-amber-50 text-amber-700 ring-amber-200",
@@ -483,7 +483,7 @@ function DailyVolumeChart({ daily }: { daily: Overview["daily"] }) {
       <header className="mb-3 flex items-center justify-between">
         <h3 className="text-sm font-semibold">Messages per day</h3>
         <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-          <Legend color="bg-emerald-500" label="Inbound" />
+          <Legend color="bg-primary" label="Inbound" />
           <Legend color="bg-sky-500" label="Outbound" />
         </div>
       </header>
@@ -571,7 +571,7 @@ function PeakHoursCard({ hours }: { hours: Overview["peak_hours"] }) {
     <section className="rounded-2xl border bg-card p-4 shadow-sm">
       <header className="mb-3 flex items-center justify-between">
         <h3 className="text-sm font-semibold">Inbound peak hours (UTC)</h3>
-        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700">
+        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
           <Clock className="h-3 w-3" />
           peak {peak ? `${peak.hour}:00` : "—"}
         </span>
@@ -590,8 +590,8 @@ function PeakHoursCard({ hours }: { hours: Overview["peak_hours"] }) {
                   className={cn(
                     "w-full rounded-sm bg-gradient-to-t",
                     h === peak
-                      ? "from-emerald-600 to-emerald-300"
-                      : "from-emerald-500/70 to-emerald-300/70",
+                      ? "from-primary to-[#6098FF]"
+                      : "from-primary/70 to-[#6098FF]/70",
                   )}
                   style={{ height: `${heightPct}%` }}
                 />
@@ -643,7 +643,7 @@ function PerNumberCard({ rows }: { rows: Overview["per_number"] }) {
                 </div>
                 <div className="relative h-2 overflow-hidden rounded-full bg-secondary">
                   <div
-                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-sky-500"
+                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-sky-500"
                     style={{ width: `${widthPct}%` }}
                   />
                 </div>
@@ -750,7 +750,7 @@ function ResponseTimeCard({ rows }: { rows: Overview["response_time"] }) {
               // rose beyond. Operators glance at this column most.
               const tone =
                 r.median_minutes <= 5
-                  ? "text-emerald-700"
+                  ? "text-primary"
                   : r.median_minutes <= 30
                     ? "text-amber-700"
                     : "text-rose-700";
@@ -802,7 +802,7 @@ function TopTagsCard({ rows }: { rows: Overview["top_tags"] }) {
               className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[11px] font-semibold text-foreground"
             >
               <span>{t.tag}</span>
-              <span className="rounded-full bg-emerald-100 px-1.5 font-mono text-[10px] text-emerald-800">
+              <span className="rounded-full bg-primary/15 px-1.5 font-mono text-[10px] text-primary">
                 {NUM(t.count)}
               </span>
             </li>

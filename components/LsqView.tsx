@@ -120,7 +120,7 @@ export function LsqView() {
 
       <div className="min-h-0 flex-1 overflow-auto p-6">
         <div className="mx-auto max-w-3xl space-y-5">
-          <div className="flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-900">
+          <div className="flex items-start gap-2 rounded-lg border border-primary/25 bg-primary/10 px-4 py-3 text-xs text-primary">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
             <div>
               <strong>Secrets stay in <span className="font-mono">.env.local</span>.</strong>{" "}
@@ -147,7 +147,7 @@ export function LsqView() {
               </div>
               {status ? (
                 status.configured ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary ring-1 ring-inset ring-primary/25">
                     <CheckCircle2 className="h-3.5 w-3.5" />
                     Configured
                   </span>
@@ -204,7 +204,7 @@ export function LsqView() {
                 className={cn(
                   "border-t px-5 py-3 text-xs",
                   pingResult.ok
-                    ? "border-emerald-100 bg-emerald-50/50 text-emerald-900"
+                    ? "border-primary/20 bg-primary/10 text-primary"
                     : "border-amber-200 bg-amber-50 text-amber-900",
                 )}
               >
@@ -338,7 +338,7 @@ function EnvField({
           {label}
         </span>
         {set ? (
-          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+          <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
         ) : (
           <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
         )}
@@ -457,7 +457,7 @@ function EvolutionLeadCreateToggle({ configured }: { configured: boolean }) {
             </div>
           ) : null}
           {savedFlash ? (
-            <div className="mt-2 inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] text-emerald-700">
+            <div className="mt-2 inline-flex items-center gap-1 rounded-md border border-primary/25 bg-primary/10 px-2 py-0.5 text-[11px] text-primary">
               <Check className="h-3 w-3" /> {savedFlash}
             </div>
           ) : null}
@@ -924,7 +924,7 @@ function LeadDefaultsForNumber({
               <AlertTriangle className="h-3.5 w-3.5" /> {err}
             </span>
           ) : savedAt ? (
-            <span className="inline-flex items-center gap-1.5 text-emerald-600">
+            <span className="inline-flex items-center gap-1.5 text-primary">
               <Check className="h-3.5 w-3.5" /> Saved
             </span>
           ) : dirty ? (
@@ -1037,7 +1037,7 @@ function FeatureRow({
   description: string;
 }) {
   const tone = {
-    now:    { ring: "ring-emerald-200", bg: "bg-emerald-50", text: "text-emerald-700", label: "Live" },
+    now:    { ring: "ring-primary/25", bg: "bg-primary/10", text: "text-primary", label: "Live" },
     next:   { ring: "ring-amber-200",   bg: "bg-amber-50",   text: "text-amber-800",   label: "Next" },
     planned:{ ring: "ring-border",      bg: "bg-secondary",  text: "text-muted-foreground", label: "Later" },
   }[state];

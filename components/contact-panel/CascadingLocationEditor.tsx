@@ -278,7 +278,7 @@ export function CascadingLocationEditor({
           type="button"
           onClick={save}
           disabled={saving}
-          className="inline-flex h-7 items-center gap-1 rounded bg-emerald-600 px-2.5 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="inline-flex h-7 items-center gap-1 rounded bg-primary px-2.5 text-xs font-medium text-white hover:bg-primary/90 disabled:opacity-50"
         >
           {saving ? (
             <Loader2 className="h-3 w-3 animate-spin" />

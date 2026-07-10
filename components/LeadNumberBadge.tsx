@@ -36,7 +36,7 @@ export function LeadNumberBadge({
         }}
         className="rounded p-0.5 hover:bg-black/10"
       >
-        {copied ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
+        {copied ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
       </button>
     </span>
   );

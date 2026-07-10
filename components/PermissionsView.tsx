@@ -46,7 +46,7 @@ interface ApiResp {
 const ROLE_TONE: Record<Role, string> = {
   owner: "bg-amber-50 text-amber-800 ring-amber-200",
   superadmin: "bg-purple-50 text-purple-800 ring-purple-200",
-  admin: "bg-emerald-50 text-emerald-800 ring-emerald-200",
+  admin: "bg-primary/10 text-primary ring-primary/25",
   teammate: "bg-secondary text-foreground/70 ring-border",
 };
 
@@ -105,7 +105,7 @@ export function PermissionsView() {
         title="Role defaults"
         subtitle="Baseline access per role. Individual member overrides (Team tab) take precedence."
         right={
-          <span className="hidden items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-800 ring-1 ring-emerald-200 sm:inline-flex">
+          <span className="hidden items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary ring-1 ring-primary/25 sm:inline-flex">
             <Sparkles className="h-3 w-3" /> Per-role &amp; per-member overrides enabled
           </span>
         }
@@ -114,7 +114,7 @@ export function PermissionsView() {
           this page actually controls vs the per-member sheet; this
           gives them a one-glance answer. */}
       <div className="mx-auto w-full max-w-6xl px-6 pt-4">
-        <div className="rounded-xl border bg-gradient-to-br from-violet-50/60 via-card to-emerald-50/40 px-4 py-3">
+        <div className="rounded-xl border bg-gradient-to-br from-violet-50/60 via-card to-primary/10/40 px-4 py-3">
           <p className="text-[11px] font-bold uppercase tracking-wider text-violet-700">
             How permissions resolve
           </p>
@@ -277,7 +277,7 @@ function RoleEditor({
                   <AlertCircle className="h-3.5 w-3.5" /> {err}
                 </span>
               ) : savedAt ? (
-                <span className="inline-flex items-center gap-1.5 text-emerald-600">
+                <span className="inline-flex items-center gap-1.5 text-primary">
                   <Check className="h-3.5 w-3.5" /> Saved
                 </span>
               ) : dirty ? (

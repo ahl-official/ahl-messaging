@@ -245,12 +245,12 @@ export function RefundRequestSection({
       {open ? (
         <div className="px-4 pb-4">
           {submitted ? (
-            <div className="space-y-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-[12px] text-emerald-900">
+            <div className="space-y-3 rounded-lg border border-primary/25 bg-primary/10 p-3 text-[12px] text-primary">
               <div className="flex items-start gap-2">
-                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" />
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                 <div className="flex-1">
                   <div className="font-semibold">Refund request submitted</div>
-                  <div className="mt-0.5 text-emerald-800/80">
+                  <div className="mt-0.5 text-primary/80">
                     Admin will review and update the status.
                   </div>
                 </div>
@@ -258,7 +258,7 @@ export function RefundRequestSection({
               <button
                 type="button"
                 onClick={reset}
-                className="rounded-md border border-emerald-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-emerald-800 hover:bg-emerald-100"
+                className="rounded-md border border-primary/30 bg-white px-2.5 py-1 text-[11px] font-semibold text-primary hover:bg-primary/15"
               >
                 Submit another
               </button>

@@ -173,8 +173,8 @@ export function LsqWebhookGenerator() {
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-[13px] font-semibold">{w.name}</span>
                   {w.connected ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                       Connected · {timeAgo(w.last_received_at)}
                     </span>
                   ) : (
@@ -205,7 +205,7 @@ export function LsqWebhookGenerator() {
                     className="inline-flex shrink-0 items-center gap-1 rounded-md border bg-card px-2.5 py-1.5 text-[11px] font-semibold hover:bg-secondary"
                   >
                     {copiedId === w.id ? (
-                      <Check className="h-3.5 w-3.5 text-emerald-600" />
+                      <Check className="h-3.5 w-3.5 text-primary" />
                     ) : (
                       <Copy className="h-3.5 w-3.5" />
                     )}

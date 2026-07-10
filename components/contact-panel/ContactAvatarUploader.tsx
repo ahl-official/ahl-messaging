@@ -126,7 +126,7 @@ function ContactAvatarUploaderImpl({
   // state visually richer than a single uniform colour.
   const seed = (initials || "?").charCodeAt(0) || 0;
   const palettes: Array<[string, string]> = [
-    ["from-emerald-400", "to-emerald-700"],
+    ["from-[#6098FF]", "to-[#1e56c7]"],
     ["from-sky-400", "to-indigo-700"],
     ["from-fuchsia-400", "to-rose-600"],
     ["from-amber-400", "to-orange-600"],
@@ -190,7 +190,7 @@ function ContactAvatarUploaderImpl({
         disabled={busy}
         aria-label={localUrl ? "View photo full size" : "Upload photo"}
         title={localUrl ? "View photo" : "Upload photo"}
-        className="absolute inset-0 cursor-pointer rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-400 disabled:cursor-not-allowed"
+        className="absolute inset-0 cursor-pointer rounded-full focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed"
       />
 
       {/* Change-photo badge — clickable camera pill at bottom-right.

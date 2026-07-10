@@ -43,7 +43,7 @@ export default async function LoginPage({
           {/* Animated blobs */}
           <div
             aria-hidden
-            className="auth-blob pointer-events-none absolute -top-32 -left-32 h-[420px] w-[420px] rounded-full bg-[#0693e3]/30"
+            className="auth-blob pointer-events-none absolute -top-32 -left-32 h-[420px] w-[420px] rounded-full bg-[#6098FF]/30"
           />
           <div
             aria-hidden
@@ -52,7 +52,7 @@ export default async function LoginPage({
           />
           <div
             aria-hidden
-            className="auth-blob pointer-events-none absolute top-1/3 right-1/4 h-[260px] w-[260px] rounded-full bg-[#0693e3]/15"
+            className="auth-blob pointer-events-none absolute top-1/3 right-1/4 h-[260px] w-[260px] rounded-full bg-[#6098FF]/15"
             style={{ animationDelay: "-12s" }}
           />
 
@@ -103,7 +103,7 @@ export default async function LoginPage({
           {/* Soft ambient glow behind the card */}
           <div
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/3 -z-0 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[#0693e3]/10 blur-3xl opacity-70"
+            className="pointer-events-none absolute left-1/2 top-1/3 -z-0 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[#6098FF]/10 blur-3xl opacity-70"
           />
 
           <div className="auth-slide-up relative z-10 w-full max-w-md">
@@ -122,7 +122,7 @@ export default async function LoginPage({
                     </span>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[#0693e3]/15 px-1.5 py-0.5 text-[10px] font-semibold text-[rgb(46,109,226)] ring-1 ring-[#0693e3]/30">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#6098FF]/15 px-1.5 py-0.5 text-[10px] font-semibold text-[rgb(46,109,226)] ring-1 ring-[#6098FF]/30">
                           <Check className="h-2.5 w-2.5" />
                           Verified
                         </span>
@@ -145,7 +145,7 @@ export default async function LoginPage({
                 </div>
               ) : null}
               <div className="mb-7 space-y-1.5">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#0693e3]/30 bg-[#0693e3]/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[rgb(46,109,226)]">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#6098FF]/30 bg-[#6098FF]/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[rgb(46,109,226)]">
                   <Sparkles className="h-3 w-3" />
                   Welcome back
                 </span>
@@ -260,9 +260,9 @@ function ChatShowcase() {
         >
           <div className="rounded-2xl rounded-bl-sm bg-white/95 px-4 py-2.5 shadow-lg">
             <div className="auth-typing flex items-center gap-1">
-              <span className="block h-1.5 w-1.5 rounded-full bg-[#0693e3]" />
-              <span className="block h-1.5 w-1.5 rounded-full bg-[#0693e3]" />
-              <span className="block h-1.5 w-1.5 rounded-full bg-[#0693e3]" />
+              <span className="block h-1.5 w-1.5 rounded-full bg-[#6098FF]" />
+              <span className="block h-1.5 w-1.5 rounded-full bg-[#6098FF]" />
+              <span className="block h-1.5 w-1.5 rounded-full bg-[#6098FF]" />
             </div>
           </div>
           <span className="text-[11px] text-white/70">Vinitt is typing....</span>
@@ -277,7 +277,7 @@ function ChatShowcase() {
         style={{ animationDelay: "0.7s" }}
       >
         <span className="relative flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#0693e3] opacity-75" />
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#6098FF] opacity-75" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-[rgb(46,109,226)]" />
         </span>
         Live inbox

@@ -36,7 +36,7 @@ interface Props {
 // is still accepted for API stability, but every value resolves to the
 // same white-on-emerald-ring look that matches the Settings shield.
 const TILE_CLASSES =
-  "bg-white text-emerald-700 ring-emerald-100 shadow-emerald-900/15";
+  "bg-white text-primary ring-primary/20 shadow-primary/15";
 
 export function PremiumHeader({
   icon: Icon,
@@ -48,15 +48,15 @@ export function PremiumHeader({
   below,
 }: Props) {
   return (
-    <header className="relative overflow-hidden bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 text-white">
+    <header className="ahl-hero-gradient relative overflow-hidden text-white">
       {/* Soft glow orbs */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl"
+        className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#6098FF]/20 blur-3xl"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-teal-300/10 blur-3xl"
+        className="pointer-events-none absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-[#6098FF]/10 blur-3xl"
       />
       {/* Subtle grid texture */}
       <div
@@ -88,7 +88,7 @@ export function PremiumHeader({
                 {badges}
               </div>
               {subtitle ? (
-                <p className="mt-1 max-w-2xl text-xs text-emerald-100/80 sm:text-[13px]">
+                <p className="mt-1 max-w-2xl text-xs text-white/80 sm:text-[13px]">
                   {subtitle}
                 </p>
               ) : null}

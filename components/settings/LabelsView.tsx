@@ -27,7 +27,7 @@ interface Label {
 }
 
 export const LABEL_COLORS: Array<{ key: string; label: string; chip: string; dot: string }> = [
-  { key: "emerald", label: "Emerald", chip: "bg-emerald-50 text-emerald-800 ring-emerald-200", dot: "bg-emerald-500" },
+  { key: "emerald", label: "Emerald", chip: "bg-primary/10 text-primary ring-primary/25", dot: "bg-primary" },
   { key: "sky",     label: "Sky",     chip: "bg-sky-50 text-sky-800 ring-sky-200",             dot: "bg-sky-500" },
   { key: "violet",  label: "Violet",  chip: "bg-violet-50 text-violet-800 ring-violet-200",    dot: "bg-violet-500" },
   { key: "amber",   label: "Amber",   chip: "bg-amber-50 text-amber-800 ring-amber-200",       dot: "bg-amber-500" },
@@ -160,7 +160,7 @@ export function LabelsView() {
           <section className="overflow-hidden rounded-2xl border bg-card shadow-sm">
             <header className="flex items-center justify-between gap-2 border-b bg-gradient-to-r from-secondary/40 to-transparent px-5 py-3.5">
               <div className="flex items-center gap-2">
-                <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-inset ring-primary/20">
                   <Tag className="h-3.5 w-3.5" />
                 </span>
                 <div>

@@ -140,7 +140,7 @@ export function NotificationsDropdown() {
                         "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full ring-1 ring-inset",
                         n.kind === "call"
                           ? "bg-amber-50 text-amber-700 ring-amber-200"
-                          : "bg-emerald-50 text-emerald-700 ring-emerald-200",
+                          : "bg-primary/10 text-primary ring-primary/25",
                       )}
                     >
                       {n.kind === "call" ? (
@@ -154,7 +154,7 @@ export function NotificationsDropdown() {
                         <p className="truncate text-sm font-semibold">
                           {n.contactName}
                           {n.count > 1 ? (
-                            <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-emerald-100 px-1.5 text-[10px] font-bold text-emerald-700">
+                            <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary/15 px-1.5 text-[10px] font-bold text-primary">
                               +{n.count - 1}
                             </span>
                           ) : null}

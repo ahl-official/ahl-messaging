@@ -143,16 +143,16 @@ export function AutomationStatusPill({
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 border-b bg-emerald-50/70 pl-6 pr-4 py-1.5 text-[11px] text-emerald-800">
+    <div className="flex items-center justify-between gap-3 border-b bg-primary/10 pl-6 pr-4 py-1.5 text-[11px] text-primary">
       <span className="inline-flex min-w-0 items-center gap-1.5 font-medium">
         <span className="relative flex h-2 w-2 shrink-0">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#6098FF] opacity-75" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
         </span>
         <Bot className="h-3.5 w-3.5 shrink-0" />
         <span className="truncate">Bot is live — will reply to the next inbound</span>
       </span>
-      <span className="shrink-0 text-[10px] text-emerald-700/80">
+      <span className="shrink-0 text-[10px] text-primary/80">
         Auto-pauses for {status.takeover_minutes}m when you type
       </span>
     </div>

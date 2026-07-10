@@ -63,7 +63,7 @@ export function LsqWebhookEventsPanel() {
         </div>
         <div className="flex items-center gap-2">
           <label className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
-            <input type="checkbox" checked={formOnly} onChange={(e) => setFormOnly(e.target.checked)} className="h-3.5 w-3.5 rounded border-input accent-emerald-600" />
+            <input type="checkbox" checked={formOnly} onChange={(e) => setFormOnly(e.target.checked)} className="h-3.5 w-3.5 rounded border-input accent-primary" />
             Form submissions only
           </label>
           <button

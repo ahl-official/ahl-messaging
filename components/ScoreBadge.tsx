@@ -66,15 +66,15 @@ const TIER_THEME: Record<
 > = {
   green: {
     label: "On track",
-    text: "text-emerald-700",
-    ring: "ring-emerald-200",
-    dot: "bg-emerald-500",
-    pulse: "bg-emerald-500/60",
-    chipBg: "bg-emerald-50",
-    chipText: "text-emerald-800",
-    stroke: "#10b981", // emerald-500
-    track: "#d1fae5",  // emerald-100
-    bgGrad: "from-emerald-50 via-card to-card",
+    text: "text-primary",
+    ring: "ring-primary/25",
+    dot: "bg-primary",
+    pulse: "bg-primary/60",
+    chipBg: "bg-primary/10",
+    chipText: "text-primary",
+    stroke: "#2E6DE2", // emerald-500
+    track: "#d9e6ff",  // emerald-100
+    bgGrad: "from-primary/10 via-card to-card",
   },
   amber: {
     label: "Below pace",
@@ -201,7 +201,7 @@ export function ScoreBadge() {
       {open ? (
         <div
           role="dialog"
-          className="absolute right-0 top-full z-50 mt-2 w-[340px] overflow-hidden rounded-2xl border bg-card shadow-2xl shadow-emerald-900/10 ring-1 ring-border animate-in fade-in-0 zoom-in-95"
+          className="absolute right-0 top-full z-50 mt-2 w-[340px] overflow-hidden rounded-2xl border bg-card shadow-2xl shadow-primary/10 ring-1 ring-border animate-in fade-in-0 zoom-in-95"
         >
           {/* Hero */}
           <header
@@ -275,7 +275,7 @@ export function ScoreBadge() {
                     const Icon = METRIC_ICONS[c.label] ?? Sparkles;
                     const barColor =
                       c.ratio >= 0.95
-                        ? "bg-emerald-500"
+                        ? "bg-primary"
                         : c.ratio >= 0.75
                           ? "bg-amber-500"
                           : "bg-rose-500";

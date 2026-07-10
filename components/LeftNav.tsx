@@ -96,8 +96,8 @@ function NavButton({
           : "h-11 w-11 justify-center rounded-xl",
         item.enabled
           ? active
-            ? "bg-gradient-to-br from-emerald-600 to-emerald-700 text-white shadow-md shadow-emerald-700/30 ring-1 ring-inset ring-emerald-500/40"
-            : "text-foreground/70 hover:bg-emerald-50 hover:text-emerald-900"
+            ? "bg-gradient-to-br from-primary to-[#1e56c7] text-white shadow-md shadow-primary/30 ring-1 ring-inset ring-primary/40"
+            : "text-foreground/70 hover:bg-primary/10 hover:text-primary/90"
           : "text-muted-foreground/40 cursor-not-allowed",
       )}
     >
@@ -106,7 +106,7 @@ function NavButton({
       {expanded && active && item.enabled ? (
         <span
           aria-hidden
-          className="absolute -left-2 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.6)]"
+          className="absolute -left-2 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-[#6098FF] shadow-[0_0_10px_rgba(46,109,226,0.6)]"
         />
       ) : null}
       <span className="relative inline-flex">
@@ -116,7 +116,7 @@ function NavButton({
             expanded ? "h-[18px] w-[18px]" : "h-[20px] w-[20px]",
             active && item.enabled
               ? "text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.15)]"
-              : "text-foreground/60 group-hover:text-emerald-700",
+              : "text-foreground/60 group-hover:text-primary",
             !item.enabled && "text-muted-foreground/40",
           )}
         />
@@ -125,14 +125,14 @@ function NavButton({
             <span
               className={cn(
                 "absolute inset-0 inline-flex h-full w-full animate-ping rounded-full opacity-80",
-                tone === "rose" ? "bg-rose-500" : "bg-emerald-500",
+                tone === "rose" ? "bg-rose-500" : "bg-primary",
               )}
             />
             <span
               className={cn(
                 "relative inline-flex h-2.5 w-2.5 rounded-full ring-2",
-                tone === "rose" ? "bg-rose-600" : "bg-emerald-500",
-                active ? "ring-emerald-700" : "ring-card",
+                tone === "rose" ? "bg-rose-600" : "bg-primary",
+                active ? "ring-primary" : "ring-card",
               )}
             />
           </span>
@@ -150,7 +150,7 @@ function NavButton({
                 "ml-1.5 inline-flex items-center rounded-full px-1.5 text-[10px] font-bold tabular-nums",
                 tone === "rose"
                   ? "bg-rose-600 text-white"
-                  : "bg-emerald-600 text-white",
+                  : "bg-primary text-white",
               )}
             >
               {badgeCount}
@@ -312,7 +312,7 @@ export function LeftNav({
           >
             <span
               className={cn(
-                "inline-flex items-center justify-center rounded-xl bg-white shadow-md shadow-emerald-700/15 ring-1 ring-emerald-100 transition group-hover:shadow-lg group-hover:shadow-emerald-700/25 group-hover:ring-emerald-200",
+                "inline-flex items-center justify-center rounded-xl bg-white shadow-md shadow-primary/15 ring-1 ring-primary/20 transition group-hover:shadow-lg group-hover:shadow-primary/25 group-hover:ring-primary/25",
                 showExpanded ? "h-9 w-9" : "h-10 w-10",
               )}
             >
@@ -323,7 +323,7 @@ export function LeftNav({
                 <span className="text-[14px] font-bold tracking-tight text-foreground">
                   AHL Inbox
                 </span>
-                <span className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.16em] text-emerald-700">
+                <span className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.16em] text-primary">
                   Workspace
                 </span>
               </span>
@@ -333,7 +333,7 @@ export function LeftNav({
             <button
               type="button"
               onClick={() => setMobileOpen(false)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-emerald-50 hover:text-emerald-700"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-primary/10 hover:text-primary"
               aria-label="Close menu"
               title="Close menu"
             >

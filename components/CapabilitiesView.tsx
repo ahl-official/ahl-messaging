@@ -127,7 +127,7 @@ const GROUP_META: Record<
   { label: string; icon: LucideIcon; tone: string }
 > = {
   AI: { label: "AI auto-reply", icon: Sparkles, tone: "from-violet-500 to-violet-700" },
-  LSQ: { label: "CRM", icon: Database, tone: "from-emerald-500 to-emerald-700" },
+  LSQ: { label: "CRM", icon: Database, tone: "from-primary to-[#1e56c7]" },
   Calls: { label: "WhatsApp calls", icon: Headphones, tone: "from-sky-500 to-sky-700" },
 };
 
@@ -215,7 +215,7 @@ export function CapabilitiesView() {
                     className={cn(
                       "inline-flex h-6 shrink-0 items-center justify-center rounded-full px-2 text-[10px] font-semibold ring-1 ring-inset",
                       offCount === 0
-                        ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+                        ? "bg-primary/10 text-primary ring-primary/25"
                         : "bg-amber-50 text-amber-800 ring-amber-200",
                     )}
                   >
@@ -363,7 +363,7 @@ function NumberCapabilities({
                       className={cn(
                         "mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md ring-1 ring-inset",
                         value
-                          ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+                          ? "bg-primary/10 text-primary ring-primary/25"
                           : "bg-secondary text-muted-foreground ring-border",
                       )}
                     >
@@ -373,8 +373,8 @@ function NumberCapabilities({
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm font-semibold">{f.title}</span>
                         {value ? (
-                          <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary ring-1 ring-inset ring-primary/25">
+                            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                             Live
                           </span>
                         ) : (
@@ -383,7 +383,7 @@ function NumberCapabilities({
                           </span>
                         )}
                         {justSaved ? (
-                          <span className="inline-flex items-center gap-0.5 text-[10px] text-emerald-600">
+                          <span className="inline-flex items-center gap-0.5 text-[10px] text-primary">
                             <Check className="h-3 w-3" />
                             Saved
                           </span>

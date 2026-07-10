@@ -131,7 +131,7 @@ export function LeadDetailPanel({
             return (
               <div key={a.id} className="rounded-lg border bg-white px-3 py-2 text-sm shadow-sm">
                 <div className="flex items-center justify-between gap-2">
-                  <span><b className="text-emerald-700">Lead owner changed</b> — {d.PreviousOwner || "—"} <span className="text-muted-foreground">→</span> <b>{d.CurrentOwner || "—"}</b></span>
+                  <span><b className="text-primary">Lead owner changed</b> — {d.PreviousOwner || "—"} <span className="text-muted-foreground">→</span> <b>{d.CurrentOwner || "—"}</b></span>
                   <span className="shrink-0 text-[11px] text-muted-foreground">{time}</span>
                 </div>
               </div>
@@ -143,7 +143,7 @@ export function LeadDetailPanel({
             return (
               <div key={a.id} className="rounded-lg border bg-white px-3 py-2 shadow-sm">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-semibold text-emerald-700">{a.event_name}</span>
+                  <span className="text-sm font-semibold text-primary">{a.event_name}</span>
                   <span className="shrink-0 text-[11px] text-muted-foreground">{time}</span>
                 </div>
                 <div className="mt-0.5 text-xs text-slate-600">
@@ -164,7 +164,7 @@ export function LeadDetailPanel({
             return (
               <div key={a.id} className="rounded-lg border bg-white px-3 py-2 shadow-sm">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-semibold text-emerald-700">WhatsApp Message</span>
+                  <span className="text-sm font-semibold text-primary">WhatsApp Message</span>
                   <span className="shrink-0 text-[11px] text-muted-foreground">{time}</span>
                 </div>
                 {text ? <div className="mt-0.5 text-sm text-slate-800">{text}</div> : null}
@@ -181,7 +181,7 @@ export function LeadDetailPanel({
             <div key={a.id} className="rounded-lg border bg-white px-3 py-2 shadow-sm">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <div className="text-sm font-semibold text-emerald-700">{a.event_name}</div>
+                  <div className="text-sm font-semibold text-primary">{a.event_name}</div>
                   {a.note ? <div className="mt-0.5 text-xs text-slate-600">{a.note}</div> : null}
                 </div>
                 <div className="shrink-0 text-[11px] text-muted-foreground">{time}</div>
@@ -191,7 +191,7 @@ export function LeadDetailPanel({
                   <button
                     type="button"
                     onClick={() => setExpanded((s) => { const n = new Set(s); if (n.has(a.id)) n.delete(a.id); else n.add(a.id); return n; })}
-                    className="mt-1 text-[11px] font-semibold text-emerald-700 hover:underline"
+                    className="mt-1 text-[11px] font-semibold text-primary hover:underline"
                   >
                     {open ? "Hide details" : `Show details (${a.data.length})`}
                   </button>
@@ -221,7 +221,7 @@ export function LeadDetailPanel({
       <div className="flex min-h-0 w-full overflow-hidden rounded-2xl border bg-white shadow-2xl">
         {/* Summary card */}
         <aside className="w-64 shrink-0 overflow-y-auto border-r bg-slate-50 p-4">
-          <div className="rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 p-4 text-white">
+          <div className="rounded-xl bg-gradient-to-br from-primary to-[#6098FF] p-4 text-white">
             <div className="text-lg font-bold leading-tight">{name || fields.FirstName || "Lead"}</div>
             {stage ? <span className="mt-1 inline-block rounded-full bg-white/20 px-2 py-0.5 text-xs">{stage}</span> : null}
           </div>
@@ -258,7 +258,7 @@ export function LeadDetailPanel({
                 onClick={() => setTab(t.key)}
                 className={cn(
                   "rounded-md px-3 py-1.5 text-sm font-semibold transition",
-                  tab === t.key ? "bg-emerald-50 text-emerald-700" : "text-muted-foreground hover:bg-secondary",
+                  tab === t.key ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary",
                 )}
               >
                 {t.label}

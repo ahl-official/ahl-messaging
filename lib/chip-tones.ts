@@ -39,10 +39,10 @@ export type ChipToneKey = (typeof CHIP_TONE_KEYS)[number];
 
 export const CHIP_TONES: Record<ChipToneKey, ChipTone> = {
   emerald: {
-    bg: "bg-emerald-50",
-    text: "text-emerald-800",
-    ring: "ring-emerald-200",
-    dot: "bg-emerald-500",
+    bg: "bg-primary/10",
+    text: "text-primary",
+    ring: "ring-primary/25",
+    dot: "bg-primary",
   },
   sky: {
     bg: "bg-sky-50",
@@ -123,7 +123,7 @@ export interface SolidTone {
 // `bg` is a vertical gradient (light top → deep bottom) so a flat
 // chevron reads as a moulded, 3-D segment.
 export const SOLID_TONES: Record<ChipToneKey, SolidTone> = {
-  emerald: { bg: "bg-gradient-to-b from-emerald-400 to-emerald-600", text: "text-white" },
+  emerald: { bg: "bg-gradient-to-b from-[#6098FF] to-primary", text: "text-white" },
   sky: { bg: "bg-gradient-to-b from-sky-400 to-sky-600", text: "text-white" },
   violet: { bg: "bg-gradient-to-b from-violet-400 to-violet-600", text: "text-white" },
   amber: { bg: "bg-gradient-to-b from-amber-300 to-amber-500", text: "text-amber-950" },

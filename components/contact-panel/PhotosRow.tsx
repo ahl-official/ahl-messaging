@@ -124,7 +124,7 @@ export function PhotosRow({
               )}
               {p.direction === "outbound" ? (
                 <span
-                  className="pointer-events-none absolute bottom-0.5 right-0.5 inline-flex items-center rounded-sm bg-emerald-600/90 px-1 text-[8px] font-bold uppercase tracking-wider text-white shadow-sm"
+                  className="pointer-events-none absolute bottom-0.5 right-0.5 inline-flex items-center rounded-sm bg-primary/90 px-1 text-[8px] font-bold uppercase tracking-wider text-white shadow-sm"
                   title="Sent by our team"
                 >
                   Sent

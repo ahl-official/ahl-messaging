@@ -101,7 +101,7 @@ export function NotificationControls() {
           </p>
         </div>
         {desktopGranted ? (
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary ring-1 ring-inset ring-primary/25">
             <Check className="h-2.5 w-2.5" /> On
           </span>
         ) : desktopDenied ? (
@@ -141,7 +141,7 @@ function Switch({ on }: { on: boolean }) {
     <span
       aria-hidden
       className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition ${
-        on ? "bg-emerald-500" : "bg-muted-foreground/30"
+        on ? "bg-primary" : "bg-muted-foreground/30"
       }`}
     >
       <span

@@ -117,7 +117,7 @@ export function BookingCalendar({
                 className={
                   "flex h-16 w-full flex-col gap-0.5 overflow-hidden rounded-lg p-1 text-left transition " +
                   (ok
-                    ? "ring-1 ring-emerald-200 hover:bg-emerald-50 disabled:opacity-60"
+                    ? "ring-1 ring-primary/25 hover:bg-primary/10 disabled:opacity-60"
                     : "text-gray-300")
                 }
               >

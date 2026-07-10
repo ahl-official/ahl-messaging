@@ -1162,7 +1162,7 @@ function buildCurl(e: Endpoint, authHeader: string): string {
 function MethodPill({ method }: { method: Endpoint["method"] }) {
   const tones: Record<Endpoint["method"], string> = {
     GET: "bg-sky-100 text-sky-800 ring-sky-200",
-    POST: "bg-emerald-100 text-emerald-800 ring-emerald-200",
+    POST: "bg-primary/15 text-primary ring-primary/25",
     DELETE: "bg-rose-100 text-rose-800 ring-rose-200",
   };
   return (
@@ -1206,7 +1206,7 @@ function CodeBlock({
         >
           {copied ? (
             <>
-              <Check className="h-3 w-3 text-emerald-300" />
+              <Check className="h-3 w-3 text-[#6098FF]" />
               Copied
             </>
           ) : (
@@ -1505,7 +1505,7 @@ function ApiHealthMonitor() {
                                 ? "bg-rose-100 text-rose-800"
                                 : r.status >= 400
                                   ? "bg-amber-100 text-amber-800"
-                                  : "bg-emerald-100 text-emerald-800",
+                                  : "bg-primary/15 text-primary",
                             )}
                           >
                             {r.status}

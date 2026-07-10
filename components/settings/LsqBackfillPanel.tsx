@@ -230,7 +230,7 @@ export function LsqBackfillPanel({
               <div
                 className={cn(
                   "h-full rounded-full transition-all",
-                  bf?.done ? "bg-emerald-500" : "bg-violet-500",
+                  bf?.done ? "bg-primary" : "bg-violet-500",
                 )}
                 style={{ width: `${pct}%` }}
               />
@@ -245,7 +245,7 @@ export function LsqBackfillPanel({
                 </span>
               ) : null}
               {bf?.done && !running ? (
-                <span className="inline-flex items-center gap-1 font-semibold text-emerald-600">
+                <span className="inline-flex items-center gap-1 font-semibold text-primary">
                   <Check className="h-3.5 w-3.5" />
                   {updated.toLocaleString()} contacts synced
                 </span>

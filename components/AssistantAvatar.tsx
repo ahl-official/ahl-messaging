@@ -23,8 +23,8 @@ export function AssistantAvatar({ busy = false, listening = false, size = 44 }: 
   const tone = listening
     ? "from-rose-400 via-amber-400 to-orange-400"
     : busy
-      ? "from-emerald-400 via-teal-400 to-sky-500"
-      : "from-emerald-500 via-teal-500 to-sky-600";
+      ? "from-[#6098FF] via-primary to-sky-500"
+      : "from-primary via-[#6098FF] to-sky-600";
   const ringSpeed = listening || busy ? "qht-assistant-spin-fast" : "qht-assistant-spin-slow";
 
   return (
@@ -58,7 +58,7 @@ export function AssistantAvatar({ busy = false, listening = false, size = 44 }: 
       />
       {/* Inner glass core */}
       <span
-        className="absolute inset-[18%] rounded-full bg-gradient-to-br from-white via-white to-emerald-50 shadow-inner ring-1 ring-emerald-200/60"
+        className="absolute inset-[18%] rounded-full bg-gradient-to-br from-white via-white to-primary/10 shadow-inner ring-1 ring-primary/60"
       />
       {/* Monogram — diamond/star glyph */}
       <svg

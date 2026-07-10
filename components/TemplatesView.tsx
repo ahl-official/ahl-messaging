@@ -52,7 +52,7 @@ const CATEGORY_LABEL: Record<string, string> = {
 };
 
 const STATUS_BADGE: Record<string, string> = {
-  APPROVED: "bg-emerald-100 text-emerald-800",
+  APPROVED: "bg-primary/15 text-primary",
   PENDING: "bg-amber-100 text-amber-800",
   REJECTED: "bg-red-100 text-red-800",
   PAUSED: "bg-slate-200 text-slate-700",
@@ -337,7 +337,7 @@ export function TemplatesView({ wabaId: initialWabaId }: Props) {
               ) : null}
               <Link
                 href={`/templates/new${scopeQs()}`}
-                className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-semibold text-emerald-800 shadow-lg shadow-emerald-900/25 ring-1 ring-white/40 transition hover:shadow-xl"
+                className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-semibold text-primary shadow-lg shadow-primary/25 ring-1 ring-white/40 transition hover:shadow-xl"
               >
                 <Plus className="h-3.5 w-3.5" />
                 New template
@@ -577,13 +577,13 @@ function CopyTemplatesModal({
                   key={i}
                   className={cn(
                     "flex items-center justify-between rounded-lg border px-3 py-2 text-xs",
-                    r.ok ? "border-emerald-200 bg-emerald-50" : "border-red-200 bg-red-50",
+                    r.ok ? "border-primary/25 bg-primary/10" : "border-red-200 bg-red-50",
                   )}
                 >
                   <span className="font-medium">
                     {r.template} → {r.portfolio}
                   </span>
-                  <span className={r.ok ? "text-emerald-700" : "text-red-700"}>
+                  <span className={r.ok ? "text-primary" : "text-red-700"}>
                     {r.ok ? r.status ?? "PENDING" : r.error}
                   </span>
                 </div>
@@ -620,13 +620,13 @@ function CopyTemplatesModal({
                           onClick={() => onToggleTpl(t.id)}
                           className={cn(
                             "flex w-full items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-xs transition",
-                            on ? "border-emerald-400 bg-emerald-50" : "border-input hover:bg-secondary/50",
+                            on ? "border-primary/40 bg-primary/10" : "border-input hover:bg-secondary/50",
                           )}
                         >
                           <span
                             className={cn(
                               "grid h-4 w-4 shrink-0 place-items-center rounded border",
-                              on ? "border-emerald-500 bg-emerald-500 text-white" : "border-input",
+                              on ? "border-primary bg-primary text-white" : "border-input",
                             )}
                           >
                             {on ? <Check className="h-3 w-3" /> : null}
@@ -664,13 +664,13 @@ function CopyTemplatesModal({
                         }}
                         className={cn(
                           "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] transition",
-                          active ? "border-emerald-400 bg-emerald-50 ring-1 ring-emerald-200" : "border-input hover:bg-secondary/50",
+                          active ? "border-primary/40 bg-primary/10 ring-1 ring-primary/25" : "border-input hover:bg-secondary/50",
                         )}
                       >
                         <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                         <span className="font-semibold uppercase tracking-wide">{p.name}</span>
                         {sel > 0 ? (
-                          <span className="rounded-full bg-emerald-500 px-1.5 text-[9px] font-bold text-white">{sel}</span>
+                          <span className="rounded-full bg-primary px-1.5 text-[9px] font-bold text-white">{sel}</span>
                         ) : null}
                       </button>
                     );
@@ -686,7 +686,7 @@ function CopyTemplatesModal({
                       <div className="flex items-center gap-2 text-[10px] font-semibold">
                         <button
                           type="button"
-                          className="text-emerald-700 hover:underline"
+                          className="text-primary hover:underline"
                           onClick={() => onToggleAll(filteredNumbers.map((n) => n.phone_number_id), true)}
                         >
                           All
@@ -724,13 +724,13 @@ function CopyTemplatesModal({
                             onClick={() => onTogglePid(n.phone_number_id)}
                             className={cn(
                               "flex w-full items-center gap-2 rounded-md border px-2.5 py-1.5 text-left text-xs transition",
-                              on ? "border-emerald-400 bg-emerald-50" : "border-transparent hover:bg-secondary/50",
+                              on ? "border-primary/40 bg-primary/10" : "border-transparent hover:bg-secondary/50",
                             )}
                           >
                             <span
                               className={cn(
                                 "grid h-4 w-4 shrink-0 place-items-center rounded border",
-                                on ? "border-emerald-500 bg-emerald-500 text-white" : "border-input",
+                                on ? "border-primary bg-primary text-white" : "border-input",
                               )}
                             >
                               {on ? <Check className="h-3 w-3" /> : null}
@@ -877,7 +877,7 @@ function TemplateCard({
       </div>
 
       {/* Preview body */}
-      <div className="rounded-md bg-emerald-50/60 p-2.5 ring-1 ring-emerald-100/60 flex-1 overflow-hidden">
+      <div className="rounded-md bg-primary/10 p-2.5 ring-1 ring-primary/20 flex-1 overflow-hidden">
         {/* Header media preview — image / video first frame / document icon */}
         {t.header_url && t.header_format === "IMAGE" ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -895,12 +895,12 @@ function TemplateCard({
             preload="metadata"
           />
         ) : t.header_format === "DOCUMENT" ? (
-          <div className="mb-2 inline-flex items-center gap-1.5 rounded-md bg-white/70 px-2 py-1 text-[10px] font-medium text-muted-foreground ring-1 ring-emerald-100/60">
+          <div className="mb-2 inline-flex items-center gap-1.5 rounded-md bg-white/70 px-2 py-1 text-[10px] font-medium text-muted-foreground ring-1 ring-primary/20">
             📄 Document header
           </div>
         ) : t.header_format === "IMAGE" || t.header_format === "VIDEO" ? (
           // Media header but no cached URL (template created before caching).
-          <div className="mb-2 inline-flex items-center gap-1.5 rounded-md bg-white/70 px-2 py-1 text-[10px] font-medium text-muted-foreground ring-1 ring-emerald-100/60">
+          <div className="mb-2 inline-flex items-center gap-1.5 rounded-md bg-white/70 px-2 py-1 text-[10px] font-medium text-muted-foreground ring-1 ring-primary/20">
             {t.header_format === "IMAGE" ? "🖼️ Image header" : "🎥 Video header"}
           </div>
         ) : null}

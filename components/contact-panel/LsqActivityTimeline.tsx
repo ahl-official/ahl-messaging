@@ -207,7 +207,7 @@ function iconForEvent(_code: number, name: string): {
   if (n.includes("whatsapp")) {
     return {
       Icon: MessageSquare,
-      tone: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+      tone: "bg-primary/10 text-primary ring-primary/25",
     };
   }
   if (n.includes("call") || n.includes("phone")) {

@@ -627,13 +627,13 @@ function NewChatDialog({ onClose }: { onClose: () => void }) {
                 }}
                 placeholder="Lead # or mobile — e.g. 451531 or 9876543210"
                 inputMode="numeric"
-                className="h-11 min-w-0 flex-1 rounded-lg border border-input bg-background px-3 font-mono text-sm outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+                className="h-11 min-w-0 flex-1 rounded-lg border border-input bg-background px-3 font-mono text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
               <button
                 type="button"
                 disabled={leadLooking || leadNum.trim().length < 3}
                 onClick={() => void runLookup()}
-                className="inline-flex h-11 items-center gap-1 rounded-lg border border-emerald-300 bg-emerald-50 px-3 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 disabled:opacity-50"
+                className="inline-flex h-11 items-center gap-1 rounded-lg border border-primary/30 bg-primary/10 px-3 text-xs font-semibold text-primary hover:bg-primary/15 disabled:opacity-50"
               >
                 {leadLooking ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -645,14 +645,14 @@ function NewChatDialog({ onClose }: { onClose: () => void }) {
             </div>
 
             {leadHit ? (
-              <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-emerald-200 bg-emerald-50/60 px-3 py-2 text-[12px] text-emerald-900">
+              <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-primary/25 bg-primary/10 px-3 py-2 text-[12px] text-primary">
                 {/* Compact confirmation — name + lead # only. Phone is
                     auto-loaded into form state on Find; we don't reveal
                     it here on purpose. Owner / CRM badges hidden too —
                     the operator only needs to know which lead matched
                     before they hit Open chat. */}
                 <div className="min-w-0 truncate font-semibold">
-                  <span className="mr-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-white">
+                  <span className="mr-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-primary text-white">
                     <Check className="h-3 w-3" />
                   </span>
                   Loaded: {leadHit.leadName?.trim() || "Lead"} · #{leadHit.leadNumberDisplay}
@@ -668,7 +668,7 @@ function NewChatDialog({ onClose }: { onClose: () => void }) {
                     setMessage("");
                     setExisting(null);
                   }}
-                  className="shrink-0 rounded-md text-[11px] font-semibold text-emerald-700 hover:underline"
+                  className="shrink-0 rounded-md text-[11px] font-semibold text-primary hover:underline"
                 >
                   Clear
                 </button>
@@ -772,7 +772,7 @@ function NewChatDialog({ onClose }: { onClose: () => void }) {
                 }
                 rows={3}
                 maxLength={600}
-                className="w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-[13px] leading-relaxed outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40"
+                className="w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-[13px] leading-relaxed outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
               <div className="mt-1.5 flex items-center justify-between gap-2">
                 {sendMode ? (
@@ -781,7 +781,7 @@ function NewChatDialog({ onClose }: { onClose: () => void }) {
                       "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold",
                       sendMode === "magic"
                         ? "bg-violet-50 text-violet-700 ring-1 ring-violet-200"
-                        : "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+                        : "bg-primary/10 text-primary ring-1 ring-primary/25",
                     )}
                   >
                     {sendMode === "magic" ? (
@@ -895,7 +895,7 @@ function Field({
     <div>
       <div className="mb-1.5 flex items-baseline justify-between">
         <label className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-          {Icon ? <Icon className="h-3.5 w-3.5 text-emerald-600" /> : null}
+          {Icon ? <Icon className="h-3.5 w-3.5 text-primary" /> : null}
           {label}
           {optional ? (
             <span className="text-[10px] font-medium text-muted-foreground">
@@ -1023,8 +1023,8 @@ function NumberCombobox({
         onClick={() => setOpen((v) => !v)}
         disabled={loading || numbers.length === 0}
         className={cn(
-          "flex h-11 w-full items-center justify-between gap-2 rounded-lg border border-input bg-background px-3 text-left text-sm font-medium outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200/40 disabled:opacity-50",
-          open && "border-emerald-400 ring-2 ring-emerald-200/40",
+          "flex h-11 w-full items-center justify-between gap-2 rounded-lg border border-input bg-background px-3 text-left text-sm font-medium outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:opacity-50",
+          open && "border-primary/40 ring-2 ring-primary/40",
         )}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -1037,7 +1037,7 @@ function NumberCombobox({
                   "inline-flex h-1.5 w-1.5 shrink-0 rounded-full",
                   selected.provider === "evolution"
                     ? "bg-violet-500"
-                    : "bg-emerald-500",
+                    : "bg-primary",
                 )}
               />
               <span className="truncate">{numberLabel(selected)}</span>
@@ -1099,7 +1099,7 @@ function NumberCombobox({
                       }}
                       className={cn(
                         "flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-xs hover:bg-secondary/70",
-                        isSelected && "bg-emerald-50",
+                        isSelected && "bg-primary/10",
                       )}
                     >
                       <span className="flex min-w-0 items-center gap-2">
@@ -1108,7 +1108,7 @@ function NumberCombobox({
                             "inline-flex h-1.5 w-1.5 shrink-0 rounded-full",
                             n.provider === "evolution"
                               ? "bg-violet-500"
-                              : "bg-emerald-500",
+                              : "bg-primary",
                           )}
                         />
                         <span className="flex min-w-0 flex-col">
@@ -1127,7 +1127,7 @@ function NumberCombobox({
                           {n.provider === "evolution" ? "Evolution" : "Meta"}
                         </span>
                         {isSelected ? (
-                          <Check className="h-3 w-3 text-emerald-600" />
+                          <Check className="h-3 w-3 text-primary" />
                         ) : null}
                       </span>
                     </button>

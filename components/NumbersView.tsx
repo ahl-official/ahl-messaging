@@ -292,7 +292,7 @@ export function NumbersView({ canEdit }: { canEdit: boolean }) {
             Description dropped + paddings tightened to reclaim vertical
             space; the row wraps gracefully on narrow viewports. */}
         <div className="mx-auto flex max-w-4xl flex-wrap items-center gap-x-3 gap-y-2 px-6 py-2.5">
-          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200">
+          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-inset ring-primary/25">
             <Phone className="h-4 w-4" />
           </span>
           <h2 className="shrink-0 text-sm font-semibold leading-tight">
@@ -307,7 +307,7 @@ export function NumbersView({ canEdit }: { canEdit: boolean }) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search name or number…"
-              className="h-8 w-full rounded-lg border bg-background pl-8 pr-3 text-xs outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-200"
+              className="h-8 w-full rounded-lg border bg-background pl-8 pr-3 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
             />
           </div>
 
@@ -363,7 +363,7 @@ export function NumbersView({ canEdit }: { canEdit: boolean }) {
               <button
                 type="button"
                 onClick={() => setConnectingEvolution(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-50"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-primary/25 bg-white px-2.5 py-1.5 text-xs font-semibold text-primary shadow-sm transition hover:bg-primary/10"
                 title="Scan a QR code to connect an unofficial WhatsApp number via Evolution API"
               >
                 <Plus className="h-3.5 w-3.5" />
@@ -372,7 +372,7 @@ export function NumbersView({ canEdit }: { canEdit: boolean }) {
               <button
                 type="button"
                 onClick={() => setAdding(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-2.5 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Add Meta number
@@ -435,7 +435,7 @@ export function NumbersView({ canEdit }: { canEdit: boolean }) {
                     className={cn(
                       "rounded-md px-3 py-1.5 text-xs font-semibold transition",
                       providerFilter === tab.key
-                        ? "bg-emerald-600 text-white shadow-sm"
+                        ? "bg-primary text-white shadow-sm"
                         : "text-muted-foreground hover:bg-secondary hover:text-foreground",
                     )}
                   >
@@ -449,7 +449,7 @@ export function NumbersView({ canEdit }: { canEdit: boolean }) {
                 <button
                   type="button"
                   onClick={() => setBulkStatusOpen(true)}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-white px-3 py-1.5 text-xs font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-50"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-primary/25 bg-white px-3 py-1.5 text-xs font-semibold text-primary shadow-sm transition hover:bg-primary/10"
                   title="Post the same WhatsApp Status to multiple unofficial numbers at once"
                 >
                   <CircleDot className="h-3.5 w-3.5" />
@@ -548,7 +548,7 @@ function StatsPill({
       ? "bg-sky-50 text-sky-800 ring-sky-200"
       : tone === "amber"
         ? "bg-amber-50 text-amber-800 ring-amber-200"
-        : "bg-emerald-50 text-emerald-800 ring-emerald-200";
+        : "bg-primary/10 text-primary ring-primary/25";
   return (
     <span
       className={cn(
@@ -580,7 +580,7 @@ function SubHeroChip({
 }) {
   const palette =
     accent === "emerald"
-      ? "bg-emerald-50 text-emerald-800 ring-emerald-200"
+      ? "bg-primary/10 text-primary ring-primary/25"
       : accent === "amber"
         ? "bg-amber-50 text-amber-800 ring-amber-200"
         : accent === "sky"
@@ -629,12 +629,12 @@ function ActionChip({
       active: "border-indigo-400 bg-indigo-100 text-indigo-900",
     },
     emerald: {
-      idle: "border-emerald-200 bg-white text-emerald-800 hover:bg-emerald-50",
-      active: "border-emerald-400 bg-emerald-100 text-emerald-900",
+      idle: "border-primary/25 bg-white text-primary hover:bg-primary/10",
+      active: "border-primary/40 bg-primary/15 text-primary",
     },
     emeraldStrong: {
-      idle: "border-emerald-500 bg-emerald-600 text-white hover:bg-emerald-700",
-      active: "border-emerald-500 bg-emerald-600 text-white",
+      idle: "border-primary bg-primary text-white hover:bg-primary/90",
+      active: "border-primary bg-primary text-white",
     },
     amber: {
       idle: "border-amber-200 bg-white text-amber-800 hover:bg-amber-50",
@@ -730,21 +730,21 @@ function NumberRowCard({
   }
 
   return (
-    <article className="group relative overflow-hidden rounded-2xl border bg-card shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300/60 hover:shadow-lg hover:shadow-emerald-900/5">
+    <article className="group relative overflow-hidden rounded-2xl border bg-card shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
       {/* Gradient accent bar on top — assigned = emerald, unassigned = amber */}
       <span
         aria-hidden
         className={cn(
           "absolute inset-x-0 top-0 h-1",
           number.portfolio
-            ? "bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-500"
+            ? "bg-gradient-to-r from-[#6098FF] via-primary to-[#6098FF]"
             : "bg-gradient-to-r from-amber-400 to-amber-500",
         )}
       />
       {/* Soft decorative blob in the top-right corner */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-12 -right-12 h-40 w-40 rounded-full bg-gradient-to-br from-emerald-100/40 to-transparent blur-2xl"
+        className="pointer-events-none absolute -top-12 -right-12 h-40 w-40 rounded-full bg-gradient-to-br from-primary/15 to-transparent blur-2xl"
       />
 
       {/* Top section — identity + portfolio */}
@@ -776,7 +776,7 @@ function NumberRowCard({
                   type="button"
                   onClick={handleSave}
                   disabled={saving}
-                  className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
+                  className="inline-flex items-center gap-1 rounded-md bg-primary px-2.5 py-1 text-xs font-semibold text-white shadow-sm hover:bg-primary/90 disabled:opacity-50"
                 >
                   {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
                   Save
@@ -805,14 +805,14 @@ function NumberRowCard({
                       setEditing(true);
                       setDraft(number.nickname ?? "");
                     }}
-                    className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 transition hover:bg-emerald-100"
+                    className="inline-flex items-center gap-1 rounded-md border border-primary/25 bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary transition hover:bg-primary/15"
                   >
                     <Edit3 className="h-2.5 w-2.5" />
                     Rename
                   </button>
                 ) : null}
                 {savedAt ? (
-                  <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                  <span className="inline-flex items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary ring-1 ring-inset ring-primary/25">
                     <Check className="h-2.5 w-2.5" />
                     Saved
                   </span>
@@ -827,7 +827,7 @@ function NumberRowCard({
 
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
               <span className="inline-flex items-center gap-1.5 rounded-md bg-secondary/60 px-2 py-1 font-mono text-[11px] font-semibold text-foreground/85 ring-1 ring-inset ring-border">
-                <Phone className="h-3 w-3 text-emerald-600" />
+                <Phone className="h-3 w-3 text-primary" />
                 {formatPhone(number.display_phone_number) || number.phone_number_id}
               </span>
               <span className="inline-flex items-center gap-1 font-mono text-[10px] text-muted-foreground">
@@ -890,7 +890,7 @@ function NumberRowCard({
               onUpdated={onUpdated}
             />
           ) : number.portfolio ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-50 to-emerald-100 px-2.5 py-1 text-[11px] font-semibold text-emerald-800 ring-1 ring-inset ring-emerald-200">
+            <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary/10 to-primary/15 px-2.5 py-1 text-[11px] font-semibold text-primary ring-1 ring-inset ring-primary/25">
               <Building2 className="h-3 w-3" />
               {number.portfolio.name}
             </span>
@@ -1108,7 +1108,7 @@ function MemoEditor({
           type="button"
           onClick={save}
           disabled={saving}
-          className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2 py-1 text-[11px] font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="inline-flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-[11px] font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
         >
           {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
           Save
@@ -1261,7 +1261,7 @@ function WabaIdEditor({
         <button
           type="button"
           onClick={() => setEditing(true)}
-          className="text-[10px] font-medium text-emerald-700 hover:underline"
+          className="text-[10px] font-medium text-primary hover:underline"
         >
           {number.waba_id ? "Edit" : "Set WABA id"}
         </button>
@@ -1320,8 +1320,8 @@ function MetaStatusBadge({
 
   const badge =
     status === "connected" ? (
-      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
-        <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary ring-1 ring-inset ring-primary/25">
+        <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
         On Meta
       </span>
     ) : status === "removed" ? (
@@ -1426,7 +1426,7 @@ function PurgeNumberPanel({
   if (done) {
     const total = Object.values(done).reduce((a, b) => a + b, 0);
     return (
-      <div className="text-[11px] text-emerald-800">
+      <div className="text-[11px] text-primary">
         <span className="font-semibold">Removed {label}</span> — {total} row(s)
         deleted across messages, contacts, calls, automation, tokens &amp;
         webhooks. Refreshing…
@@ -1902,7 +1902,7 @@ function Field({
 }) {
   const hintClass =
     hintTone === "ok"
-      ? "text-emerald-700"
+      ? "text-primary"
       : hintTone === "err"
         ? "text-destructive"
         : "text-muted-foreground";
@@ -1934,7 +1934,7 @@ function EmptyState() {
   return (
     <div className="grid place-items-center rounded-xl border-2 border-dashed bg-card/50 px-6 py-16 text-center">
       <div className="max-w-sm">
-        <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+        <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">
           <Phone className="h-6 w-6" />
         </div>
         <div className="text-sm font-semibold">No numbers connected yet</div>
@@ -2153,7 +2153,7 @@ function WebhookRowCard({
     : hook.last_attempt_at == null
       ? "bg-slate-300"
       : ok
-        ? "bg-emerald-500"
+        ? "bg-primary"
         : "bg-rose-500";
 
   function copy(text: string, kind: "url" | "secret") {
@@ -2194,7 +2194,7 @@ function WebhookRowCard({
               aria-label="Copy URL"
             >
               {copied === "url" ? (
-                <Check className="h-2.5 w-2.5 text-emerald-600" />
+                <Check className="h-2.5 w-2.5 text-primary" />
               ) : (
                 <Copy className="h-2.5 w-2.5" />
               )}
@@ -2222,7 +2222,7 @@ function WebhookRowCard({
               aria-label="Copy secret"
             >
               {copied === "secret" ? (
-                <Check className="h-2.5 w-2.5 text-emerald-600" />
+                <Check className="h-2.5 w-2.5 text-primary" />
               ) : (
                 <Copy className="h-2.5 w-2.5" />
               )}
@@ -2280,7 +2280,7 @@ function WebhookRowCard({
             <span
               className={cn(
                 "font-semibold",
-                ok ? "text-emerald-700" : "text-rose-700",
+                ok ? "text-primary" : "text-rose-700",
               )}
             >
               {hook.last_status_code ?? "—"}
@@ -2505,7 +2505,7 @@ function ApiTokenRowCard({
             <span
               className={cn(
                 "inline-flex h-2 w-2 rounded-full",
-                token.enabled ? "bg-emerald-500" : "bg-slate-400",
+                token.enabled ? "bg-primary" : "bg-slate-400",
               )}
             />
             <span className="truncate font-semibold">{token.name}</span>
@@ -2542,7 +2542,7 @@ function ApiTokenRowCard({
               aria-label="Copy token"
             >
               {copied ? (
-                <Check className="h-2.5 w-2.5 text-emerald-600" />
+                <Check className="h-2.5 w-2.5 text-primary" />
               ) : (
                 <Copy className="h-2.5 w-2.5" />
               )}
@@ -2670,7 +2670,7 @@ function NumberAvatar({
   ]);
 
   return (
-    <span className="relative inline-flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-base font-semibold text-white shadow-md shadow-emerald-900/10 ring-1 ring-emerald-700/20">
+    <span className="relative inline-flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#6098FF] to-[#6098FF] text-base font-semibold text-white shadow-md shadow-primary/10 ring-1 ring-primary/20">
       {pic && !errored ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -2682,7 +2682,7 @@ function NumberAvatar({
       ) : (
         initials
       )}
-      <span className="absolute -bottom-1 -right-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-white text-emerald-700 ring-2 ring-card">
+      <span className="absolute -bottom-1 -right-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-white text-primary ring-2 ring-card">
         <Phone className="h-2.5 w-2.5" />
       </span>
     </span>
@@ -2763,7 +2763,7 @@ function EvolutionStateBadge({ number }: { number: NumberRow }) {
     : state === "open"
       ? unstable
         ? "bg-amber-50 text-amber-800 ring-amber-200"
-        : "bg-emerald-50 text-emerald-700 ring-emerald-200"
+        : "bg-primary/10 text-primary ring-primary/25"
       : state === "close"
         ? "bg-rose-50 text-rose-700 ring-rose-200"
         : "bg-amber-50 text-amber-800 ring-amber-200";
@@ -2772,7 +2772,7 @@ function EvolutionStateBadge({ number }: { number: NumberRow }) {
     : state === "open"
       ? unstable
         ? "bg-amber-500"
-        : "bg-emerald-500"
+        : "bg-primary"
       : state === "close"
         ? "bg-rose-500"
         : "bg-amber-500 animate-pulse";
@@ -2937,10 +2937,10 @@ function EvolutionConnectModal({
 
   const modalContent = (
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-2xl ring-1 ring-emerald-100/60">
-        <header className="flex items-center justify-between border-b bg-gradient-to-br from-emerald-50 via-card to-card px-5 py-3.5">
+      <div className="w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-2xl ring-1 ring-primary/20">
+        <header className="flex items-center justify-between border-b bg-gradient-to-br from-primary/10 via-card to-card px-5 py-3.5">
           <div className="flex items-center gap-2">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-200">
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-primary/15 text-primary ring-1 ring-inset ring-primary/25">
               <Phone className="h-4 w-4" />
             </span>
             <div>
@@ -3012,7 +3012,7 @@ function EvolutionConnectModal({
                 type="button"
                 onClick={start}
                 disabled={creating}
-                className="inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+                className="inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-60"
               >
                 {creating ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -3050,10 +3050,10 @@ function EvolutionConnectModal({
             </div>
           ) : state === "open" ? (
             <div className="grid place-items-center gap-2 py-6">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-lg">
                 <Check className="h-6 w-6" />
               </span>
-              <p className="text-sm font-semibold text-emerald-700">
+              <p className="text-sm font-semibold text-primary">
                 Connected!
               </p>
               <p className="text-[11px] text-muted-foreground">
@@ -3205,10 +3205,10 @@ function PostStatusModal({
   if (typeof window === "undefined") return null;
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-2xl ring-1 ring-emerald-100/60">
-        <header className="flex items-center justify-between border-b bg-gradient-to-br from-emerald-50 via-card to-card px-5 py-3.5">
+      <div className="w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-2xl ring-1 ring-primary/20">
+        <header className="flex items-center justify-between border-b bg-gradient-to-br from-primary/10 via-card to-card px-5 py-3.5">
           <div className="flex items-center gap-2">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-200">
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-primary/15 text-primary ring-1 ring-inset ring-primary/25">
               <CircleDot className="h-4 w-4" />
             </span>
             <div>
@@ -3240,7 +3240,7 @@ function PostStatusModal({
               className={cn(
                 "flex-1 rounded-md border px-3 py-1.5 text-sm font-medium",
                 type === "text"
-                  ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                  ? "border-primary/30 bg-primary/10 text-primary"
                   : "bg-background text-muted-foreground hover:bg-secondary",
               )}
             >
@@ -3255,7 +3255,7 @@ function PostStatusModal({
               className={cn(
                 "flex-1 rounded-md border px-3 py-1.5 text-sm font-medium",
                 type === "image"
-                  ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                  ? "border-primary/30 bg-primary/10 text-primary"
                   : "bg-background text-muted-foreground hover:bg-secondary",
               )}
             >
@@ -3270,7 +3270,7 @@ function PostStatusModal({
               className={cn(
                 "flex-1 rounded-md border px-3 py-1.5 text-sm font-medium",
                 type === "video"
-                  ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                  ? "border-primary/30 bg-primary/10 text-primary"
                   : "bg-background text-muted-foreground hover:bg-secondary",
               )}
             >
@@ -3340,7 +3340,7 @@ function PostStatusModal({
             </div>
           ) : null}
           {ok ? (
-            <div className="rounded-md border border-emerald-300 bg-emerald-50 px-2.5 py-1.5 text-[11px] text-emerald-800">
+            <div className="rounded-md border border-primary/30 bg-primary/10 px-2.5 py-1.5 text-[11px] text-primary">
               Status posted.
             </div>
           ) : null}
@@ -3349,7 +3349,7 @@ function PostStatusModal({
             type="button"
             onClick={submit}
             disabled={busy || (type === "text" ? !text.trim() : !file)}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 disabled:opacity-50"
           >
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <CircleDot className="h-4 w-4" />}
             {busy ? "Posting…" : "Post status"}
@@ -3544,10 +3544,10 @@ function BulkPostStatusModal({
   if (typeof window === "undefined") return null;
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-xl overflow-hidden rounded-2xl bg-card shadow-2xl ring-1 ring-emerald-100/60">
-        <header className="flex items-center justify-between border-b bg-gradient-to-br from-emerald-50 via-card to-card px-5 py-3.5">
+      <div className="w-full max-w-xl overflow-hidden rounded-2xl bg-card shadow-2xl ring-1 ring-primary/20">
+        <header className="flex items-center justify-between border-b bg-gradient-to-br from-primary/10 via-card to-card px-5 py-3.5">
           <div className="flex items-center gap-2">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-200">
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-primary/15 text-primary ring-1 ring-inset ring-primary/25">
               <CircleDot className="h-4 w-4" />
             </span>
             <div>
@@ -3582,7 +3582,7 @@ function BulkPostStatusModal({
               <button
                 type="button"
                 onClick={toggleAll}
-                className="text-[11px] font-semibold text-emerald-700 hover:underline"
+                className="text-[11px] font-semibold text-primary hover:underline"
               >
                 {allOn ? "Deselect all" : "Select all"}
               </button>
@@ -3609,21 +3609,21 @@ function BulkPostStatusModal({
                         checked={isOn}
                         onChange={() => toggle(n.phone_number_id)}
                         disabled={busy}
-                        className="h-3.5 w-3.5 accent-emerald-600"
+                        className="h-3.5 w-3.5 accent-primary"
                       />
                       <span className="flex-1 truncate font-medium">{label}</span>
                       <span
                         className={cn(
                           "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-semibold",
                           isConnected
-                            ? "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200"
+                            ? "bg-primary/10 text-primary ring-1 ring-inset ring-primary/25"
                             : "bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-200",
                         )}
                       >
                         <span
                           className={cn(
                             "h-1 w-1 rounded-full",
-                            isConnected ? "bg-emerald-500" : "bg-rose-500",
+                            isConnected ? "bg-primary" : "bg-rose-500",
                           )}
                         />
                         {isConnected ? "Online" : "Offline"}
@@ -3648,7 +3648,7 @@ function BulkPostStatusModal({
                 className={cn(
                   "flex-1 rounded-md border px-3 py-1.5 text-sm font-medium capitalize",
                   type === k
-                    ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                    ? "border-primary/30 bg-primary/10 text-primary"
                     : "bg-background text-muted-foreground hover:bg-secondary",
                 )}
               >
@@ -3723,7 +3723,7 @@ function BulkPostStatusModal({
                 selected.size === 0 ||
                 (type === "text" ? !text.trim() : !file)
               }
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 disabled:opacity-50"
             >
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <CircleDot className="h-4 w-4" />}
               {busy
@@ -3771,7 +3771,7 @@ function BulkPostStatusModal({
                     className={cn(
                       "flex items-center gap-2 rounded-md px-2 py-1 text-[11px]",
                       r.ok
-                        ? "bg-emerald-50 text-emerald-800 ring-1 ring-inset ring-emerald-200"
+                        ? "bg-primary/10 text-primary ring-1 ring-inset ring-primary/25"
                         : "bg-rose-50 text-rose-800 ring-1 ring-inset ring-rose-200",
                     )}
                   >
@@ -3926,7 +3926,7 @@ function EvolutionCallSettingsPanel({ instanceName }: { instanceName: string }) 
               Save
             </button>
             {savedAt ? (
-              <span className="text-[11px] font-semibold text-emerald-700">Saved</span>
+              <span className="text-[11px] font-semibold text-primary">Saved</span>
             ) : null}
           </div>
         </div>
@@ -4059,7 +4059,7 @@ function RecentStatusesAcrossNumbers() {
         className="flex w-full items-center justify-between gap-2 px-5 py-3 text-left"
       >
         <div className="flex items-center gap-2">
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200">
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-inset ring-primary/25">
             <CircleDot className="h-3.5 w-3.5" />
           </span>
           <div>
@@ -4091,7 +4091,7 @@ function RecentStatusesAcrossNumbers() {
                 className={cn(
                   "rounded-full px-2.5 py-0.5 text-[10px] font-semibold transition",
                   range === r.key
-                    ? "bg-emerald-600 text-white shadow-sm"
+                    ? "bg-primary text-white shadow-sm"
                     : "text-muted-foreground hover:bg-secondary",
                 )}
               >
@@ -4106,7 +4106,7 @@ function RecentStatusesAcrossNumbers() {
               void syncViews();
             }}
             disabled={syncing}
-            className="inline-flex items-center gap-1 rounded-md border bg-card px-2 py-0.5 text-[10px] font-semibold text-emerald-700 hover:bg-secondary disabled:opacity-50"
+            className="inline-flex items-center gap-1 rounded-md border bg-card px-2 py-0.5 text-[10px] font-semibold text-primary hover:bg-secondary disabled:opacity-50"
             title="Pull the latest seen-by count from WhatsApp"
           >
             {syncing ? (
@@ -4185,7 +4185,7 @@ function RecentStatusesAcrossNumbers() {
                         <span className="truncate font-semibold text-foreground">
                           {p.number_label}
                         </span>
-                        <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                        <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold text-primary ring-1 ring-inset ring-primary/25">
                           {p.type}
                         </span>
                       </div>
@@ -4222,7 +4222,7 @@ function RecentStatusesAcrossNumbers() {
                       className={cn(
                         "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ring-1 ring-inset",
                         p.seen_count > 0
-                          ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+                          ? "bg-primary/10 text-primary ring-primary/25"
                           : "bg-secondary text-muted-foreground ring-border",
                       )}
                     >
@@ -4602,7 +4602,7 @@ function EvolutionGroupFilterStrip({
         <button
           type="button"
           onClick={onManage}
-          className="inline-flex items-center gap-1 rounded-full border border-dashed border-emerald-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-emerald-700 transition hover:bg-emerald-50"
+          className="inline-flex items-center gap-1 rounded-full border border-dashed border-primary/30 bg-white px-2.5 py-1 text-[11px] font-semibold text-primary transition hover:bg-primary/10"
           title="Add, rename or delete location groups"
         >
           <Settings className="h-3 w-3" />
@@ -4633,7 +4633,7 @@ function GroupPill({
         active
           ? tone === "amber"
             ? "bg-amber-500 text-white ring-amber-500"
-            : "bg-emerald-600 text-white ring-emerald-600"
+            : "bg-primary text-white ring-primary"
           : tone === "amber"
             ? "bg-amber-50 text-amber-700 ring-amber-200 hover:bg-amber-100"
             : "bg-white text-foreground ring-border hover:bg-secondary",
@@ -4688,7 +4688,7 @@ function EvolutionGroupsManagerModal({
       <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-2xl ring-1 ring-border">
         <div className="flex items-center justify-between border-b px-5 py-3">
           <div className="flex items-center gap-2">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200">
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-inset ring-primary/25">
               <MapPin className="h-4 w-4" />
             </span>
             <div>
@@ -4725,7 +4725,7 @@ function EvolutionGroupsManagerModal({
               type="button"
               onClick={handleAdd}
               disabled={busy || !newName.trim()}
-              className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
+              className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary/90 disabled:opacity-50"
             >
               {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : <FolderPlus className="h-3 w-3" />}
               Add
@@ -4844,7 +4844,7 @@ function EvolutionGroupRow({
               type="button"
               onClick={handleRename}
               disabled={busy}
-              className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50"
+              className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-primary text-white hover:bg-primary/90 disabled:opacity-50"
               aria-label="Save"
             >
               {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
@@ -4970,7 +4970,7 @@ function EvolutionGroupPicker({
         className={cn(
           "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ring-inset",
           current
-            ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+            ? "bg-primary/10 text-primary ring-primary/25"
             : "bg-secondary text-muted-foreground ring-border",
         )}
       >
@@ -4989,7 +4989,7 @@ function EvolutionGroupPicker({
         className={cn(
           "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ring-inset transition",
           current
-            ? "bg-emerald-50 text-emerald-700 ring-emerald-200 hover:bg-emerald-100"
+            ? "bg-primary/10 text-primary ring-primary/25 hover:bg-primary/15"
             : "bg-amber-50 text-amber-700 ring-amber-200 hover:bg-amber-100",
         )}
         title="Change location group"

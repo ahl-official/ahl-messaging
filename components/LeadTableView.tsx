@@ -141,7 +141,7 @@ export function LeadTableView({ onClose }: { onClose: () => void }) {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search name, number, stage, source…"
-            className="w-full rounded-md border bg-secondary/30 py-1.5 pl-8 pr-3 text-sm outline-none focus:border-emerald-400"
+            className="w-full rounded-md border bg-secondary/30 py-1.5 pl-8 pr-3 text-sm outline-none focus:border-primary"
           />
         </div>
         <div className="ml-auto flex items-center gap-2">
@@ -184,7 +184,7 @@ export function LeadTableView({ onClose }: { onClose: () => void }) {
                 <tr><td colSpan={cols.length} className="px-3 py-10 text-center text-muted-foreground">No leads.</td></tr>
               ) : (
                 filtered.map((c) => (
-                  <tr key={c.id} className="border-b hover:bg-emerald-50/30">
+                  <tr key={c.id} className="border-b hover:bg-primary/10">
                     {cols.map((col) => (
                       <td
                         key={col.key}
@@ -192,7 +192,7 @@ export function LeadTableView({ onClose }: { onClose: () => void }) {
                           "px-3 py-2.5",
                           col.width,
                           col.key === "name"
-                            ? "max-w-[150px] truncate font-semibold text-emerald-700"
+                            ? "max-w-[150px] truncate font-semibold text-primary"
                             : "whitespace-nowrap",
                         )}
                         title={col.key === "name" ? col.get(c) : undefined}
@@ -234,7 +234,7 @@ export function LeadTableView({ onClose }: { onClose: () => void }) {
                     type="checkbox"
                     checked={visible.has(col.key)}
                     onChange={() => toggleCol(col.key)}
-                    className="accent-emerald-600"
+                    className="accent-primary"
                   />
                   {col.label}
                 </label>

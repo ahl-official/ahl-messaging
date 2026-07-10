@@ -103,7 +103,7 @@ export function ContactsView({ contacts, total, page, pageSize, query }: Props) 
           <button
             type="button"
             onClick={() => setCreateOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-semibold text-emerald-800 shadow-lg shadow-emerald-900/25 ring-1 ring-white/40 transition hover:shadow-xl"
+            className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-semibold text-primary shadow-lg shadow-primary/25 ring-1 ring-white/40 transition hover:shadow-xl"
           >
             <Plus className="h-3.5 w-3.5" />
             Create contact
@@ -276,7 +276,7 @@ export function ContactsView({ contacts, total, page, pageSize, query }: Props) 
                         className={cn(
                           "inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase",
                           status === "open"
-                            ? "bg-emerald-100 text-emerald-800"
+                            ? "bg-primary/15 text-primary"
                             : "bg-slate-200 text-slate-700",
                         )}
                       >
@@ -308,7 +308,7 @@ export function ContactsView({ contacts, total, page, pageSize, query }: Props) 
                     <td className="border-b px-4 py-2.5 text-muted-foreground">{formatDate(c.created_at)}</td>
                     <td className="border-b px-4 py-2.5">
                       <span className="inline-flex items-center gap-1 text-muted-foreground">
-                        <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[8px] font-bold text-white">
+                        <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[8px] font-bold text-white">
                           W
                         </span>
                         WhatsApp

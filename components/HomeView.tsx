@@ -105,11 +105,11 @@ export function HomeView({ stats, memberName, memberFirstName, role }: Props) {
   return (
     <div className="flex h-full flex-col bg-secondary/30">
       {/* ----- Hero ----- */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 text-white">
+      <section className="relative overflow-hidden ahl-hero-gradient text-white">
         {/* Soft decorative orbs — pure CSS, GPU-cheap. */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl"
+          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#6098FF]/20 blur-3xl"
         />
         <div
           aria-hidden
@@ -129,14 +129,14 @@ export function HomeView({ stats, memberName, memberFirstName, role }: Props) {
         <div className="relative px-6 py-8 lg:px-10 lg:py-10">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div className="min-w-0">
-              <div className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-emerald-100/80">
+              <div className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white/80">
                 <Sparkles className="h-3 w-3" />
                 {dateLine}
               </div>
               <h1 className="mt-2 flex flex-wrap items-center gap-3 text-2xl font-semibold tracking-tight sm:text-[28px]">
                 <span>
                   {greeting},{" "}
-                  <span className="bg-gradient-to-r from-white to-emerald-100 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-white to-primary/15 bg-clip-text text-transparent">
                     {memberFirstName}
                   </span>
                 </span>
@@ -144,7 +144,7 @@ export function HomeView({ stats, memberName, memberFirstName, role }: Props) {
                   {ROLE_LABEL[role]}
                 </span>
               </h1>
-              <p className="mt-2 max-w-2xl text-sm text-emerald-100/80">
+              <p className="mt-2 max-w-2xl text-sm text-white/80">
                 Here&apos;s what your team needs to handle today.
               </p>
             </div>
@@ -264,7 +264,7 @@ export function HomeView({ stats, memberName, memberFirstName, role }: Props) {
             <section className="overflow-hidden rounded-2xl border bg-card shadow-sm lg:col-span-3">
               <header className="flex items-center justify-between border-b bg-gradient-to-r from-secondary/40 to-transparent px-5 py-3.5">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-inset ring-primary/20">
                     <Phone className="h-3.5 w-3.5" />
                   </span>
                   <div>
@@ -389,7 +389,7 @@ export function HomeView({ stats, memberName, memberFirstName, role }: Props) {
               </div>
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-50"
+                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold text-primary hover:bg-primary/10"
               >
                 Open inbox
                 <ArrowRight className="h-3 w-3" />
@@ -457,11 +457,11 @@ function KpiCard({
 }) {
   const palette: Record<typeof accent, { stripe: string; chip: string; iconBg: string; iconText: string; ring: string }> = {
     emerald: {
-      stripe: "bg-gradient-to-b from-emerald-400 to-emerald-600",
-      chip: "text-emerald-700",
-      iconBg: "bg-emerald-50",
-      iconText: "text-emerald-700",
-      ring: "ring-emerald-100",
+      stripe: "bg-gradient-to-b from-[#6098FF] to-primary",
+      chip: "text-primary",
+      iconBg: "bg-primary/10",
+      iconText: "text-primary",
+      ring: "ring-primary/20",
     },
     amber: {
       stripe: "bg-gradient-to-b from-amber-400 to-amber-600",
@@ -551,7 +551,7 @@ function QuickJump({
   const base =
     "group inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition";
   const variant = active
-    ? "bg-white text-emerald-800 shadow-lg shadow-emerald-900/25 ring-1 ring-white/40"
+    ? "bg-white text-primary shadow-lg shadow-primary/25 ring-1 ring-white/40"
     : tone === "warning"
       ? "bg-amber-300/15 text-amber-100 ring-1 ring-inset ring-amber-200/30 hover:bg-amber-300/25"
       : tone === "danger"
@@ -566,7 +566,7 @@ function QuickJump({
           className={cn(
             "rounded-full px-1.5 py-0 text-[10px] font-bold tabular-nums",
             active
-              ? "bg-emerald-100 text-emerald-800"
+              ? "bg-primary/15 text-primary"
               : "bg-white/20 text-white",
           )}
         >
@@ -644,7 +644,7 @@ function NumberStat({
 }) {
   const valueClass =
     accent === "emerald"
-      ? "text-emerald-700"
+      ? "text-primary"
       : accent === "amber"
         ? "text-amber-700"
         : "text-foreground/80";
@@ -697,7 +697,7 @@ function Empty({ children }: { children: React.ReactNode }) {
 // Palettes
 // ---------------------------------------------------------------------------
 const AVATAR_PALETTE = [
-  { bg: "bg-emerald-50", text: "text-emerald-700", ring: "ring-emerald-100" },
+  { bg: "bg-primary/10", text: "text-primary", ring: "ring-primary/20" },
   { bg: "bg-violet-50",  text: "text-violet-700",  ring: "ring-violet-100" },
   { bg: "bg-sky-50",     text: "text-sky-700",     ring: "ring-sky-100" },
   { bg: "bg-amber-50",   text: "text-amber-800",   ring: "ring-amber-100" },
@@ -706,7 +706,7 @@ const AVATAR_PALETTE = [
 ] as const;
 
 const TAG_TEXTS = [
-  "text-emerald-600",
+  "text-primary",
   "text-violet-600",
   "text-sky-600",
   "text-amber-600",
@@ -715,7 +715,7 @@ const TAG_TEXTS = [
 ];
 
 const TAG_BARS = [
-  "bg-gradient-to-r from-emerald-400 to-emerald-600",
+  "bg-gradient-to-r from-[#6098FF] to-primary",
   "bg-gradient-to-r from-violet-400 to-violet-600",
   "bg-gradient-to-r from-sky-400 to-sky-600",
   "bg-gradient-to-r from-amber-400 to-amber-600",

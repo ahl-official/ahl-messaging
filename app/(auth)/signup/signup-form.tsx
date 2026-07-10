@@ -89,12 +89,12 @@ export function SignUpForm() {
       <div className="space-y-5 text-center">
         {/* Animated icon with pulse rings */}
         <div className="relative mx-auto h-20 w-20">
-          <span className="auth-pulse-ring absolute inset-0 rounded-full bg-emerald-400/30" />
+          <span className="auth-pulse-ring absolute inset-0 rounded-full bg-[#6098FF]/30" />
           <span
-            className="auth-pulse-ring absolute inset-0 rounded-full bg-emerald-400/20"
+            className="auth-pulse-ring absolute inset-0 rounded-full bg-[#6098FF]/20"
             style={{ animationDelay: "1.2s" }}
           />
-          <div className="relative grid h-20 w-20 place-items-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-900/20 ring-4 ring-emerald-50">
+          <div className="relative grid h-20 w-20 place-items-center rounded-full bg-gradient-to-br from-[#6098FF] to-[#6098FF] text-white shadow-lg shadow-primary/20 ring-4 ring-primary/10">
             <MailCheck className="h-9 w-9" />
           </div>
         </div>
@@ -113,8 +113,8 @@ export function SignUpForm() {
 
         {/* 3-step indicator */}
         <ol className="mt-2 grid grid-cols-3 gap-2 text-[10px] font-medium">
-          <li className="rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-2 text-emerald-800">
-            <span className="block text-[9px] font-bold uppercase tracking-wide text-emerald-600">Step 1</span>
+          <li className="rounded-lg border border-primary/25 bg-primary/10 px-2 py-2 text-primary">
+            <span className="block text-[9px] font-bold uppercase tracking-wide text-primary">Step 1</span>
             <span className="block">Email sent ✓</span>
           </li>
           <li className="rounded-lg border bg-card px-2 py-2 text-foreground/80">
@@ -128,7 +128,7 @@ export function SignUpForm() {
         </ol>
 
         {resendInfo ? (
-          <div className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800 ring-1 ring-inset ring-emerald-200">
+          <div className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/25">
             <CheckCircle2 className="h-3 w-3" />
             {resendInfo}
           </div>
