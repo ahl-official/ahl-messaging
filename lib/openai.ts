@@ -62,6 +62,16 @@ async function resolveChatApiConfig(): Promise<{
   };
 }
 
+function isConnReset(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+  const e = err as { code?: string; cause?: { code?: string }; message?: string };
+  return (
+    e.code === "ECONNRESET" ||
+    e.cause?.code === "ECONNRESET" ||
+    /ECONNRESET/i.test(e.message ?? "")
+  );
+}
+
 export async function chatCompletion(opts: {
   messages: ChatMessage[];
   model: string;
@@ -85,16 +95,36 @@ export async function chatCompletion(opts: {
   if (opts.jsonMode) {
     body.response_format = { type: "json_object" };
   }
-  const res = await fetch(`${baseUrl}/chat/completions`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      ...extraHeaders,
-    },
-    body: JSON.stringify(body),
-    signal: AbortSignal.timeout(opts.timeoutMs ?? 30_000),
-  });
+
+  // Node 20 undici keepalive can ECONNRESET on some VPS networks even when
+  // curl works. Force connection close + one retry after reset.
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${apiKey}`,
+    "Content-Type": "application/json",
+    Connection: "close",
+    "Keep-Alive": "timeout=0",
+    ...extraHeaders,
+  };
+
+  let res: Response | undefined;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      res = await fetch(`${baseUrl}/chat/completions`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(opts.timeoutMs ?? 30_000),
+      });
+      break;
+    } catch (err) {
+      if (attempt === 0 && isConnReset(err)) {
+        await new Promise((r) => setTimeout(r, 2_000));
+        continue;
+      }
+      throw err;
+    }
+  }
+  if (!res) throw new Error("OpenAI fetch failed with no response");
 
   const json = (await res.json()) as OpenAIChatResponse;
   if (!res.ok || json.error) {

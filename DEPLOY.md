@@ -44,8 +44,19 @@ npm install
 rm -rf .next                   # drop any stale/partial build — the key step
 npm run build                  # MUST print "Compiled successfully" / route table
 # ^ If build FAILS, STOP. Do NOT restart pm2 — read the error, fix, rebuild.
-pm2 restart qht-messaging --update-env
+# Fork + 1 instance (ecosystem.config.cjs) — required so cron ticks run once.
+pm2 startOrReload ecosystem.config.cjs --update-env
 pm2 save
+```
+
+Verify scheduler after restart:
+
+```bash
+pm2 logs qht-messaging --lines 40 --nostream | grep -E 'sweep|WEBHOOK_INTERNAL|PM2 worker'
+# want: "in-process scheduler armed" (or similar)
+# NOT: "WEBHOOK_INTERNAL_TOKEN not set"
+# NOT: "PM2 worker N — scheduler skipped" on the only process
+node scripts/verify-go-live.cjs
 ```
 
 Why `reset --hard` + `clean -fd`: a deploy that just `git pull`s can leave the
@@ -87,7 +98,7 @@ cached old chunks.
 ```bash
 cd /opt/QHT-Messaging
 pm2 logs qht-messaging --lines 40 --nostream   # look for the real error
-rm -rf .next && npm run build && pm2 restart qht-messaging --update-env
+rm -rf .next && npm run build && pm2 startOrReload ecosystem.config.cjs --update-env
 ```
 
 - Unstyled / white screen but build succeeds → it was a stale `.next`; the clean

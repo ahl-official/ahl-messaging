@@ -698,6 +698,16 @@ async function processWebhook(body: WAWebhookBody) {
               );
             });
 
+            // AHL Firebase CRM (when AHL_CRM_* is set). Runs alongside LSQ;
+            // helper no-ops if already linked or env missing.
+            void import("@/lib/ahl-crm").then(({ ahlEnsureLeadForContact }) =>
+              ahlEnsureLeadForContact(supabase, {
+                contactId: contact.id,
+                mobileNo: waId,
+                clientName: profileName ?? null,
+              }),
+            );
+
             // Fire-and-forget photo pipeline — runs only when the
             // inbound is an image AND we have it cached locally
             // (downloadInboundMedia fills mediaUrl). Creates a

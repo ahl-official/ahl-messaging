@@ -11,6 +11,7 @@ import { jidToWaId } from "@/lib/evolution";
 import { persistEvolutionMedia } from "@/lib/evolution-media";
 import { broadcastInbox } from "@/lib/realtime-inbox";
 import { isEphemeralWhatsAppMedia } from "@/lib/media-url";
+import { ahlEnsureLeadForContact } from "@/lib/ahl-crm";
 
 type Admin = ReturnType<typeof createServiceRoleClient>;
 
@@ -112,6 +113,15 @@ export async function handleMessageUpsert(
     if (cErr || !contact) {
       console.error("[evolution-webhook] contact upsert failed:", cErr?.message);
       continue;
+    }
+
+    // AHL Firebase CRM — inbound 1:1 only; no-ops if env unset or lead exists.
+    if (direction === "inbound" && !isGroup) {
+      void ahlEnsureLeadForContact(admin, {
+        contactId: contact.id,
+        mobileNo: waId,
+        clientName: m.pushName ?? null,
+      });
     }
 
     // Idempotency: skip if we already have a row for this wa_message_id.
