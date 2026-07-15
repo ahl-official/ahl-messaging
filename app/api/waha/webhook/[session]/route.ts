@@ -34,7 +34,7 @@ export async function POST(
     .from("business_numbers")
     .select("phone_number_id, display_phone_number, evolution_instance_name")
     .eq("evolution_instance_name", session)
-    .eq("provider", "evolution")
+    .in("provider", ["evolution", "waha"])
     .single();
 
   if (!bizNumber) {

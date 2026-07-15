@@ -17,6 +17,7 @@ import {
   sendPresence as evolutionSendPresence,
   waIdToJid,
 } from "@/lib/evolution";
+import { wahaSendText, wahaSendImage } from "@/lib/waha";
 import { lookupIndianPincode } from "@/lib/pincode";
 import { logWhatsappActivityToLSQ } from "@/lib/lsq-message-logger";
 import { lsqUpdateLead } from "@/lib/lsq";
@@ -829,15 +830,24 @@ export async function runAutomation(opts: {
     .select("provider, evolution_instance_name, evolution_api_key, interakt_api_key")
     .eq("phone_number_id", config.business_phone_number_id)
     .maybeSingle();
+  // Interakt / WAHA — detected by phone_number_id prefix or provider column.
+  // WAHA sessions reuse evolution_instance_name for the session name (no
+  // dedicated waha_* columns yet).
+  const bpid = config.business_phone_number_id ?? "";
+  const isInterakt = bpid.startsWith("interakt:");
+  const isWaha =
+    bpid.startsWith("waha:") || providerRow?.provider === "waha";
+  const wahaSession =
+    (providerRow?.evolution_instance_name ?? "").trim() ||
+    (bpid.startsWith("waha:") ? bpid.slice("waha:".length) : "") ||
+    null;
   const isEvolution =
+    !isWaha &&
     providerRow?.provider === "evolution" &&
     !!providerRow?.evolution_instance_name &&
     !!providerRow?.evolution_api_key;
   const evoInstance = isEvolution ? providerRow!.evolution_instance_name! : null;
   const evoApiKey = isEvolution ? providerRow!.evolution_api_key! : null;
-  // Interakt provider — bot replies dispatch through Interakt's API instead of
-  // Meta/Evolution. Key falls back to the workspace-wide Interakt key below.
-  const isInterakt = (config.business_phone_number_id ?? "").startsWith("interakt:");
 
   // Start the typing indicator IMMEDIATELY — before any debounce
   // sleep, before the LLM call. Without this the customer sees
@@ -852,6 +862,7 @@ export async function runAutomation(opts: {
   const sendTypingPing = () => {
     if (!contact.business_phone_number_id) return;
     if (isInterakt) return; // Interakt has no typing-indicator API
+    if (isWaha) return; // WAHA has no typing-indicator path here
     if (isEvolution && evoInstance && evoApiKey) {
       void evolutionSendPresence({
         instanceName: evoInstance,
@@ -1421,6 +1432,14 @@ export async function runAutomation(opts: {
           message: triggerMatch.caption?.trim() || undefined,
         });
         waMessageId = r.messageId ?? null;
+      } else if (isWaha && wahaSession) {
+        const r = await wahaSendImage(
+          wahaSession,
+          contact.wa_id,
+          triggerMatch.image_url,
+          triggerMatch.caption?.trim() || undefined,
+        );
+        waMessageId = r?.id ?? null;
       } else if (isEvolution && evoInstance && evoApiKey) {
         const r = await evolutionSendMedia({
           instanceName: evoInstance,
@@ -1451,6 +1470,9 @@ export async function runAutomation(opts: {
       if (isInterakt && interaktKey) {
         const r = await sendInteraktText(interaktKey, contact.wa_id, cleaned);
         waMessageId = r.messageId ?? null;
+      } else if (isWaha && wahaSession) {
+        const r = await wahaSendText(wahaSession, contact.wa_id, cleaned);
+        waMessageId = r?.id ?? null;
       } else if (isEvolution && evoInstance && evoApiKey) {
         const r = await evolutionSendText({
           instanceName: evoInstance,
