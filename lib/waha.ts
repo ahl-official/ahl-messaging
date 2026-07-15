@@ -6,11 +6,51 @@ const getWahaBase = () =>
 
 const getWahaKey = () => process.env.WAHA_API_KEY || "";
 
-function wahaHeaders() {
+function wahaHeaders(): Record<string, string> {
   return {
     "Content-Type": "application/json",
     "X-Api-Key": getWahaKey(),
+    // Node 20 undici keepalive can ECONNRESET on some VPS networks.
+    Connection: "close",
+    "Keep-Alive": "timeout=0",
   };
+}
+
+function isConnReset(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+  const e = err as { code?: string; cause?: { code?: string }; message?: string };
+  return (
+    e.code === "ECONNRESET" ||
+    e.cause?.code === "ECONNRESET" ||
+    /ECONNRESET/i.test(e.message ?? "")
+  );
+}
+
+/** fetch to WAHA with Connection: close + one ECONNRESET retry after 2s. */
+async function wahaFetch(
+  url: string,
+  init?: RequestInit,
+): Promise<Response> {
+  let lastErr: unknown;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      return await fetch(url, {
+        ...init,
+        headers: {
+          ...wahaHeaders(),
+          ...(init?.headers as Record<string, string> | undefined),
+        },
+      });
+    } catch (err) {
+      lastErr = err;
+      if (attempt === 0 && isConnReset(err)) {
+        await new Promise((r) => setTimeout(r, 2_000));
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error("WAHA fetch failed");
 }
 
 // Normalise phone number to WAHA chatId format
@@ -29,9 +69,8 @@ export async function wahaSendText(
   replyToId?: string
 ): Promise<{ id?: string } | null> {
   try {
-    const res = await fetch(`${getWahaBase()}/api/sendText`, {
+    const res = await wahaFetch(`${getWahaBase()}/api/sendText`, {
       method: "POST",
-      headers: wahaHeaders(),
       body: JSON.stringify({
         session,
         chatId: toWahaChatId(number),
@@ -59,9 +98,8 @@ export async function wahaSendImage(
   caption?: string
 ): Promise<{ id?: string } | null> {
   try {
-    const res = await fetch(`${getWahaBase()}/api/sendImage`, {
+    const res = await wahaFetch(`${getWahaBase()}/api/sendImage`, {
       method: "POST",
-      headers: wahaHeaders(),
       body: JSON.stringify({
         session,
         chatId: toWahaChatId(number),
@@ -85,9 +123,8 @@ export async function wahaSendFile(
   caption?: string
 ): Promise<{ id?: string } | null> {
   try {
-    const res = await fetch(`${getWahaBase()}/api/sendFile`, {
+    const res = await wahaFetch(`${getWahaBase()}/api/sendFile`, {
       method: "POST",
-      headers: wahaHeaders(),
       body: JSON.stringify({
         session,
         chatId: toWahaChatId(number),
@@ -110,9 +147,8 @@ export async function wahaSendVoice(
   audioUrl: string
 ): Promise<{ id?: string } | null> {
   try {
-    const res = await fetch(`${getWahaBase()}/api/sendVoice`, {
+    const res = await wahaFetch(`${getWahaBase()}/api/sendVoice`, {
       method: "POST",
-      headers: wahaHeaders(),
       body: JSON.stringify({
         session,
         chatId: toWahaChatId(number),
@@ -133,9 +169,7 @@ export async function wahaGetSession(session: string): Promise<{
   me?: { id: string; pushName?: string };
 } | null> {
   try {
-    const res = await fetch(`${getWahaBase()}/api/sessions/${session}`, {
-      headers: wahaHeaders(),
-    });
+    const res = await wahaFetch(`${getWahaBase()}/api/sessions/${session}`);
     if (!res.ok) return null;
     return await res.json();
   } catch (err) {
@@ -147,9 +181,8 @@ export async function wahaGetSession(session: string): Promise<{
 // Get QR code for session
 export async function wahaGetQR(session: string): Promise<string | null> {
   try {
-    const res = await fetch(
+    const res = await wahaFetch(
       `${getWahaBase()}/api/${session}/auth/qr?format=raw`,
-      { headers: wahaHeaders() }
     );
     if (!res.ok) return null;
     const data = await res.json();
@@ -166,9 +199,8 @@ export async function wahaSetWebhook(
   webhookUrl: string
 ): Promise<boolean> {
   try {
-    const res = await fetch(`${getWahaBase()}/api/sessions/${session}`, {
+    const res = await wahaFetch(`${getWahaBase()}/api/sessions/${session}`, {
       method: "PUT",
-      headers: wahaHeaders(),
       body: JSON.stringify({
         config: {
           webhooks: [
@@ -202,13 +234,12 @@ export async function wahaMarkRead(
   chatId: string
 ): Promise<boolean> {
   try {
-    const res = await fetch(
+    const res = await wahaFetch(
       `${getWahaBase()}/api/${session}/chats/${chatId}/messages/read`,
       {
         method: "POST",
-        headers: wahaHeaders(),
         body: JSON.stringify({}),
-      }
+      },
     );
     return res.ok;
   } catch (err) {
@@ -220,9 +251,7 @@ export async function wahaMarkRead(
 // Health check
 export async function wahaHealth(): Promise<boolean> {
   try {
-    const res = await fetch(`${getWahaBase()}/health`, {
-      headers: wahaHeaders(),
-    });
+    const res = await wahaFetch(`${getWahaBase()}/health`);
     return res.ok;
   } catch {
     return false;
