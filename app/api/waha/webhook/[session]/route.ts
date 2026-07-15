@@ -166,12 +166,19 @@ export async function POST(
 
       // Auto-create lead in AHL Firebase CRM for new inbound contacts
       if (!fromMe && contact) {
-        const { ahlEnsureLeadForContact } = await import("@/lib/ahl-crm");
-        await ahlEnsureLeadForContact(supabase, {
-          contactId: contact.id,
-          mobileNo: contactWaId,
-          clientName: pushName || undefined,
-        });
+        try {
+          const { ahlEnsureLeadForContact } = await import("@/lib/ahl-crm");
+          await ahlEnsureLeadForContact(supabase, {
+            contactId: contact.id,
+            mobileNo: contactWaId,
+            clientName: pushName || undefined,
+          });
+        } catch (e) {
+          console.error(
+            "[waha-webhook] ahl-crm import/ensure failed:",
+            e instanceof Error ? e.message : e,
+          );
+        }
       }
 
       // Determine message type
