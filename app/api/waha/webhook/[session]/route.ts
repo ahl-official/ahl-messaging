@@ -214,10 +214,13 @@ export async function POST(
 
       // Trigger AI automation for inbound messages
       if (!fromMe) {
-        await supabase
+        console.log("[waha-debug] setting automation_pending_at for contact:", contact.id, "now:", now);
+        const { data: pendingData, error: pendingError } = await supabase
           .from("contacts")
           .update({ automation_pending_at: now })
-          .eq("id", contact.id);
+          .eq("id", contact.id)
+          .select("id, automation_pending_at");
+        console.log("[waha-debug] pending update result:", JSON.stringify(pendingData), "error:", pendingError?.message);
       }
 
       break;
