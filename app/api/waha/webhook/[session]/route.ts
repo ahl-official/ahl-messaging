@@ -134,24 +134,27 @@ export async function POST(
         ? new Date(timestamp * 1000).toISOString()
         : now;
 
-      // Upsert contact
+      // Upsert contact, then SELECT — PostgREST upsert+select can omit the
+      // row on conflict, leaving contact.id undefined for later updates.
+      await supabase.from("contacts").upsert(
+        {
+          wa_id: contactWaId,
+          business_phone_number_id: bpid,
+          last_message_at: msgTimestamp,
+          last_message_preview: body_text?.slice(0, 200) || "",
+          last_message_direction: fromMe ? "outbound" : "inbound",
+          ...(pushName ? { profile_name: pushName } : {}),
+        },
+        {
+          onConflict: "wa_id,business_phone_number_id",
+          ignoreDuplicates: false,
+        },
+      );
       const { data: contact } = await supabase
         .from("contacts")
-        .upsert(
-          {
-            wa_id: contactWaId,
-            business_phone_number_id: bpid,
-            last_message_at: msgTimestamp,
-            last_message_preview: body_text?.slice(0, 200) || "",
-            last_message_direction: fromMe ? "outbound" : "inbound",
-            ...(pushName ? { profile_name: pushName } : {}),
-          },
-          {
-            onConflict: "wa_id,business_phone_number_id",
-            ignoreDuplicates: false,
-          },
-        )
         .select("id, unread_count")
+        .eq("wa_id", contactWaId)
+        .eq("business_phone_number_id", bpid)
         .single();
 
       if (!contact) break;
