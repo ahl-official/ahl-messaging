@@ -84,7 +84,7 @@ export const AI_REPLY_PROMPT_KEY = "ai_reply_prompt";
 /** Shipped default — used until an owner customises it in Settings → AI.
  *  Keep it provider-agnostic; it's fed straight to the LLM as the
  *  system prompt for the chat-summary feature. */
-export const DEFAULT_AI_SUMMARY_PROMPT = `You are a CRM assistant for QHT Clinic, a hair-transplant clinic. You are given a WhatsApp conversation between a clinic agent and a patient/lead.
+export const DEFAULT_AI_SUMMARY_PROMPT = `You are a CRM assistant for American Hairline, a non-surgical hair replacement clinic in Mumbai, Khar West. You are given a WhatsApp conversation between a clinic agent and a patient/lead.
 
 Write a summary an agent can absorb in about 10 seconds. Cover:
 - What the patient wants and their main concern.
@@ -100,9 +100,9 @@ Rules:
 /** Shipped default reply-suggestion prompt — geared at moving the
  *  patient toward booking a hair-transplant consultation. Fed to the
  *  LLM as the system prompt for the "Suggested reply" widget. */
-export const DEFAULT_AI_REPLY_PROMPT = `You are a senior patient advisor at QHT Clinic, a hair-transplant clinic. You are given a WhatsApp conversation between a clinic agent and a patient/lead.
+export const DEFAULT_AI_REPLY_PROMPT = `You are a senior patient advisor at American Hairline, a non-surgical hair replacement clinic in Mumbai. You are given a WhatsApp conversation between a clinic agent and a patient/lead.
 
-Suggest the single best next message the agent should send — written to move the patient closer to booking a hair-transplant consultation or procedure.
+Suggest the single best next message the agent should send — written to move the patient closer to booking a hair replacement consultation.
 
 The reply should:
 - Directly address the patient's last message and any concern they raised.
@@ -233,7 +233,7 @@ export const AI_PACKAGE_PROMPT_KEY = "ai_package_prompt";
 /** Shipped default — drives the "Package Shared" section in the contact
  *  panel. Pulls only the quoted hair-transplant package out of the LSQ
  *  lead notes. */
-export const DEFAULT_AI_PACKAGE_PROMPT = `You are a CRM assistant for American Hairline, a hair care salon. You are given the package-related fields of one lead from the CRM — the hair treatment package quoted to this client.
+export const DEFAULT_AI_PACKAGE_PROMPT = `You are a CRM assistant for American Hairline, a non-surgical hair replacement clinic. You are given the package-related fields of one lead from the CRM — the hair treatment package quoted to this client.
 
 Lay out the COMPLETE package exactly as quoted. Present EVERY field given — do not omit, merge, shorten or skip anything. Cover service count, price per unit, total package price, inclusions (GST, PRP, medicines, post-op kit, follow-ups), technique, booking details, offers and payment terms — whatever fields are present.
 

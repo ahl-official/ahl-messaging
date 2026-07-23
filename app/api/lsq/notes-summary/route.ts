@@ -29,7 +29,7 @@ const PACKAGE_RE =
   /graft|package|\bprp\b|inclus|technique|surgery|booking|\boffer\b|discount|quotation|installment|payment/i;
 const EXCLUDE_RE = /disposition|screenshot|stage|status|date_align/i;
 
-const NOTES_PROMPT = `You are a CRM assistant for American Hairline, a hair care salon. You are given a lead's activity / notes log from the CRM (newest first).
+const NOTES_PROMPT = `You are a CRM assistant for American Hairline, a non-surgical hair replacement clinic. You are given a lead's activity / notes log from the CRM (newest first).
 
 Give an ULTRA-SHORT status — only what an agent must know right now.
 
