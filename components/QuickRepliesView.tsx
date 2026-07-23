@@ -36,9 +36,9 @@ export function QuickRepliesView() {
             provider: (n.provider as "meta" | "evolution" | null) ?? "meta",
             portfolio: (n.portfolio as { key: string; name: string } | null) ?? null,
           }))
-          // Drop Evolution (Baileys) numbers — quick replies are for the
-          // official Cloud-API / portfolio numbers only.
-          .filter((n) => n.provider !== "evolution" && !n.phone_number_id.startsWith("evo:"));
+          // Drop Evolution (Baileys) numbers — keep Meta + WAHA (waha: ids
+          // may still be tagged provider=evolution in DB).
+          .filter((n) => n.provider !== "evolution" || n.phone_number_id.startsWith("waha:"));
         setNumbers(list);
         setActivePhoneId(list[0]?.phone_number_id ?? null);
       })

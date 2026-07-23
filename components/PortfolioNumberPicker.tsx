@@ -39,7 +39,9 @@ export function PortfolioNumberPicker({
   const groups = useMemo(() => {
     const m = new Map<string, { key: string; name: string; isEvo: boolean; rows: PickerNumber[] }>();
     for (const n of numbers) {
-      const isEvo = n.provider === "evolution" || n.phone_number_id.startsWith("evo:");
+      const isEvo =
+        (n.provider === "evolution" && !n.phone_number_id.startsWith("waha:")) ||
+        n.phone_number_id.startsWith("evo:");
       if (isEvo && excludeEvolution) continue;
       const portfolioKey = n.portfolio?.key ?? null;
       if (requirePortfolio && !portfolioKey && !isEvo) continue;
