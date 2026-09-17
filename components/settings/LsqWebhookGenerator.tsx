@@ -125,7 +125,7 @@ export function LsqWebhookGenerator() {
     });
   }
 
-  const existingNames = new Set((rows ?? []).map((r) => r.name.toLowerCase()));
+  const existingNames = new Set((rows ?? []).map((r) => (r.name || "").toLowerCase()));
   const suggestionsLeft = SUGGESTED.filter(
     (s) => !existingNames.has(s.toLowerCase()),
   );

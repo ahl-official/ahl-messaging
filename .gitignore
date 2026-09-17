@@ -28,3 +28,7 @@ yarn-error.log*
 
 # Local reference copy of AHL CRM — never commit (contains secrets)
 /Kunal CRM Code/
+
+# Agent context files
+decision.md
+memory.md

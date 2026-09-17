@@ -423,8 +423,8 @@ function LiveProgress({ progress }: { progress: Progress }) {
               ) : null}
             </span>
             <span className="tabular-nums text-muted-foreground">
-              {progress.evo_done} / {progress.evo_total} ·{" "}
-              {progress.evo_ingested.toLocaleString()} msgs
+              {progress.evo_done ?? 0} / {progress.evo_total ?? 0} ·{" "}
+              {(progress.evo_ingested ?? 0).toLocaleString()} msgs
             </span>
           </div>
           <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-violet-100">
@@ -452,8 +452,8 @@ function LiveProgress({ progress }: { progress: Progress }) {
               Phase 2 · LSQ lead sync
             </span>
             <span className="tabular-nums text-muted-foreground">
-              {progress.lsq_done} / {progress.lsq_total} ·{" "}
-              {progress.lsq_matched} matched
+              {progress.lsq_done ?? 0} / {progress.lsq_total ?? 0} ·{" "}
+              {progress.lsq_matched ?? 0} matched
             </span>
           </div>
           <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-violet-100">

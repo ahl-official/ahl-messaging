@@ -65,7 +65,7 @@ export default async function LoginPage({
             <div className="leading-tight">
               <div className="text-base font-semibold">AHL Messaging</div>
               <div className="text-[11px] uppercase tracking-[0.18em] text-white/70">
-                Hair care, reimagined
+                Non-surgical hair replacement
               </div>
             </div>
           </header>
@@ -221,7 +221,7 @@ function ChatShowcase() {
           side="in"
           name="Aman AI"
           time="10:42"
-          text="Hi! Is the consultation free? And how long does it take?"
+          text="Hi! Do you customise non-surgical hair systems? Is the first consult free?"
           delay="0.10s"
         />
 
@@ -229,7 +229,7 @@ function ChatShowcase() {
         <ChatBubble
           side="out"
           time="10:43"
-          text="Yes, the first consultation is complimentary — usually 30–45 minutes. Want me to book one?"
+          text="Yes — we craft custom hair systems at Khar West. First consult is complimentary, usually 30–45 min. Shall I book you?"
           delay="0.30s"
           status="read"
         />
@@ -240,7 +240,7 @@ function ChatShowcase() {
           side="in"
           name="Rahul"
           time="10:44"
-          text="Please reschedule my appointment to Saturday 4pm."
+          text="Please reschedule my hair-system fitting to Saturday 4pm."
           delay="0.50s"
         />
 
@@ -248,7 +248,7 @@ function ChatShowcase() {
         <ChatBubble
           side="out"
           time="10:44"
-          text="Done ✓ — Saturday, 4:00 PM is confirmed. See you then!"
+          text="Done ✓ — Saturday, 4:00 PM at Khar West is confirmed. See you then!"
           delay="0.70s"
           status="delivered"
         />

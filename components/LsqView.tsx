@@ -531,7 +531,7 @@ function LeadDefaultsPerNumber({ configured }: { configured: boolean }) {
           (r.nickname ?? "").toLowerCase().includes(q) ||
           (r.verified_name ?? "").toLowerCase().includes(q) ||
           (r.display_phone_number ?? "").toLowerCase().includes(q) ||
-          r.business_phone_number_id.includes(q)
+          (r.business_phone_number_id || "").includes(q)
         )
       )
         continue;
@@ -1037,9 +1037,9 @@ function FeatureRow({
   description: string;
 }) {
   const tone = {
-    now:    { ring: "ring-primary/25", bg: "bg-primary/10", text: "text-primary", label: "Live" },
-    next:   { ring: "ring-amber-200",   bg: "bg-amber-50",   text: "text-amber-800",   label: "Next" },
-    planned:{ ring: "ring-border",      bg: "bg-secondary",  text: "text-muted-foreground", label: "Later" },
+    now: { ring: "ring-primary/25", bg: "bg-primary/10", text: "text-primary", label: "Live" },
+    next: { ring: "ring-amber-200", bg: "bg-amber-50", text: "text-amber-800", label: "Next" },
+    planned: { ring: "ring-border", bg: "bg-secondary", text: "text-muted-foreground", label: "Later" },
   }[state];
   return (
     <li className="flex items-start gap-3 px-5 py-3">
