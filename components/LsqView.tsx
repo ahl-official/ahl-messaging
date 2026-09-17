@@ -525,6 +525,7 @@ function LeadDefaultsPerNumber({ configured }: { configured: boolean }) {
     const q = search.trim().toLowerCase();
     const m = new Map<string, NumberRow[]>();
     for (const r of rows ?? []) {
+      if (!r) continue;
       if (
         q &&
         !(
@@ -692,15 +693,15 @@ function LeadDefaultsForNumber({
   disabled: boolean;
   onSaved: () => void;
 }) {
-  const initial = row.config?.lead_defaults ?? [];
-  const initialUpdateFields = row.config?.update_lead_fields ?? [];
+  const initial = Array.isArray(row.config?.lead_defaults) ? row.config.lead_defaults : [];
+  const initialUpdateFields = Array.isArray(row.config?.update_lead_fields) ? row.config.update_lead_fields : [];
   const initialUpdateExisting = row.config?.update_existing_lead_source === true;
   const initialMaxAge = row.config?.update_existing_lead_max_age_days ?? null;
   // Activity logging defaults to ON when the column is null (matches the
   // capability flag default in Settings → Capabilities).
   const initialActivityLog = row.config?.lsq_activity_log_enabled !== false;
   const initialSuffix = row.config?.activity_note_suffix ?? "";
-  const initialFbAds = row.config?.lsq_fb_ads_fields ?? [];
+  const initialFbAds = Array.isArray(row.config?.lsq_fb_ads_fields) ? row.config.lsq_fb_ads_fields : [];
   const [fbAds, setFbAds] = useState<FbAdsField[]>(initialFbAds);
   const [defaults, setDefaults] = useState<LeadDefault[]>(initial);
   const [updateFields, setUpdateFields] = useState<LeadDefault[]>(initialUpdateFields);
