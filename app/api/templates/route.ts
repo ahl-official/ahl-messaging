@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
       } catch (e) {
         return NextResponse.json(
           { error: e instanceof Error ? e.message : "Interakt templates failed" },
-          { status: 502 },
+          { status: 400 },
         );
       }
     }
@@ -172,7 +172,7 @@ export async function GET(request: NextRequest) {
           );
           return NextResponse.json(
             { error: (json.error?.message ?? `Meta API ${res.status}`) + hint },
-            { status: 502 },
+            { status: 400 },
           );
         }
       } else {
@@ -476,7 +476,7 @@ export async function POST(request: NextRequest) {
     if (!res.ok) {
       return NextResponse.json(
         { error: json.error?.error_user_msg ?? json.error?.message ?? `Meta API ${res.status}` },
-        { status: 502 },
+        { status: 400 },
       );
     }
 
