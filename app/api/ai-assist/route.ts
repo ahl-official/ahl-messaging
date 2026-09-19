@@ -133,6 +133,8 @@ export async function POST(request: NextRequest) {
   userParts.push(`What I want:\n${instruction}`);
 
   let resp: Response;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 45_000);
   try {
     resp = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -148,14 +150,16 @@ export async function POST(request: NextRequest) {
           { role: "user", content: userParts.join("\n\n") },
         ],
       }),
-      signal: AbortSignal.timeout(45_000),
+      signal: controller.signal,
     });
   } catch (e) {
+    clearTimeout(timeoutId);
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Network error" },
       { status: 502 },
     );
   }
+  clearTimeout(timeoutId);
   if (!resp.ok) {
     const text = await resp.text().catch(() => "");
     return NextResponse.json(

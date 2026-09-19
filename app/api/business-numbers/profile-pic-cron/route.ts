@@ -48,7 +48,6 @@ export async function POST(request: NextRequest) {
     )
     .is("profile_pic_url", null)
     .not("display_phone_number", "is", null)
-    .order("profile_pic_checked_at", { ascending: true, nullsFirst: true })
     .limit(BATCH_SIZE);
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -105,17 +104,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const patch: Record<string, unknown> = {
-      profile_pic_checked_at: nowIso,
-    };
+    const patch: Record<string, unknown> = {};
     if (url) {
       patch.profile_pic_url = url;
       updated++;
+      await admin
+        .from("business_numbers")
+        .update(patch)
+        .eq("phone_number_id", row.phone_number_id);
     }
-    await admin
-      .from("business_numbers")
-      .update(patch)
-      .eq("phone_number_id", row.phone_number_id);
   }
 
   return NextResponse.json({

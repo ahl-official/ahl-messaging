@@ -14,9 +14,9 @@ import { requireCredential } from "@/lib/credentials";
 export type ChatContent =
   | string
   | Array<
-      | { type: "text"; text: string }
-      | { type: "image_url"; image_url: { url: string; detail?: "low" | "high" | "auto" } }
-    >;
+    | { type: "text"; text: string }
+    | { type: "image_url"; image_url: { url: string; detail?: "low" | "high" | "auto" } }
+  >;
 
 export interface ChatMessage {
   role: "system" | "user" | "assistant";
@@ -108,15 +108,19 @@ export async function chatCompletion(opts: {
 
   let res: Response | undefined;
   for (let attempt = 0; attempt < 2; attempt++) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), opts.timeoutMs ?? 30_000);
     try {
       res = await fetch(`${baseUrl}/chat/completions`, {
         method: "POST",
         headers,
         body: JSON.stringify(body),
-        signal: AbortSignal.timeout(opts.timeoutMs ?? 30_000),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       break;
     } catch (err) {
+      clearTimeout(timeoutId);
       if (attempt === 0 && isConnReset(err)) {
         await new Promise((r) => setTimeout(r, 2_000));
         continue;
