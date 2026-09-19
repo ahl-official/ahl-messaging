@@ -13,6 +13,14 @@
 // scheduler.
 // scheduler.
 
+if (typeof AbortSignal !== "undefined" && !AbortSignal.timeout) {
+  AbortSignal.timeout = (ms: number) => {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), ms).unref();
+    return controller.signal;
+  };
+}
+
 const SWEEP_EVERY_MS = 30_000;
 const PROFILE_PIC_EVERY_MS = 5 * 60_000;
 // Nightly-sync heartbeat fires every minute; the endpoint itself
