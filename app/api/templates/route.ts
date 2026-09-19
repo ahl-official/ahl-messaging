@@ -456,6 +456,7 @@ export async function POST(request: NextRequest) {
         },
         body: payload,
         cache: "no-store",
+        signal: AbortSignal.timeout(12000),
       });
 
     let res = await doCreate(WABA_ID);

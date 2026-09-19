@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
     sessionUrl.searchParams.set("file_type", file.type);
     sessionUrl.searchParams.set("access_token", ACCESS_TOKEN);
 
-    const sessionRes = await fetch(sessionUrl.toString(), { method: "POST", cache: "no-store" });
+    const sessionRes = await fetch(sessionUrl.toString(), { method: "POST", cache: "no-store", signal: AbortSignal.timeout(12000) });
     const sessionJson = (await sessionRes.json()) as {
       id?: string;
       error?: { message?: string; error_user_msg?: string };
@@ -138,6 +138,7 @@ export async function POST(request: NextRequest) {
       },
       body: bytes,
       cache: "no-store",
+      signal: AbortSignal.timeout(12000),
     });
     const uploadJson = (await uploadRes.json()) as {
       h?: string;
