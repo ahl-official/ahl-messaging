@@ -11,7 +11,7 @@
 // On a long-running Node server (or local dev), this in-process timer
 // works just fine and saves the operator from setting up an external
 // scheduler.
-import dns from "node:dns";
+// scheduler.
 
 const SWEEP_EVERY_MS = 30_000;
 const PROFILE_PIC_EVERY_MS = 5 * 60_000;
@@ -51,7 +51,8 @@ export async function register() {
   // Edge runtime instances don't have access to setInterval-as-Node-timer
   // and shouldn't run our DB-backed sweep anyway.
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
-  dns.setDefaultResultOrder("ipv4first");
+  require("node:dns").setDefaultResultOrder("ipv4first");
+
 
 
   // PM2 cluster mode runs N copies of this process — without this
