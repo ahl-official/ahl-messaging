@@ -306,7 +306,7 @@ export async function POST(request: NextRequest) {
     const apiVersion = await getApiVersion();
     const creds = await resolveTemplateCreds({ phoneNumberId, portfolioKey });
     if (!creds) {
-      return NextResponse.json({ error: CREDS_MISSING_MSG }, { status: 500 });
+      return NextResponse.json({ error: CREDS_MISSING_MSG }, { status: 400 });
     }
     const WABA_ID = creds.waba;
     const accessToken = creds.token;
@@ -505,6 +505,6 @@ export async function POST(request: NextRequest) {
       category: json.category ?? input.category,
     });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message || "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: e.message || "Internal server error" }, { status: 400 });
   }
 }
