@@ -447,17 +447,24 @@ export async function POST(request: NextRequest) {
       category: input.category,
       components,
     });
-    const doCreate = (wid: string) =>
-      fetch(createUrl(wid), {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: payload,
-        cache: "no-store",
-        signal: AbortSignal.timeout(12000),
-      });
+    const doCreate = async (wid: string) => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
+      try {
+        return await fetch(createUrl(wid), {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: payload,
+          cache: "no-store",
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    };
 
     let res = await doCreate(WABA_ID);
     let json = (await res.json()) as {

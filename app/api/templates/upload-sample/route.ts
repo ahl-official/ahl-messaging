@@ -112,7 +112,15 @@ export async function POST(request: NextRequest) {
     sessionUrl.searchParams.set("file_type", file.type);
     sessionUrl.searchParams.set("access_token", ACCESS_TOKEN);
 
-    const sessionRes = await fetch(sessionUrl.toString(), { method: "POST", cache: "no-store", signal: AbortSignal.timeout(12000) });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+    let sessionRes;
+    try {
+      sessionRes = await fetch(sessionUrl.toString(), { method: "POST", cache: "no-store", signal: controller.signal });
+    } finally {
+      clearTimeout(timeoutId);
+    }
     const sessionJson = (await sessionRes.json()) as {
       id?: string;
       error?: { message?: string; error_user_msg?: string };
@@ -130,16 +138,24 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 2: upload file bytes
-    const uploadRes = await fetch(`https://graph.facebook.com/${apiVersion}/${sessionJson.id}`, {
-      method: "POST",
-      headers: {
-        Authorization: `OAuth ${ACCESS_TOKEN}`,
-        file_offset: "0",
-      },
-      body: bytes,
-      cache: "no-store",
-      signal: AbortSignal.timeout(12000),
-    });
+    const uploadController = new AbortController();
+    const uploadTimeoutId = setTimeout(() => uploadController.abort(), 12000);
+
+    let uploadRes;
+    try {
+      uploadRes = await fetch(`https://graph.facebook.com/${apiVersion}/${sessionJson.id}`, {
+        method: "POST",
+        headers: {
+          Authorization: `OAuth ${ACCESS_TOKEN}`,
+          file_offset: "0",
+        },
+        body: bytes,
+        cache: "no-store",
+        signal: uploadController.signal,
+      });
+    } finally {
+      clearTimeout(uploadTimeoutId);
+    }
     const uploadJson = (await uploadRes.json()) as {
       h?: string;
       error?: { message?: string; error_user_msg?: string };
