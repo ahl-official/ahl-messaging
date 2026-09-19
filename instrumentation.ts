@@ -51,9 +51,6 @@ export async function register() {
   // Edge runtime instances don't have access to setInterval-as-Node-timer
   // and shouldn't run our DB-backed sweep anyway.
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
-  require("node:dns").setDefaultResultOrder("ipv4first");
-
-
 
   // PM2 cluster mode runs N copies of this process — without this
   // gate, the in-process scheduler fires N times every 30 seconds and
