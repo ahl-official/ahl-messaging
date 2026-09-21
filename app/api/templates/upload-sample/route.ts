@@ -8,19 +8,28 @@ import { listPortfolios } from "@/lib/portfolios";
 export const runtime = "nodejs";
 
 // Resolve { app_id, access_token } for media uploads. Same precedence as
-// /api/templates: explicit ?portfolio_key=, then legacy single-tenant
 // credentials, then first active portfolio. Multi-portfolio installs
 // don't set the legacy app_credentials rows so the portfolio fallback
 // is what actually fires here.
-async function resolveAppCreds(
-  portfolioKey?: string | null,
-): Promise<{ app_id: string; access_token: string } | null> {
+async function resolveAppCreds(opts: {
+  portfolioKey?: string | null;
+  phoneNumberId?: string | null;
+}): Promise<{ app_id: string; access_token: string } | null> {
+  let portfolioKey = opts.portfolioKey?.trim() || null;
+  const phoneNumberId = opts.phoneNumberId?.trim() || null;
+
+  if (phoneNumberId) {
+    const owner = listPortfolios().find((p) =>
+      p.phone_number_ids.includes(phoneNumberId),
+    );
+    if (owner) portfolioKey = owner.key;
+  }
+
   if (portfolioKey) {
     const p = listPortfolios().find((x) => x.key === portfolioKey);
     if (p?.app_id && p.access_token) {
       return { app_id: p.app_id, access_token: p.access_token };
     }
-    return null;
   }
   const [legacyAppId, legacyToken] = await Promise.all([
     getCredential("whatsapp_app_id"),
@@ -64,8 +73,11 @@ export async function POST(request: NextRequest) {
 
     const portfolioKey =
       request.nextUrl.searchParams.get("portfolio_key")?.trim() || null;
+    const phoneNumberId =
+      request.nextUrl.searchParams.get("phone_number_id")?.trim() || null;
+
     const [creds, apiVersion] = await Promise.all([
-      resolveAppCreds(portfolioKey),
+      resolveAppCreds({ portfolioKey, phoneNumberId }),
       getApiVersion(),
     ]);
     if (!creds) {
