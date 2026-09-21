@@ -102,7 +102,6 @@ export async function chatCompletion(opts: {
     Authorization: `Bearer ${apiKey}`,
     "Content-Type": "application/json",
     Connection: "close",
-    "Keep-Alive": "timeout=0",
     ...extraHeaders,
   };
 
