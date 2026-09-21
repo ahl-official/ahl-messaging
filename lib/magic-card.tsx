@@ -20,6 +20,18 @@ async function getLogoDataUrl(): Promise<string | null> {
   return cachedLogoDataUrl;
 }
 
+let cachedFontData: ArrayBuffer | null = null;
+async function getFontData(): Promise<ArrayBuffer | null> {
+  if (cachedFontData) return cachedFontData;
+  try {
+    const buf = await fs.readFile(path.join(process.cwd(), "public", "magic-font.ttf"));
+    cachedFontData = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+  } catch (e) {
+    cachedFontData = null;
+  }
+  return cachedFontData;
+}
+
 const CARD_W = 880;
 const TEXT_W = 700; //   880 − 40·2 (green pad) − 50·2 (white pad)
 const LINE_H = 1.4;
@@ -65,6 +77,7 @@ export async function renderMagicCardPng(opts: {
     Math.max(MIN_H, Math.ceil(CHROME_H + estimateTextHeight(text, fontSize))),
   );
   const logoSrc = await getLogoDataUrl();
+  const fontData = await getFontData();
 
   const response = new ImageResponse(
     (
@@ -158,7 +171,20 @@ export async function renderMagicCardPng(opts: {
         </div>
       </div>
     ),
-    { width: CARD_W, height },
+    {
+      width: CARD_W,
+      height,
+      ...(fontData ? {
+        fonts: [
+          {
+            name: "Arial",
+            data: fontData,
+            style: "normal",
+            weight: 500,
+          }
+        ]
+      } : {})
+    },
   );
 
   const bytes = await response.arrayBuffer();
