@@ -96,7 +96,7 @@ export async function POST(
     console.error("[reply-suggestion error]", e);
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Suggestion failed, please try again." },
-      { status: 502 },
+      { status: 400 },
     );
   }
 }
