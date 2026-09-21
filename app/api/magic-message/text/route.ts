@@ -8,7 +8,7 @@ import { renderMagicCardPng } from "@/lib/magic-card";
 
 export const runtime = "nodejs";
 const TEMPLATE_NAME = "magic_message";
-const TEMPLATE_LANGUAGE = "en_US";
+const TEMPLATE_LANGUAGE = "en";
 
 interface Body {
   contact_id?: string;
