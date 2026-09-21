@@ -42,6 +42,7 @@ async function resolveChatApiConfig(): Promise<{
   apiKey: string;
   baseUrl: string;
   extraHeaders: Record<string, string>;
+  isOpenRouter: boolean;
 }> {
   const openRouterKey = process.env.OPENROUTER_API_KEY?.trim();
   if (openRouterKey) {
@@ -52,6 +53,7 @@ async function resolveChatApiConfig(): Promise<{
         "HTTP-Referer": "https://wa.hairscalptradingco.com",
         "X-Title": "AHL Messaging",
       },
+      isOpenRouter: true,
     };
   }
   const apiKey = await requireCredential("openai_api_key", "OpenAI API key");
@@ -59,6 +61,7 @@ async function resolveChatApiConfig(): Promise<{
     apiKey,
     baseUrl: "https://api.openai.com/v1",
     extraHeaders: {},
+    isOpenRouter: false,
   };
 }
 
@@ -83,11 +86,16 @@ export async function chatCompletion(opts: {
    *  pipeline so we never get markdown-fenced or chatty replies. */
   jsonMode?: boolean;
 }): Promise<ChatCompletionResponse> {
-  const { apiKey, baseUrl, extraHeaders } = await resolveChatApiConfig();
+  const { apiKey, baseUrl, extraHeaders, isOpenRouter } = await resolveChatApiConfig();
+
+  let finalModel = opts.model;
+  if (isOpenRouter && !finalModel.includes("/")) {
+    finalModel = `openai/${finalModel}`;
+  }
 
   const startedAt = Date.now();
   const body: Record<string, unknown> = {
-    model: opts.model,
+    model: finalModel,
     messages: opts.messages,
     temperature: opts.temperature ?? 0.4,
     max_tokens: opts.maxTokens ?? 800,
