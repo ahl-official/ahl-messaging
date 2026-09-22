@@ -55,6 +55,13 @@ type GlobalWithTimer = typeof globalThis & {
   [LSQ_PUSH_RETRY_TIMER_KEY]?: NodeJS.Timeout;
 };
 
+
+function logTickErr(prefix: string, e: unknown) {
+  const msg = e instanceof Error ? e.message : String(e);
+  if (msg.includes("fetch failed") && process.env.NODE_ENV === "development") return;
+  console.warn(`${prefix} tick failed:`, msg);
+}
+
 export async function register() {
   // Edge runtime instances don't have access to setInterval-as-Node-timer
   // and shouldn't run our DB-backed sweep anyway.
@@ -114,7 +121,7 @@ export async function register() {
         );
       }
     } catch (e) {
-      console.warn("[sweep] tick failed:", e instanceof Error ? e.message : e);
+      logTickErr("[sweep]", e);
     }
   }
 
@@ -146,10 +153,7 @@ export async function register() {
         );
       }
     } catch (e) {
-      console.warn(
-        "[campaign-tick] tick failed:",
-        e instanceof Error ? e.message : e,
-      );
+      logTickErr("[campaign-tick]", e);
     }
   }
 
@@ -172,7 +176,7 @@ export async function register() {
       const json = (await res.json()) as { assigned?: number; scanned?: number };
       if (json.assigned) console.log(`[lead-dist-tick] assigned=${json.assigned} scanned=${json.scanned}`);
     } catch (e) {
-      console.warn("[lead-dist-tick] tick failed:", e instanceof Error ? e.message : e);
+      logTickErr("[lead-dist-tick]", e);
     }
   }
 
@@ -196,7 +200,7 @@ export async function register() {
         console.log(`[drip-tick] sent=${json.sent} failed=${json.failed} stopped=${json.stopped}`);
       }
     } catch (e) {
-      console.warn("[drip-tick] tick failed:", e instanceof Error ? e.message : e);
+      logTickErr("[drip-tick]", e);
     }
   }
 
@@ -216,7 +220,7 @@ export async function register() {
       const json = (await res.json()) as { ran?: number; sent?: number };
       if (json.ran || json.sent) console.log(`[recurring-tick] ran=${json.ran} sent=${json.sent}`);
     } catch (e) {
-      console.warn("[recurring-tick] tick failed:", e instanceof Error ? e.message : e);
+      logTickErr("[recurring-tick]", e);
     }
   }
 
@@ -239,7 +243,7 @@ export async function register() {
       const json = (await res.json()) as { resumed?: number };
       if (json.resumed) console.log(`[triggers-tick] resumed=${json.resumed}`);
     } catch (e) {
-      console.warn("[triggers-tick] tick failed:", e instanceof Error ? e.message : e);
+      logTickErr("[triggers-tick]", e);
     }
   }
 
@@ -274,10 +278,7 @@ export async function register() {
         );
       }
     } catch (e) {
-      console.warn(
-        "[profile-pic-cron] tick failed:",
-        e instanceof Error ? e.message : e,
-      );
+      logTickErr("[profile-pic-cron]", e);
     }
   }
 
@@ -307,10 +308,7 @@ export async function register() {
         console.log(`[nightly-sync] fired — ${json.summary ?? "ok"}`);
       }
     } catch (e) {
-      console.warn(
-        "[nightly-sync] tick failed:",
-        e instanceof Error ? e.message : e,
-      );
+      logTickErr("[nightly-sync]", e);
     }
   }
 
@@ -328,7 +326,7 @@ export async function register() {
       const json = (await res.json()) as { refreshed?: number; processed?: number };
       if (json.processed) console.log(`[lsq-refresh] ${json.refreshed ?? 0}/${json.processed} refreshed`);
     } catch (e) {
-      console.warn("[lsq-refresh] tick failed:", e instanceof Error ? e.message : e);
+      logTickErr("[lsq-refresh]", e);
     }
   }
 
@@ -345,7 +343,7 @@ export async function register() {
       const json = (await res.json()) as { attempted?: number; pushed?: number };
       if (json.attempted) console.log(`[lsq-push-retry] ${json.pushed ?? 0}/${json.attempted} pushed`);
     } catch (e) {
-      console.warn("[lsq-push-retry] tick failed:", e instanceof Error ? e.message : e);
+      logTickErr("[lsq-push-retry]", e);
     }
   }
 

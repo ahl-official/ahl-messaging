@@ -969,12 +969,22 @@ function NodeConfig({
 }) {
   const c = config;
   switch (node_type) {
+    case "ask_text":
     case "message_text":
       return (
-        <Field label="Message" hint="Variables: {{name}}, {{first_name}}, {{phone}}">
-          <textarea value={String(c.text ?? "")} onChange={(e) => onSet({ text: e.target.value })} rows={5} className={cn(inputCls, "resize-y")} placeholder="Hi {{name}}, …" />
-        </Field>
+        <div className="space-y-3">
+          <Field label={node_type === "ask_text" ? "Question" : "Message"} hint="Variables: {{name}}, {{first_name}}, {{phone}}">
+            <textarea value={String(c.text ?? "")} onChange={(e) => onSet({ text: e.target.value })} rows={5} className={cn(inputCls, "resize-y")} placeholder="Hi {{name}}, …" />
+          </Field>
+          {node_type.startsWith("ask_") && (
+            <Field label="Save response to variable" hint="e.g. user_name">
+              <input value={String(c.var_name ?? "")} onChange={(e) => onSet({ var_name: e.target.value })} className={inputCls} placeholder="my_var" />
+            </Field>
+          )}
+        </div>
       );
+    case "ask_list":
+    case "ask_button":
     case "message_buttons": {
       const buttons = Array.isArray(c.buttons) ? (c.buttons as Array<{ label?: string; url?: string }>) : [];
       const setBtns = (next: Array<{ label?: string; url?: string }>) => onSet({ buttons: next });
@@ -1025,9 +1035,15 @@ function NodeConfig({
               })}
             </div>
             <p className="mt-1.5 text-[10px] text-muted-foreground">
-              Khali URL = branch button (apna handle). URL daala = <b>link button</b> (tap pe link khulta hai, branch nahi). WhatsApp: 1 link button alone, ya 3 tak branch buttons.
+              Khali URL = branch button (apna handle). URL daala = <b>link button</b> (tap pe link khulta hai, branch nahi).
             </p>
           </div>
+
+          {node_type.startsWith("ask_") && (
+            <Field label="Save picked option to variable" hint="e.g. chosen_product">
+              <input value={String(c.var_name ?? "")} onChange={(e) => onSet({ var_name: e.target.value })} className={inputCls} placeholder="my_var" />
+            </Field>
+          )}
 
           {/* If the client types instead of tapping a button, optionally
               nudge them to use a button (run stays parked on this node). */}
@@ -1051,6 +1067,27 @@ function NodeConfig({
               />
             ) : null}
           </div>
+        </div>
+      );
+    }
+    case "ask_file": {
+      return (
+        <div className="space-y-3">
+          <Field label="Message / Instructions">
+            <textarea value={String(c.text ?? "")} onChange={(e) => onSet({ text: e.target.value })} rows={3} className={cn(inputCls, "resize-y")} placeholder="Please send your file..." />
+          </Field>
+          <Field label="Save response to variable" hint="e.g. uploaded_file">
+            <input value={String(c.var_name ?? "")} onChange={(e) => onSet({ var_name: e.target.value })} className={inputCls} placeholder="my_var" />
+          </Field>
+        </div>
+      );
+    }
+    case "send_template": {
+      return (
+        <div className="space-y-3">
+          <Field label="Template Name">
+            <input value={String(c.template_name ?? "")} onChange={(e) => onSet({ template_name: e.target.value })} className={inputCls} placeholder="e.g. welcome_msg" />
+          </Field>
         </div>
       );
     }

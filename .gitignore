@@ -32,3 +32,5 @@ yarn-error.log*
 # Agent context files
 decision.md
 memory.md
+
+/scripts/create-flow.js
