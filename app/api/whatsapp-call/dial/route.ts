@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { ok: false, error: result.error ?? "Dial failed", raw: result.raw },
-      { status: 400 },
+      { status: 502 },
     );
   }
 

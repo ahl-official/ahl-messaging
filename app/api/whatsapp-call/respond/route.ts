@@ -116,8 +116,8 @@ export async function POST(request: NextRequest) {
   });
   if (!result.ok) {
     return NextResponse.json(
-      { ok: false, error: "Network error" },
-      { status: 400 },
+      { ok: false, error: result.error ?? "Signal failed" },
+      { status: 502 },
     );
   }
 
