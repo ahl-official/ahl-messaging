@@ -120,7 +120,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "instruction too long" }, { status: 400 });
   }
 
-  const apiKey = await requireCredential("openai_api_key", "OpenAI API key");
+  const openRouterKey = process.env.OPENROUTER_API_KEY?.trim();
+  const apiKey = openRouterKey || await requireCredential("openai_api_key", "OpenAI API key");
+  const baseUrl = openRouterKey ? "https://openrouter.ai/api/v1" : "https://api.openai.com/v1";
+  const model = openRouterKey ? "openai/gpt-4o-mini" : "gpt-4o-mini";
+  const extraHeaders: Record<string, string> = openRouterKey
+    ? { "HTTP-Referer": "https://wa.hairscalptradingco.com", "X-Title": "AHL Messaging" }
+    : {};
 
   const system = SYSTEM_PROMPTS[kind];
   const userParts: string[] = [];
@@ -136,14 +142,16 @@ export async function POST(request: NextRequest) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 45_000);
   try {
-    resp = await fetch("https://api.openai.com/v1/chat/completions", {
+    resp = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
+        Connection: "close",
+        ...extraHeaders,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model,
         temperature: 0.6,
         messages: [
           { role: "system", content: system },
@@ -156,15 +164,15 @@ export async function POST(request: NextRequest) {
     clearTimeout(timeoutId);
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Network error" },
-      { status: 502 },
+      { status: 400 },
     );
   }
   clearTimeout(timeoutId);
   if (!resp.ok) {
     const text = await resp.text().catch(() => "");
     return NextResponse.json(
-      { error: `OpenAI HTTP ${resp.status}: ${text.slice(0, 200)}` },
-      { status: 502 },
+      { error: `API HTTP ${resp.status}: ${text.slice(0, 200)}` },
+      { status: 400 },
     );
   }
   const json = (await resp.json()) as {
@@ -173,7 +181,7 @@ export async function POST(request: NextRequest) {
   };
   const text = (json.choices?.[0]?.message?.content ?? "").trim();
   if (!text) {
-    return NextResponse.json({ error: "Empty response from OpenAI" }, { status: 502 });
+    return NextResponse.json({ error: "Empty response from AI" }, { status: 400 });
   }
   return NextResponse.json({
     text,
