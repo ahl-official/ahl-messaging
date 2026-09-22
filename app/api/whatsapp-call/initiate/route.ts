@@ -195,7 +195,7 @@ export async function POST(request: NextRequest) {
   if (permissionState === "error") {
     return NextResponse.json(
       { ok: false, permission_state: "error", error },
-      { status: 502 },
+      { status: 400 },
     );
   }
   return NextResponse.json({

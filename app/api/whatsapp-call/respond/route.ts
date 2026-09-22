@@ -116,8 +116,8 @@ export async function POST(request: NextRequest) {
   });
   if (!result.ok) {
     return NextResponse.json(
-      { ok: false, error: result.error ?? "Signal failed" },
-      { status: 502 },
+      { ok: false, error: "Network error" },
+      { status: 400 },
     );
   }
 
@@ -145,11 +145,11 @@ export async function POST(request: NextRequest) {
     const anchor = row?.accepted_at ?? null;
     const durationSeconds = anchor
       ? Math.max(
-          0,
-          Math.round(
-            (new Date(endIso).getTime() - new Date(anchor).getTime()) / 1000,
-          ),
-        )
+        0,
+        Math.round(
+          (new Date(endIso).getTime() - new Date(anchor).getTime()) / 1000,
+        ),
+      )
       : 0;
     await admin
       .from("whatsapp_calls")
@@ -178,13 +178,13 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
     const ringSeconds = row?.start_at
       ? Math.max(
-          0,
-          Math.round(
-            (new Date(acceptedAt).getTime() -
-              new Date(row.start_at).getTime()) /
-              1000,
-          ),
-        )
+        0,
+        Math.round(
+          (new Date(acceptedAt).getTime() -
+            new Date(row.start_at).getTime()) /
+          1000,
+        ),
+      )
       : null;
     // handled_by_* already stamped by the atomic claim above.
     await admin
