@@ -59,12 +59,17 @@ interface ActionDef {
   group: string;
 }
 const ACTIONS: ActionDef[] = [
+  { type: "send_template", label: "Send Template", icon: FileText, group: "Messages" },
   { type: "message_text", label: "Plain Message", icon: MessageSquare, group: "Messages" },
   { type: "message_buttons", label: "Message + Buttons", icon: AlignLeft, group: "Messages" },
   { type: "message_image", label: "Message + Image", icon: ImageIcon, group: "Messages" },
   { type: "message_image_buttons", label: "Message + Image + Buttons", icon: ImageIcon, group: "Messages" },
   { type: "message_video", label: "Message + Video", icon: Video, group: "Messages" },
   { type: "wait_reply", label: "Wait for reply", icon: MessageCircleReply, group: "Logic" },
+  { type: "ask_text", label: "Ask Text", icon: MessageSquare, group: "Logic" },
+  { type: "ask_list", label: "Ask List Option", icon: AlignLeft, group: "Logic" },
+  { type: "ask_button", label: "Ask Button", icon: AlignLeft, group: "Logic" },
+  { type: "ask_file", label: "Ask File", icon: ImageIcon, group: "Logic" },
   { type: "condition", label: "Set a Condition", icon: GitBranch, group: "Logic" },
   { type: "webhook", label: "Trigger Webhook", icon: Webhook, group: "Logic" },
   { type: "update_field_tag", label: "Update Field / Tag", icon: Tag, group: "Logic" },
@@ -98,12 +103,20 @@ function nodeTitle(type: string): string {
 }
 function summarise(type: string, config: Record<string, unknown>): string {
   switch (type) {
-    case "message_text":
-      return String(config.text ?? "") || "Empty message";
+    case "send_template":
+      return String(config.template_name ?? "") || "No template mapped";
+    case "ask_text":
+      return String(config.text ?? "") || "Ask a question";
+    case "ask_file":
+      return String(config.text ?? "") || "Ask for a file";
+    case "ask_list":
+    case "ask_button":
     case "message_buttons": {
       const b = Array.isArray(config.buttons) ? (config.buttons as Array<{ label?: string }>) : [];
-      return (String(config.text ?? "") || "Question") + (b.length ? ` · ${b.length} button(s)` : "");
+      return (String(config.text ?? "") || "Question") + (b.length ? ` · ${b.length} option(s)` : "");
     }
+    case "message_text":
+      return String(config.text ?? "") || "Empty message";
     case "message_image":
     case "message_video":
       return String(config.media_url ?? "") || "No media URL";
@@ -248,18 +261,18 @@ function renderWaText(text: string): React.ReactNode {
 function ActionNode({ data }: NodeProps<NodeData>) {
   const def = ACTION_BY_TYPE.get(data.node_type);
   const Icon = def?.icon ?? MessageSquare;
-  const isMessage = ["message_text", "message_buttons", "message_image", "message_image_buttons", "message_video"].includes(data.node_type);
+  const isMessage = ["message_text", "message_buttons", "message_image", "message_image_buttons", "message_video", "send_template", "ask_text", "ask_list", "ask_button", "ask_file"].includes(data.node_type);
   const isCondition = data.node_type === "condition";
   const isWaitReply = data.node_type === "wait_reply";
   const buttons =
-    (data.node_type === "message_buttons" || data.node_type === "message_image_buttons") && Array.isArray(data.config.buttons)
+    (["message_buttons", "message_image_buttons", "ask_list", "ask_button"].includes(data.node_type)) && Array.isArray(data.config.buttons)
       ? (data.config.buttons as Array<{ label?: string }>)
       : [];
   const selRing = data.selected ? "border-primary/40 ring-2 ring-primary/40" : "border-slate-200";
 
   // Rich "Send a Message" card (text / image / video / buttons).
   if (isMessage) {
-    const body = String(data.config.text ?? data.config.caption ?? "");
+    const body = data.node_type === "send_template" ? "Template: " + (data.config.template_name ?? "") : String(data.config.text ?? data.config.caption ?? "");
     const mediaUrl = String(data.config.media_url ?? "");
     return (
       <div className={cn("w-80 rounded-2xl border bg-white shadow-sm", selRing)}>
@@ -539,19 +552,19 @@ export function FlowCanvas({
       prev.map((n) =>
         n.id === TRIGGER_ID
           ? {
-              ...n,
-              data: {
-                triggerType,
-                phrasesText: phrases,
-                phraseList,
-                match,
-                templateName,
-                templates,
-                onPhrases: setPhrases,
-                onMatch: setMatch,
-                onTemplate: setTemplateName,
-              },
-            }
+            ...n,
+            data: {
+              triggerType,
+              phrasesText: phrases,
+              phraseList,
+              match,
+              templateName,
+              templates,
+              onPhrases: setPhrases,
+              onMatch: setMatch,
+              onTemplate: setTemplateName,
+            },
+          }
           : n,
       ),
     );
@@ -748,15 +761,15 @@ export function FlowCanvas({
       };
       const res = flowId
         ? await fetch(`/api/triggers/${flowId}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          })
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        })
         : await fetch("/api/triggers", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
       const j = (await res.json()) as { error?: string };
       if (!res.ok) throw new Error(j.error ?? "Save failed");
       onSaved();

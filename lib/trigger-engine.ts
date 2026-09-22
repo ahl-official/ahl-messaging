@@ -399,9 +399,9 @@ function durationMs(value: unknown, unit: unknown): number {
   const u = String(unit ?? "minutes").toLowerCase();
   const mult =
     u === "days" ? 86_400_000
-    : u === "hours" ? 3_600_000
-    : u === "seconds" ? 1_000
-    : 60_000;
+      : u === "hours" ? 3_600_000
+        : u === "seconds" ? 1_000
+          : 60_000;
   return v * mult;
 }
 
@@ -664,6 +664,12 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
       clearReplyVars(ctx);
       return null;
     }
+    case "ask_text":
+    case "ask_file": {
+      await sendText(ctx, interpolate(String(cfg.text ?? ""), ctx));
+      clearReplyVars(ctx);
+      return AWAIT_REPLY;
+    }
     case "message_image":
     case "message_video": {
       const caption = interpolate(String(cfg.caption ?? cfg.text ?? ""), ctx);
@@ -725,7 +731,9 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
       // (images_received, last_reply_type, …) seeded for a condition.
       return AWAIT_REPLY;
     }
-    case "message_buttons": {
+    case "message_buttons":
+    case "ask_list":
+    case "ask_button": {
       // Buttons can be branch buttons (no URL → client taps, flow branches) or
       // LINK buttons (URL set → tap opens the link, no branch). WhatsApp can't
       // mix a real link button with reply buttons, so we degrade gracefully.
@@ -761,6 +769,14 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
         return null;
       }
       await sendText(ctx, body);
+      return null;
+    }
+    case "send_template": {
+      const templateName = String(cfg.template_name ?? "").trim();
+      if (templateName) {
+        await callSend(ctx, { kind: "template", template_name: templateName });
+      }
+      clearReplyVars(ctx);
       return null;
     }
     case "assign_agent": {
@@ -823,7 +839,7 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
             vars: ctx.vars,
           }),
           signal: AbortSignal.timeout(10_000),
-        }).catch(() => {});
+        }).catch(() => { });
       }
       return null;
     }
@@ -917,5 +933,5 @@ async function callSend(ctx: RunContext, extra: Record<string, unknown>): Promis
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify({ contact_id: ctx.contactId, wa_id: ctx.waId, ...extra }),
-  }).catch(() => {});
+  }).catch(() => { });
 }
