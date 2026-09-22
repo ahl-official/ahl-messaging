@@ -928,10 +928,16 @@ async function sendCtaUrl(ctx: RunContext, bodyText: string, btn: { text: string
 async function callSend(ctx: RunContext, extra: Record<string, unknown>): Promise<void> {
   const token = await getCredential("webhook_internal_token");
   if (!token) return;
-  const origin = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const origin = process.env.INTERNAL_TICK_BASE || `http://127.0.0.1:${process.env.PORT || "3000"}`;
   await fetch(`${origin}/api/send-message`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify({ contact_id: ctx.contactId, wa_id: ctx.waId, ...extra }),
-  }).catch(() => { });
+  }).then(async (res) => {
+    if (!res.ok) {
+      console.error(`[trigger-engine] callSend HTTP ${res.status}:`, await res.text());
+    }
+  }).catch((err) => {
+    console.error("[trigger-engine] callSend Exception:", err.message);
+  });
 }
