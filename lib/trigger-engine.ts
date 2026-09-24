@@ -174,7 +174,22 @@ export async function matchAndRunTriggers(params: {
   for (const flow of (flows ?? []) as FlowRow[]) {
     if (!flow.start_node_id) continue;
     if (!textMatches(inboundText, flow.trigger_config)) continue;
-    await runFlow(admin, flow, { contactId, waId, bpid }, flow.start_node_id);
+
+    // Automatically parse any embedded URLs for UTM/Campaign parameters!
+    const seedVars: Record<string, string> = {};
+    const urlMatch = inboundText.match(/(https?:\/\/[^\s]+)/);
+    if (urlMatch) {
+      try {
+        const parsedUrl = new URL(urlMatch[0]);
+        for (const [key, value] of parsedUrl.searchParams.entries()) {
+          seedVars[key] = value;
+        }
+      } catch (e) {
+        // gracefully ignore invalid URLs
+      }
+    }
+
+    await runFlow(admin, flow, { contactId, waId, bpid }, flow.start_node_id, undefined, seedVars);
     return { matched: true };
   }
   return { matched: false };
