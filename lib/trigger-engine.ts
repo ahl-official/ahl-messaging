@@ -257,17 +257,25 @@ async function loadGraph(
  *  exact label (case-insensitive) or a 1-based number ("1" → first button).
  *  Returns the chosen label, or null if nothing matched. */
 function pickButton(node: NodeRow, text: string): string | null {
-  const buttons = Array.isArray(node.config?.buttons)
-    ? (node.config.buttons as Array<{ label?: string }>)
-    : [];
-  if (buttons.length === 0) return null;
-  const reply = text.trim().toLowerCase();
-  const asNum = Number(reply);
-  if (Number.isInteger(asNum) && asNum >= 1 && asNum <= buttons.length) {
-    return String(buttons[asNum - 1].label ?? "");
+  const cfg = node.config ?? {};
+  // Handle both standard button arrays { label: string } and simple string arrays from Ask List / Ask Button
+  let options: string[] = [];
+  if (Array.isArray(cfg.list_options) && cfg.list_options.length > 0) {
+    options = cfg.list_options.map(String);
+  } else if (Array.isArray(cfg.buttons)) {
+    options = cfg.buttons.map((b: any) => typeof b === 'string' ? b : String(b?.label ?? ""));
   }
-  const hit = buttons.find((b) => (b.label ?? "").trim().toLowerCase() === reply);
-  return hit ? String(hit.label ?? "") : null;
+
+  if (options.length === 0) return null;
+  const reply = text.trim().toLowerCase();
+
+  const asNum = Number(reply);
+  if (Number.isInteger(asNum) && asNum >= 1 && asNum <= options.length) {
+    return options[asNum - 1];
+  }
+
+  const hit = options.find((o) => o.trim().toLowerCase() === reply);
+  return hit ? hit : null;
 }
 
 /** Resolve the next node from `fromId`. `label` selects a branch edge; when
@@ -601,7 +609,11 @@ async function resumeWaitingRun(
   if (
     node.node_type !== "wait_reply" &&
     node.node_type !== "message_buttons" &&
-    node.node_type !== "message_image_buttons"
+    node.node_type !== "message_image_buttons" &&
+    node.node_type !== "ask_text" &&
+    node.node_type !== "ask_file" &&
+    node.node_type !== "ask_list" &&
+    node.node_type !== "ask_button"
   )
     return false;
 
@@ -609,16 +621,16 @@ async function resumeWaitingRun(
   // hands the reply vars to the downstream condition. A buttons node still
   // requires the client to pick one of its options.
   let label: string | null;
-  if (node.node_type === "wait_reply") {
-    label = null; // follow the single default out-edge
+  const cfg = node.config ?? {};
+
+  if (node.node_type === "wait_reply" || node.node_type === "ask_text" || node.node_type === "ask_file") {
+    label = null; // freeform response, follows the single default out-edge
+    const vn = String(cfg.var_name ?? "").trim();
+    if (vn && base.inboundText) base.reply[vn] = base.inboundText;
   } else {
     const chosen = pickButton(node, base.inboundText);
     if (chosen == null) {
-      // Client typed something instead of tapping a button. If the node
-      // has the "remind to use a button" toggle on, nudge them with the
-      // configured message and stay parked on this node. Otherwise leave
-      // it waiting silently (old behaviour).
-      const cfg = node.config ?? {};
+      // Client typed something instead of tapping a button.
       const remindMsg = String(cfg.invalid_reply_message ?? "").trim();
       if (cfg.remind_on_invalid && remindMsg) {
         await sendText(
