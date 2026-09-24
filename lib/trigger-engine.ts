@@ -657,6 +657,8 @@ async function resumeWaitingRun(
       return false;
     }
     label = chosen;
+    const vn = String(cfg.var_name ?? "").trim();
+    if (vn) base.reply[vn] = chosen;
   }
 
   const nextId = resolveNext(run.current_node_id as string, label, edges, node);
