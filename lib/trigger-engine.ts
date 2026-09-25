@@ -181,6 +181,10 @@ export async function matchAndRunTriggers(params: {
     if (urlMatch) {
       try {
         const parsedUrl = new URL(urlMatch[0]);
+
+        // Natively grab the pathname as a variable (e.g. /lp/hair-loss-test)
+        seedVars["Path"] = parsedUrl.pathname;
+
         for (const [key, value] of parsedUrl.searchParams.entries()) {
           seedVars[key] = value;
         }
