@@ -49,7 +49,7 @@ function cacheKey(waba: string, name: string, lang: string): string {
  * Fetch the body+footer of an approved template. Best-effort — returns
  * null on any failure so callers can fall back to a generic placeholder.
  */
-async function fetchTemplate(
+export async function fetchTemplate(
   waba: string,
   accessToken: string,
   name: string,
@@ -105,10 +105,10 @@ async function fetchTemplate(
     const headerComp = comps.find((c) => (c.type ?? "").toUpperCase() === "HEADER");
     const header: CachedHeader | null = headerComp
       ? {
-          format: (headerComp.format ?? "TEXT").toUpperCase(),
-          text: headerComp.text ?? null,
-          example: headerComp.example?.header_handle?.[0] ?? null,
-        }
+        format: (headerComp.format ?? "TEXT").toUpperCase(),
+        text: headerComp.text ?? null,
+        example: headerComp.example?.header_handle?.[0] ?? null,
+      }
       : null;
 
     const buttonsComp = comps.find((c) => (c.type ?? "").toUpperCase() === "BUTTONS");
@@ -198,10 +198,10 @@ export async function validateTemplatePayload(opts: {
 }): Promise<string[]> {
   const tpl = opts.body.template as
     | {
-        name?: string;
-        language?: { code?: string };
-        components?: Array<Record<string, unknown>>;
-      }
+      name?: string;
+      language?: { code?: string };
+      components?: Array<Record<string, unknown>>;
+    }
     | undefined;
   if (!tpl?.name || !opts.waba_id) return [];
   const t = await fetchTemplate(
@@ -285,10 +285,10 @@ export async function renderTemplatePreview(opts: {
 }): Promise<RenderedTemplate | null> {
   const tpl = opts.body.template as
     | {
-        name?: string;
-        language?: { code?: string };
-        components?: Array<Record<string, unknown>>;
-      }
+      name?: string;
+      language?: { code?: string };
+      components?: Array<Record<string, unknown>>;
+    }
     | undefined;
   if (!tpl?.name || !opts.waba_id) return null;
   const t = await fetchTemplate(

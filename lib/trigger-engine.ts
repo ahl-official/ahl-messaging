@@ -807,7 +807,30 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
     case "send_template": {
       const templateName = String(cfg.template_name ?? "").trim();
       if (templateName) {
-        await callSend(ctx, { kind: "template", template_name: templateName });
+        let components: any[] = [];
+        try {
+          const portfolio = (await import("@/lib/portfolios")).resolvePortfolio(ctx.bpid);
+          if (portfolio?.business_account_id && portfolio?.access_token) {
+            const { fetchTemplate } = await import("@/lib/template-preview");
+            const t = await fetchTemplate(portfolio.business_account_id, portfolio.access_token, templateName, "en_US");
+            if (t?.header?.format && t.header.example) {
+              const fmt = t.header.format;
+              if (fmt === "IMAGE" || fmt === "VIDEO" || fmt === "DOCUMENT") {
+                components.push({
+                  type: "header",
+                  parameters: [{ type: fmt.toLowerCase(), [fmt.toLowerCase()]: { link: t.header.example } }]
+                });
+              }
+            }
+          }
+        } catch (e) {
+          console.warn("[trigger-engine] Failed to hydrate template header:", e);
+        }
+        await callSend(ctx, {
+          kind: "template",
+          template_name: templateName,
+          ...(components.length > 0 ? { template_components: components } : {})
+        });
       }
       clearReplyVars(ctx);
       return null;
