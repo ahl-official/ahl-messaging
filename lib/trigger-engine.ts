@@ -809,7 +809,7 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
       if (templateName) {
         let components: any[] = [];
         try {
-          const portfolio = (await import("@/lib/portfolios")).resolvePortfolio(ctx.bpid);
+          const portfolio = await (await import("@/lib/portfolios")).getPortfolioByPhoneNumberId(ctx.bpid);
           if (portfolio?.business_account_id && portfolio?.access_token) {
             const { fetchTemplate } = await import("@/lib/template-preview");
             const t = await fetchTemplate(portfolio.business_account_id, portfolio.access_token, templateName, "en_US");
