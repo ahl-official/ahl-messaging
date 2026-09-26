@@ -1085,8 +1085,11 @@ function NodeConfig({
     case "send_template": {
       return (
         <div className="space-y-3">
-          <Field label="Template Name">
-            <input value={String(c.template_name ?? "")} onChange={(e) => onSet({ template_name: e.target.value })} className={inputCls} placeholder="e.g. welcome_msg" />
+          <Field label="Template Name" hint="Exactly as approved in Meta (no spaces)">
+            <input value={String(c.template_name ?? "")} onChange={(e) => onSet({ template_name: e.target.value })} className={inputCls} placeholder="e.g. smp_price" />
+          </Field>
+          <Field label="Template Image/Video URL" hint="(Optional) If your template has a media header, paste the public HTTP URL here">
+            <input value={String(c.template_media_url ?? "")} onChange={(e) => onSet({ template_media_url: e.target.value })} className={inputCls} placeholder="https://..." />
           </Field>
         </div>
       );
