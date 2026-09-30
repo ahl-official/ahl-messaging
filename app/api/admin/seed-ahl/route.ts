@@ -27,7 +27,6 @@ export async function GET(req: Request) {
         name: 'Americanhairline',
         trigger_type: 'keyword',
         trigger_config: { match: 'exact', phrases: ['AHL', 'TESTAHL'] },
-        is_active: true,
         enabled: true
     }).select('id').single();
 
@@ -54,17 +53,17 @@ export async function GET(req: Request) {
         var_name: 'user_name'
     }, 250, 100);
 
-    // Node Setup: Ask Product
-    const n2 = addNode('ask_list', {
+    // Node Setup: Ask Product (Changed to Buttons)
+    const n2 = addNode('ask_button', {
         text: "What product are you interested in?",
         var_name: 'product',
-        list_options: ["Hair Patch", "Hair Transplant", "SMP"]
+        buttons: ["Hair Patch", "Hair Transplant", "SMP"]
     }, 250, 250);
 
-    // Branches
-    const t_patch = addNode('send_template', { template_name: "smp_price" }, 0, 450);
+    // Branches - Fixed Template Routing
+    const t_patch = addNode('send_template', { template_name: "front_hairline_system_videos" }, 0, 450);
     const t_transplant = addNode('send_template', { template_name: "call_now" }, 250, 450);
-    const t_smp = addNode('send_template', { template_name: "front_hairline_system_videos" }, 500, 450);
+    const t_smp = addNode('send_template', { template_name: "smp_price" }, 500, 450);
 
     // Final Action: Send to n8n Webhook
     const webhookUrl = "https://hook.eu2.make.com/d9v6bnsm9ndv8ubyem6c6sly6sqv92n2"; // Replace with your n8n POST webhook

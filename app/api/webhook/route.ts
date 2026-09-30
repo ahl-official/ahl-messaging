@@ -548,7 +548,7 @@ async function processWebhook(body: WAWebhookBody) {
               businessPhoneNumberId,
               timestamp: new Date(Number(msg.timestamp) * 1000).toISOString(),
             });
-          }).catch(() => {});
+          }).catch(() => { });
         }
 
         // Campaign reply tracking — if this contact recently received a
@@ -643,15 +643,16 @@ async function processWebhook(body: WAWebhookBody) {
           // (and reply rate) stays stuck at 0 even as patients reply.
           if (recentRecipient.campaign_id) {
             const { recomputeCounters } = await import("@/lib/campaigns");
-            await recomputeCounters(recentRecipient.campaign_id as string).catch(() => {});
+            await recomputeCounters(recentRecipient.campaign_id as string).catch(() => { });
           }
         }
 
         if (insertedRow) {
           const internalToken = await getCredential("webhook_internal_token");
           if (internalToken) {
-            const origin =
-              process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+            // Node 18+ fetch often hangs for 30-60s resolving localhost to IPv6 (::1) 
+            // when the server only binds to IPv4. Using 127.0.0.1 prevents this delay.
+            const origin = process.env.INTERNAL_TICK_BASE || `http://127.0.0.1:${process.env.PORT || "3000"}`;
 
             // Audio inbound: skip the immediate automation trigger.
             // The /transcribe route fires it AFTER Whisper finishes
@@ -897,7 +898,7 @@ async function processWebhook(body: WAWebhookBody) {
               contactRow &&
               contactRow.last_message_at &&
               new Date(contactRow.last_message_at).getTime() ===
-                new Date(updatedRow.timestamp).getTime()
+              new Date(updatedRow.timestamp).getTime()
             ) {
               await supabase
                 .from("contacts")
@@ -1071,7 +1072,7 @@ async function processWebhook(body: WAWebhookBody) {
               Math.round(
                 (new Date(ts).getTime() -
                   new Date(existing.start_at).getTime()) /
-                  1000,
+                1000,
               ),
             );
           }
@@ -1083,12 +1084,12 @@ async function processWebhook(body: WAWebhookBody) {
           const anchor = existing?.accepted_at ?? null;
           update.duration_seconds = anchor
             ? Math.max(
-                0,
-                Math.round(
-                  (new Date(ts).getTime() - new Date(anchor).getTime()) /
-                    1000,
-                ),
-              )
+              0,
+              Math.round(
+                (new Date(ts).getTime() - new Date(anchor).getTime()) /
+                1000,
+              ),
+            )
             : 0;
         }
 
@@ -1129,7 +1130,7 @@ async function processWebhook(body: WAWebhookBody) {
               businessPhoneNumberId,
               timestamp: ts,
             }),
-          ).catch(() => {});
+          ).catch(() => { });
         }
 
         if (businessPhoneNumberId) {
