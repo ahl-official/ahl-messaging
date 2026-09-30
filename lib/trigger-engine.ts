@@ -285,15 +285,18 @@ function pickButton(node: NodeRow, text: string): string | null {
     options = cfg.buttons.map((b: any) => typeof b === 'string' ? b : String(b?.label ?? ""));
   }
 
+  console.log(`[trigger-engine] pickButton node=${node.id} options=[${options.join(', ')}] reply="${text}"`);
   if (options.length === 0) return null;
   const reply = text.trim().toLowerCase();
 
   const asNum = Number(reply);
   if (Number.isInteger(asNum) && asNum >= 1 && asNum <= options.length) {
+    console.log(`[trigger-engine] pickButton matched by number ${asNum} → "${options[asNum - 1]}"`);
     return options[asNum - 1];
   }
 
   const hit = options.find((o) => o.trim().toLowerCase() === reply);
+  console.log(`[trigger-engine] pickButton matched by text → ${hit ? `"${hit}"` : 'null (no match)'}`);
   return hit ? hit : null;
 }
 
@@ -306,22 +309,39 @@ function resolveNext(
   node: NodeRow | undefined,
 ): string | null {
   const outgoing = edges.filter((e) => e.from_node_id === fromId);
+  console.log(`[trigger-engine] resolveNext from=${fromId} label=${JSON.stringify(label)} outgoing=${outgoing.length} edges=[${outgoing.map(e => `${e.branch_label ?? '(default)'}→${e.to_node_id}`).join(', ')}]`);
   if (label != null) {
     const want = label.trim().toLowerCase();
     const hit = outgoing.find(
       (e) => (e.branch_label ?? "").trim().toLowerCase() === want,
     );
-    if (hit) return hit.to_node_id;
+    if (hit) {
+      console.log(`[trigger-engine] resolveNext MATCHED branch "${label}" → ${hit.to_node_id}`);
+      return hit.to_node_id;
+    }
     // The tapped button's label didn't match any edge's branch label.
-    // This happens whenever the operator renames a button but the edge
-    // keeps its old label — extremely common, and it used to dead-end the
-    // whole flow. Fall through to a sensible default instead of giving up.
+    // When there ARE labelled branches (e.g. product choices), do NOT
+    // silently fall through to an arbitrary edge — that causes the
+    // "wrong template" bug. Only fall through when there are NO
+    // labelled branches at all.
+    const hasLabelledBranches = outgoing.some((e) => e.branch_label);
+    if (hasLabelledBranches) {
+      console.warn(`[trigger-engine] resolveNext MISMATCH: reply "${label}" did not match any branch [${outgoing.map(e => e.branch_label).join(', ')}]. Stopping flow to prevent wrong routing.`);
+      return null; // Dead-end instead of routing to wrong template
+    }
   }
   // Prefer an explicit unlabeled (default) edge; else, if the node has
   // exactly one way out, just take it; else the node's linear next.
   const def = outgoing.find((e) => !e.branch_label);
-  if (def) return def.to_node_id;
-  if (outgoing.length === 1) return outgoing[0].to_node_id;
+  if (def) {
+    console.log(`[trigger-engine] resolveNext following default edge → ${def.to_node_id}`);
+    return def.to_node_id;
+  }
+  if (outgoing.length === 1) {
+    console.log(`[trigger-engine] resolveNext following single edge → ${outgoing[0].to_node_id}`);
+    return outgoing[0].to_node_id;
+  }
+  console.log(`[trigger-engine] resolveNext fallback to next_node_id=${node?.next_node_id ?? 'null'}`);
   return node?.next_node_id ?? null;
 }
 
@@ -374,12 +394,15 @@ async function runFlow(
 
   let currentId: string | null = startNodeId;
   let steps = 0;
+  console.log(`[trigger-engine] ▶ runFlow flowId=${flow.id} startNode=${startNodeId} contact=${base.contactId}`);
   try {
     while (currentId && steps < MAX_NODES_PER_RUN) {
       steps++;
       const node = nodes.get(currentId);
-      if (!node) break;
+      if (!node) { console.warn(`[trigger-engine] node ${currentId} not found, stopping`); break; }
+      console.log(`[trigger-engine] step ${steps}: executing node=${node.id} type=${node.node_type} config=${JSON.stringify(node.config)}`);
       const result = await executeNode(admin, node, ctx);
+      console.log(`[trigger-engine] step ${steps}: result=${JSON.stringify(result)}`);
 
       if (result === AWAIT_REPLY) {
         // Park the run; the client's next message resumes it. If the node
@@ -648,6 +671,7 @@ async function resumeWaitingRun(
     if (vn && base.inboundText) base.reply[vn] = base.inboundText;
   } else {
     const chosen = pickButton(node, base.inboundText);
+    console.log(`[trigger-engine] resumeWaitingRun: pickButton result="${chosen}" for reply="${base.inboundText}" on node=${node.id} type=${node.node_type}`);
     if (chosen == null) {
       // Client typed something instead of tapping a button.
       const remindMsg = String(cfg.invalid_reply_message ?? "").trim();
@@ -665,6 +689,7 @@ async function resumeWaitingRun(
     if (vn) base.reply[vn] = chosen;
   }
 
+  console.log(`[trigger-engine] resumeWaitingRun: resolving next from node=${run.current_node_id} with label="${label}"`);
   const nextId = resolveNext(run.current_node_id as string, label, edges, node);
   if (!nextId) {
     await admin
