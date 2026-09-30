@@ -1037,6 +1037,11 @@ function NodeConfig({
             <p className="mt-1.5 text-[10px] text-muted-foreground">
               Khali URL = branch button (apna handle). URL daala = <b>link button</b> (tap pe link khulta hai, branch nahi).
             </p>
+            {(buttons.length > 3 || buttons.some((b) => (b.label ?? "").length > 20)) && (
+              <p className="mt-1 text-[10px] text-amber-700">
+                More than 3 options (or a label longer than 20 chars): WhatsApp sends a <b>list</b>. The customer taps “See options” and the list opens in WhatsApp.
+              </p>
+            )}
           </div>
 
           {node_type.startsWith("ask_") && (

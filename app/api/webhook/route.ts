@@ -1201,7 +1201,14 @@ function buttonLabel(msg: WAMessage): string | null {
     const inter = msg.interactive;
     if (!inter) return null;
     if (inter.type === "button_reply") return inter.button_reply?.title?.trim() || null;
-    if (inter.type === "list_reply") return inter.list_reply?.title?.trim() || null;
+    if (inter.type === "list_reply") {
+      // Prefer id — list rows store the full option label there when the
+      // visible title is truncated to Meta's 24-char cap.
+      const id = inter.list_reply?.id?.trim() || "";
+      const title = inter.list_reply?.title?.trim() || "";
+      if (id && !/^\d+$/.test(id)) return id;
+      return title || id || null;
+    }
     if (inter.type === "call_permission_reply") {
       return inter.call_permission_reply?.response === "accept"
         ? "Call permission granted"

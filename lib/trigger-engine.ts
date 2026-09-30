@@ -296,8 +296,20 @@ function pickButton(node: NodeRow, text: string): string | null {
   }
 
   const hit = options.find((o) => o.trim().toLowerCase() === reply);
-  console.log(`[trigger-engine] pickButton matched by text → ${hit ? `"${hit}"` : 'null (no match)'}`);
-  return hit ? hit : null;
+  if (hit) {
+    console.log(`[trigger-engine] pickButton matched by text → "${hit}"`);
+    return hit;
+  }
+  // WhatsApp truncates list titles to 24 chars (buttons to 20). Match the
+  // full option when the inbound text is exactly that truncated prefix.
+  const prefix = options.find((o) => {
+    const opt = o.trim();
+    if (opt.length <= 20) return false;
+    const lower = opt.toLowerCase();
+    return lower.slice(0, 24) === reply || lower.slice(0, 20) === reply;
+  });
+  console.log(`[trigger-engine] pickButton matched by text → ${prefix ? `"${prefix}"` : "null (no match)"}`);
+  return prefix ?? null;
 }
 
 /** Resolve the next node from `fromId`. `label` selects a branch edge; when
@@ -978,20 +990,16 @@ async function sendMedia(
 }
 
 async function sendButtons(ctx: RunContext, bodyText: string, labels: string[]): Promise<void> {
-  // Meta interactive reply buttons: max 3, title ≤ 20 chars. When the flow
-  // exceeds that we fall back to a numbered text list so the client can
-  // still reply "1"/"2" and pickButton resolves the branch.
+  // Meta reply buttons: max 3, title ≤ 20 chars. More than that (or a
+  // longer label) is sent as an interactive LIST — the customer taps
+  // "See options" and WhatsApp opens its native list sheet.
+  const buttons = labels.map((title) => ({ id: title, title }));
   const fits = labels.length <= 3 && labels.every((l) => l.length <= 20);
-  if (fits) {
-    await callSend(ctx, {
-      kind: "interactive",
-      body_text: bodyText,
-      buttons: labels.map((title) => ({ title })),
-    });
-    return;
-  }
-  const lines = labels.map((l, i) => `${i + 1}. ${l}`);
-  await sendText(ctx, [bodyText, ...lines].filter(Boolean).join("\n"));
+  await callSend(ctx, {
+    kind: fits ? "interactive" : "list",
+    body_text: bodyText,
+    buttons,
+  });
 }
 
 // A single tappable CTA URL button — opens the link, no branch reply. Evolution/

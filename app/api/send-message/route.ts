@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient, createServiceRoleClient } from "@/lib/supabase/server";
-import { sendCtaUrl, sendInteractiveButtons, sendMedia, sendTemplate, sendTextMessage } from "@/lib/whatsapp";
+import { sendCtaUrl, sendInteractiveButtons, sendInteractiveList, sendMedia, sendTemplate, sendTextMessage } from "@/lib/whatsapp";
 import * as evolution from "@/lib/evolution";
 import {
   sendInteraktText,
@@ -18,7 +18,7 @@ export const runtime = "nodejs";
 interface SendBody {
   contact_id?: string;
   wa_id?: string;
-  kind?: "text" | "template" | "media" | "interactive" | "rich";
+  kind?: "text" | "template" | "media" | "interactive" | "list" | "rich";
   // text
   text?: string;
   // rich (quick reply) — optional media header + body text + buttons.
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
     if (!name) return NextResponse.json({ error: "template_name is required" }, { status: 400 });
     payloadContent = (body.template_body_preview?.trim() || `[template: ${name}]`).slice(0, 4096);
     payloadType = "template";
-  } else if (kind === "interactive") {
+  } else if (kind === "interactive" || kind === "list") {
     const bodyText = body.body_text?.trim() || body.text?.trim() || "";
     interactiveButtons = (body.buttons ?? [])
       .map((b) => ({ id: b.id, title: String(b.title ?? "").trim() }))
@@ -287,7 +287,7 @@ export async function POST(request: NextRequest) {
       const apiKey = providerRow!.evolution_api_key ?? "";
       const number = waId.replace(/\D/g, "");
       const sendText =
-        kind === "interactive" ? interactiveFallbackText : payloadContent;
+        kind === "interactive" || kind === "list" ? interactiveFallbackText : payloadContent;
       const replyToWaMessageId = body.reply_to_wa_message_id ?? undefined;
 
       // Detect WAHA instances — they use WAHA_SERVER_URL, not Evolution API
@@ -389,7 +389,7 @@ export async function POST(request: NextRequest) {
         const r = await sendInteraktText(
           key,
           waId,
-          kind === "interactive" ? interactiveFallbackText : payloadContent,
+          kind === "interactive" || kind === "list" ? interactiveFallbackText : payloadContent,
         );
         waMessageId = r.messageId;
       }
@@ -414,13 +414,27 @@ export async function POST(request: NextRequest) {
           body.caption?.trim() || undefined,
           businessPhoneNumberId ?? undefined,
         );
-      } else if (kind === "interactive") {
-        resp = await sendInteractiveButtons(
-          waId,
-          payloadContent,
-          interactiveButtons,
-          businessPhoneNumberId ?? undefined,
-        );
+      } else if (kind === "interactive" || kind === "list") {
+        const fitsButtons =
+          kind !== "list" &&
+          interactiveButtons.length <= 3 &&
+          interactiveButtons.every((b) => b.title.length <= 20);
+        resp = fitsButtons
+          ? await sendInteractiveButtons(
+              waId,
+              payloadContent,
+              interactiveButtons,
+              businessPhoneNumberId ?? undefined,
+            )
+          : await sendInteractiveList(
+              waId,
+              payloadContent,
+              interactiveButtons.map((b) => ({
+                id: b.id || b.title,
+                title: b.title,
+              })),
+              businessPhoneNumberId ?? undefined,
+            );
       } else if (kind === "rich") {
         const text = payloadContent || " ";
         const header = body.media_url?.trim()
@@ -523,8 +537,11 @@ export async function POST(request: NextRequest) {
       template_buttons:
         kind === "template" && body.template_buttons && body.template_buttons.length > 0
           ? body.template_buttons
-          : kind === "interactive" && interactiveButtons.length > 0
-            ? interactiveButtons.map((b) => ({ type: "QUICK_REPLY", text: b.title }))
+          : (kind === "interactive" || kind === "list") && interactiveButtons.length > 0
+            ? interactiveButtons.map((b) => ({
+                type: kind === "list" || interactiveButtons.length > 3 ? "LIST" : "QUICK_REPLY",
+                text: b.title,
+              }))
             : kind === "rich"
               ? (() => {
                   const out = (body.rich_buttons ?? [])

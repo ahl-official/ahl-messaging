@@ -22,12 +22,6 @@ export async function GET(req: Request) {
         .eq('name', 'Americanhairline')
         .eq('business_phone_number_id', bpid);
 
-    // Also clean up any leftover with the old name
-    await supabase.from('trigger_flows')
-        .delete()
-        .eq('name', 'AHL UTM Flow')
-        .eq('business_phone_number_id', bpid);
-
     // 1. Create the flow — NO is_active column (doesn't exist in DB), only 'enabled'
     const { data: flow, error: flowErr } = await supabase.from('trigger_flows').insert({
         business_phone_number_id: bpid,
@@ -45,7 +39,7 @@ export async function GET(req: Request) {
     let sortCounter = 0;
 
     function addNode(type: string, config: any, x: number, y: number) {
-        const id = "n_" + Math.random().toString(36).slice(2, 9);
+        const id = crypto.randomUUID();
         nodes.push({ id, flow_id: flowId, node_type: type, config, position: { x, y }, sort_order: sortCounter++ });
         return id;
     }

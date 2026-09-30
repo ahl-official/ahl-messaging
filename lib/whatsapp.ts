@@ -146,6 +146,47 @@ export async function sendInteractiveButtons(
 }
 
 /**
+ * Send an interactive LIST message. WhatsApp shows a single "See options"
+ * button; tapping it opens the native list sheet on the customer's phone.
+ * Use this when there are more than 3 choices (Meta's reply-button cap).
+ * Max 10 rows; row title ≤ 24 chars; row id ≤ 200 chars (we store the full
+ * option label in `id` so truncated titles still match flow branches).
+ */
+export async function sendInteractiveList(
+  to: string,
+  bodyText: string,
+  rows: Array<{ id?: string; title: string; description?: string }>,
+  phoneNumberId?: string,
+  buttonText = "See options",
+): Promise<SendMessageResponse> {
+  const pnid = ensurePhoneNumberId(phoneNumberId);
+  const listRows = rows.slice(0, 10).map((r) => {
+    const full = r.title.trim();
+    const row: Record<string, string> = {
+      id: (r.id ?? full).slice(0, 200),
+      title: full.slice(0, 24),
+    };
+    if (r.description?.trim()) row.description = r.description.trim().slice(0, 72);
+    return row;
+  });
+  const interactive: Record<string, unknown> = {
+    type: "list",
+    body: { text: bodyText.slice(0, 1024) },
+    action: {
+      button: buttonText.slice(0, 20),
+      sections: [{ title: "Choose one", rows: listRows }],
+    },
+  };
+  return postToGraph(pnid, {
+    messaging_product: "whatsapp",
+    recipient_type: "individual",
+    to,
+    type: "interactive",
+    interactive,
+  });
+}
+
+/**
  * Send an interactive Call-to-Action URL message — body text + a single
  * tappable URL button, with an OPTIONAL image/video/document header (public
  * link). This is how we render "image/video + text + button" quick replies.
