@@ -503,27 +503,25 @@ async function processWebhook(body: WAWebhookBody) {
         // Kick trigger flows IMMEDIATELY (in-process) — before campaign /
         // LSQ side-work — so the customer gets the next bot question with
         // no 30–60s wait. Audio waits for Whisper (transcribe route).
-        {
-          const isAudioMsg =
-            msg.type === "audio" ||
-            (msg.type as string) === "voice" ||
-            (mediaMime ?? "").startsWith("audio/");
-          if (insertedRow && !isAudioMsg && businessPhoneNumberId) {
-            const { kickInboundAutomation } = await import("@/lib/kick-inbound-automation");
-            void kickInboundAutomation({
-              contactId: contact.id,
-              waId,
-              bpid: businessPhoneNumberId,
-              inboundText: (extractContent(msg) ?? "").trim(),
-              inboundType: msg.type,
-              inboundMediaUrl: mediaUrl,
-            }).catch((e) => {
-              console.error(
-                "[webhook] kickInboundAutomation failed:",
-                e instanceof Error ? e.message : e,
-              );
-            });
-          }
+        const isAudioMsg =
+          msg.type === "audio" ||
+          (msg.type as string) === "voice" ||
+          (mediaMime ?? "").startsWith("audio/");
+        if (insertedRow && !isAudioMsg && businessPhoneNumberId) {
+          const { kickInboundAutomation } = await import("@/lib/kick-inbound-automation");
+          void kickInboundAutomation({
+            contactId: contact.id,
+            waId,
+            bpid: businessPhoneNumberId,
+            inboundText: (extractContent(msg) ?? "").trim(),
+            inboundType: msg.type,
+            inboundMediaUrl: mediaUrl,
+          }).catch((e) => {
+            console.error(
+              "[webhook] kickInboundAutomation failed:",
+              e instanceof Error ? e.message : e,
+            );
+          });
         }
 
         // Persist the client's accept/reject onto whatsapp_call_permissions
