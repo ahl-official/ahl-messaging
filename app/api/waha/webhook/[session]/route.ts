@@ -212,12 +212,34 @@ export async function POST(
         { onConflict: "wa_message_id", ignoreDuplicates: true },
       );
 
-      // Trigger AI automation for inbound messages
+      // Trigger flows + AI — run immediately in-process.
+      // Previously we only stamped automation_pending_at and waited for
+      // the ~30s sweep, which made every WAHA flow reply feel delayed.
       if (!fromMe) {
-        await supabase
-          .from("contacts")
-          .update({ automation_pending_at: now })
-          .eq("id", contact.id);
+        const isAudio =
+          msgType === "audio" ||
+          ((payload.mimetype as string) || "").startsWith("audio/");
+        if (!isAudio) {
+          const { kickInboundAutomation } = await import("@/lib/kick-inbound-automation");
+          void kickInboundAutomation({
+            contactId: contact.id,
+            waId: contactWaId,
+            bpid,
+            inboundText: (body_text || "").trim(),
+            inboundType: msgType,
+            inboundMediaUrl: null,
+          }).catch((e) => {
+            console.error(
+              "[waha-webhook] kickInboundAutomation failed:",
+              e instanceof Error ? e.message : e,
+            );
+          });
+        } else {
+          await supabase
+            .from("contacts")
+            .update({ automation_pending_at: now })
+            .eq("id", contact.id);
+        }
       }
 
       break;

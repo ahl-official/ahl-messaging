@@ -500,6 +500,32 @@ async function processWebhook(body: WAWebhookBody) {
           direction: "inbound",
         });
 
+        // Kick trigger flows IMMEDIATELY (in-process) — before campaign /
+        // LSQ side-work — so the customer gets the next bot question with
+        // no 30–60s wait. Audio waits for Whisper (transcribe route).
+        {
+          const isAudioMsg =
+            msg.type === "audio" ||
+            (msg.type as string) === "voice" ||
+            (mediaMime ?? "").startsWith("audio/");
+          if (insertedRow && !isAudioMsg && businessPhoneNumberId) {
+            const { kickInboundAutomation } = await import("@/lib/kick-inbound-automation");
+            void kickInboundAutomation({
+              contactId: contact.id,
+              waId,
+              bpid: businessPhoneNumberId,
+              inboundText: (extractContent(msg) ?? "").trim(),
+              inboundType: msg.type,
+              inboundMediaUrl: mediaUrl,
+            }).catch((e) => {
+              console.error(
+                "[webhook] kickInboundAutomation failed:",
+                e instanceof Error ? e.message : e,
+              );
+            });
+          }
+        }
+
         // Persist the client's accept/reject onto whatsapp_call_permissions
         // so the next dial bypasses CPR (for accept) or surfaces the
         // denial (for reject).
@@ -654,31 +680,8 @@ async function processWebhook(body: WAWebhookBody) {
             // when the server only binds to IPv4. Using 127.0.0.1 prevents this delay.
             const origin = process.env.INTERNAL_TICK_BASE || `http://127.0.0.1:${process.env.PORT || "3001"}`;
 
-            // Audio inbound: skip the immediate automation trigger.
-            // The /transcribe route fires it AFTER Whisper finishes
-            // so the bot's history reader sees the transcribed text
-            // instead of an empty content field. Other types fire
-            // automation right away.
-            const isAudioMsg =
-              msg.type === "audio" ||
-              (msg.type as string) === "voice" ||
-              (mediaMime ?? "").startsWith("audio/");
-            if (!isAudioMsg) {
-              fetch(`${origin}/api/automation/process`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  contact_id: contact.id,
-                  trigger_message_id: insertedRow.id,
-                  token: internalToken,
-                }),
-              }).catch((e) => {
-                console.error(
-                  "[webhook] automation trigger failed:",
-                  e instanceof Error ? e.message : e,
-                );
-              });
-            }
+            // Trigger flows already kicked above (right after insert). Only
+            // fire CRM ensure-lead here — fire-and-forget.
 
             // Fire-and-forget CRM lead create-or-update. Idempotent —
             // the route exits immediately if the contact already has

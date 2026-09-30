@@ -294,10 +294,8 @@ async function processInteraktEvent(body: unknown, bpid: string) {
   });
 }
 
-// Fire the AI bot + CRM lead-push for an inbound Interakt message — gated on
-// the number's automation_config being enabled, so unmanaged Interakt numbers
-// stay exactly as before (no bot, no LSQ). Fire-and-forget, mirrors the Meta
-// webhook. The downstream routes re-check `enabled` / `lsq_lead_create_enabled`.
+// Fire trigger flows + optional AI/CRM for an inbound Interakt message.
+// Trigger flows run even when AI auto-reply is off (same as Meta path).
 async function fireInteraktBotAndLsq(
   supabase: SupabaseClient,
   bpid: string,
@@ -306,26 +304,33 @@ async function fireInteraktBotAndLsq(
   msg: ReturnType<typeof parseInteraktMessage>,
 ) {
   if (!msg) return;
-  const { data: cfg } = await supabase
-    .from("automation_configs")
-    .select("enabled")
-    .eq("business_phone_number_id", bpid)
-    .maybeSingle();
-  if (!cfg?.enabled) return; // opt-in only
 
   const internalToken = await getCredential("webhook_internal_token");
   if (!internalToken) return;
-  const origin = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const origin =
+    process.env.INTERNAL_TICK_BASE ||
+    `http://127.0.0.1:${process.env.PORT || "3001"}`;
   const json = { "Content-Type": "application/json" };
 
   // Audio inbound gets no immediate bot trigger (no transcribed text yet).
   const isAudio = msg.kind === "audio" || (msg.mediaMime ?? "").startsWith("audio/");
   if (!isAudio) {
-    void fetch(`${origin}/api/automation/process`, {
-      method: "POST",
-      headers: json,
-      body: JSON.stringify({ contact_id: contactId, trigger_message_id: triggerMessageId, token: internalToken }),
-    }).catch((e) => console.error("[interakt] automation trigger failed:", e instanceof Error ? e.message : e));
+    const { data: contact } = await supabase
+      .from("contacts")
+      .select("wa_id")
+      .eq("id", contactId)
+      .maybeSingle();
+    const { kickInboundAutomation } = await import("@/lib/kick-inbound-automation");
+    void kickInboundAutomation({
+      contactId,
+      waId: contact?.wa_id ?? msg.waId,
+      bpid,
+      inboundText: (msg.buttonReply || msg.content || "").trim(),
+      inboundType: msg.kind,
+      inboundMediaUrl: msg.mediaUrl ?? null,
+    }).catch((e) =>
+      console.error("[interakt] kickInboundAutomation failed:", e instanceof Error ? e.message : e),
+    );
   }
 
   void fetch(`${origin}/api/lsq/ensure-lead`, {
