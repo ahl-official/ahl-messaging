@@ -7,7 +7,7 @@ export async function GET(req: Request) {
     const supabase = createServiceRoleClient();
 
     const url = new URL(req.url);
-    // Default to a known live BPID if reachable, or allow override
+    // Default to a known live BPID if reachable, or allow override via URL parameter ?bpid=YOUR_ID
     let bpid = url.searchParams.get("bpid") || "";
 
     if (!bpid) {
@@ -26,8 +26,9 @@ export async function GET(req: Request) {
         business_phone_number_id: bpid,
         name: 'Americanhairline',
         trigger_type: 'keyword',
-        trigger_config: { match: 'exact', phrases: ['AHL', 'TESTAHL'] },
-        is_active: true,
+        // Support all the trigger keywords present in the video/UI
+        trigger_config: { match: 'starts', phrases: ['Hi! Tell me more', 'AHL', 'TESTAHL'] },
+        // IMPORTANT: The column 'is_active' does not exist in the DB schema, only 'enabled'. Do NOT add 'is_active'.
         enabled: true
     }).select('id').single();
 
@@ -48,38 +49,95 @@ export async function GET(req: Request) {
         edges.push({ flow_id: flowId, from_node_id: source, to_node_id: target, branch_label: sourceHandle });
     }
 
-    // Node Setup: Ask Name
+    // Node 1: Ask Name
     const n1 = addNode('ask_text', {
         text: "Hello, Welcome to American Hairline! We're delighted to have you here. May we know your name?",
         var_name: 'user_name'
-    }, 250, 100);
+    }, 250, 50);
 
-    // Node Setup: Ask Product
+    // Node 2: Ask City (MUST be ask_list because there are 11 options. Meta limits Ask Buttons to 3 max. If we use Buttons here, Meta will crash the message).
     const n2 = addNode('ask_list', {
+        text: "May I know, which city are you from?",
+        var_name: 'city',
+        buttons: [
+            { label: "Mumbai" }, { label: "Bangalore" }, { label: "Delhi" },
+            { label: "Hyderabad" }, { label: "Pune" }, { label: "Ahmedabad" },
+            { label: "Chennai" }, { label: "Jaipur" }, { label: "Kolkata" },
+            { label: "Surat" }, { label: "Rest of India" }
+        ]
+    }, 250, 150);
+
+    // Node 3: Ask Product (Turned back to Ask List ONLY because the video has EXACTLY 4 products. If you want Ask Button, you MUST delete one product so it fits the 3-button limit.)
+    const n3 = addNode('ask_list', {
         text: "What product are you interested in?",
         var_name: 'product',
-        list_options: ["Hair Patch", "Hair Transplant", "SMP"]
+        buttons: [
+            { label: "Hair Patch" }, { label: "Scalp Micro Pigmentation" },
+            { label: "Hair Transplant" }, { label: "Front Hairline" }
+        ]
     }, 250, 250);
 
-    // Branches
-    const t_patch = addNode('send_template', { template_name: "smp_price" }, 0, 450);
-    const t_transplant = addNode('send_template', { template_name: "call_now" }, 250, 450);
-    const t_smp = addNode('send_template', { template_name: "front_hairline_system_videos" }, 500, 450);
+    // Templates: Mapping directly from the 4 Product outputs perfectly. This permanently fixes the 'Hair Patch -> SMP template' hallucination.
+    const t_patch = addNode('send_template', { template_name: "front_hairline_system_videos" }, 0, 400);
+    const t_smp = addNode('send_template', { template_name: "smp_price_details" }, 250, 400);
+    const t_ht = addNode('send_template', { template_name: "ht_cost_transplant" }, 500, 400);
+    const t_front = addNode('send_template', { template_name: "front_hairline_system_videos" }, 750, 400);
 
-    // Final Action: Send to n8n Webhook
+    // Node 4: Platform (3 Options fits perfectly into an ask_button! Just exactly what you wanted.)
+    const n4 = addNode('ask_button', {
+        text: "What platform is comfortable for you?",
+        var_name: 'platform',
+        buttons: [
+            { label: "Zoom Online Consult" },
+            { label: "In Person Consult" },
+            { label: "Call Now" }
+        ]
+    }, 250, 550);
+
+    // Platform Responses based strictly on the video UI choices.
+    const plat_zoom = addNode('ask_text', {
+        text: "Sure please share your information (Email ID, Preferred Date & Time). We will share the Zoom Link.",
+        var_name: 'zoom_details'
+    }, 0, 700);
+
+    const plat_visit = addNode('ask_text', {
+        text: "Sure please share your basic information (Email ID, Date & Time). Team will share appointment confirmation.",
+        var_name: 'visit_details'
+    }, 250, 700);
+
+    const plat_call = addNode('message_text', {
+        text: "Our Team will call you shortly"
+    }, 500, 700);
+
+    // Webhook action at the very end to capture all the data
     const webhookUrl = "https://hook.eu2.make.com/d9v6bnsm9ndv8ubyem6c6sly6sqv92n2"; // Replace with your n8n POST webhook
-    const wh = addNode('webhook', { url: webhookUrl }, 250, 600);
+    const wh = addNode('webhook', { url: webhookUrl }, 250, 850);
 
-    // Connect the paths!
+    // Connections from Node 1 downwards:
     makeEdge(n1, null, n2);
-    makeEdge(n2, "Hair Patch", t_patch);
-    makeEdge(n2, "Hair Transplant", t_transplant);
-    makeEdge(n2, "SMP", t_smp);
+    makeEdge(n2, null, n3);
 
-    // All templates funnelling into the webhook at the very end!
-    makeEdge(t_patch, null, wh);
-    makeEdge(t_transplant, null, wh);
-    makeEdge(t_smp, null, wh);
+    // Routing products tightly to their respective templates
+    makeEdge(n3, "Hair Patch", t_patch);
+    makeEdge(n3, "Scalp Micro Pigmentation", t_smp);
+    makeEdge(n3, "Hair Transplant", t_ht);
+    makeEdge(n3, "Front Hairline", t_front);
+
+    // All templates funnel perfectly into the 'Ask Platform' node
+    makeEdge(t_patch, null, n4);
+    makeEdge(t_smp, null, n4);
+    makeEdge(t_ht, null, n4);
+    makeEdge(t_front, null, n4);
+
+    // Routing platform responses cleanly
+    makeEdge(n4, "Zoom Online Consult", plat_zoom);
+    makeEdge(n4, "In Person Consult", plat_visit);
+    makeEdge(n4, "Call Now", plat_call);
+
+    // All three final branches push their captured data to webhook
+    makeEdge(plat_zoom, null, wh);
+    makeEdge(plat_visit, null, wh);
+    makeEdge(plat_call, null, wh);
 
     // Push to DB
     await supabase.from("trigger_nodes").insert(nodes);
