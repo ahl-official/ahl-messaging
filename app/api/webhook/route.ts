@@ -652,7 +652,7 @@ async function processWebhook(body: WAWebhookBody) {
           if (internalToken) {
             // Node 18+ fetch often hangs for 30-60s resolving localhost to IPv6 (::1) 
             // when the server only binds to IPv4. Using 127.0.0.1 prevents this delay.
-            const origin = process.env.INTERNAL_TICK_BASE || `http://127.0.0.1:${process.env.PORT || "3000"}`;
+            const origin = process.env.INTERNAL_TICK_BASE || `http://127.0.0.1:${process.env.PORT || "3001"}`;
 
             // Audio inbound: skip the immediate automation trigger.
             // The /transcribe route fires it AFTER Whisper finishes

@@ -4,8 +4,11 @@ import { createServiceRoleClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 /**
- * Seeds ONLY the "AHL UTM Flow" trigger graph (Ask Button nodes).
+ * Seeds ONLY the "AHL UTM Flow" trigger graph.
  * Does not create, rename, or delete any other flow.
+ *
+ * Order (matches Interakt recording + n8n Sheets need):
+ *   Name → City → n8n webhook (name/city/UTM) → Product branches → …
  *
  * GET /api/admin/seed-ahl-utm?bpid=<phone_number_id>
  */
@@ -76,6 +79,7 @@ export async function GET(req: Request) {
 
   const webhookUrl = "https://n8n.hairscalptradingco.com/webhook/ahl-flow-webhook";
 
+  // ---- 1. Name ----
   const askName = addNode(
     "ask_text",
     {
@@ -86,6 +90,7 @@ export async function GET(req: Request) {
     80,
   );
 
+  // ---- 2. City (Ask Button → WhatsApp list when >3) ----
   const askCity = addNode(
     "ask_button",
     {
@@ -110,14 +115,15 @@ export async function GET(req: Request) {
 
   const askCustomCity = addNode(
     "ask_text",
-    {
-      text: "Which city are you from then?",
-      var_name: "city",
-    },
+    { text: "Which city are you from then?", var_name: "city" },
     420,
     420,
   );
 
+  // ---- 3. n8n webhook AFTER name + city (Sheets via n8n) ----
+  const webhookLead = addNode("webhook", { url: webhookUrl }, 780, 80);
+
+  // ---- 4. Product ----
   const askProduct = addNode(
     "ask_button",
     {
@@ -130,26 +136,11 @@ export async function GET(req: Request) {
         { label: "Front Hairline" },
       ],
     },
-    780,
+    1140,
     80,
   );
 
-  const tplSmp = addNode("send_template", { template_name: "smp_price_details" }, 1140, 20);
-  const tplFront = addNode(
-    "send_template",
-    { template_name: "front_hairline_system_videos_update" },
-    1140,
-    180,
-  );
-  const webhookHT = addNode("webhook", { url: webhookUrl }, 1140, 360);
-
-  const waitReply = addNode(
-    "wait_reply",
-    { timeout_value: 24, timeout_unit: "hours" },
-    1500,
-    20,
-  );
-
+  // Product branches — MUST stay these exact wires (Hair Patch ≠ SMP)
   const askPatchType = addNode(
     "ask_button",
     {
@@ -159,6 +150,21 @@ export async function GET(req: Request) {
     },
     1500,
     280,
+  );
+
+  const tplSmp = addNode("send_template", { template_name: "smp_price_details" }, 1500, 20);
+  const tplFront = addNode(
+    "send_template",
+    { template_name: "front_hairline_system_videos_update" },
+    1500,
+    140,
+  );
+
+  const waitReply = addNode(
+    "wait_reply",
+    { timeout_value: 24, timeout_unit: "hours" },
+    1860,
+    80,
   );
 
   const askUrgency = addNode(
@@ -173,7 +179,7 @@ export async function GET(req: Request) {
         { label: "Not urgent" },
       ],
     },
-    1860,
+    2220,
     160,
   );
 
@@ -190,7 +196,7 @@ export async function GET(req: Request) {
       var_name: "platform",
       buttons: platformButtons,
     },
-    2220,
+    2580,
     40,
   );
 
@@ -201,13 +207,13 @@ export async function GET(req: Request) {
       var_name: "platform",
       buttons: platformButtons,
     },
-    2220,
+    2580,
     280,
   );
 
-  const webhookPlatTop = addNode("webhook", { url: webhookUrl }, 2580, 20);
-  const tplCallNow = addNode("send_template", { template_name: "call_now_utility" }, 2580, 180);
-  const webhookPlatBot = addNode("webhook", { url: webhookUrl }, 2580, 340);
+  const webhookPlatTop = addNode("webhook", { url: webhookUrl }, 2940, 20);
+  const tplCallNow = addNode("send_template", { template_name: "call_now_utility" }, 2940, 180);
+  const webhookPlatBot = addNode("webhook", { url: webhookUrl }, 2940, 340);
 
   const confirmText =
     "Got it. Let me take your information and one of our Executive will get back to you with the available slot time.";
@@ -215,18 +221,19 @@ export async function GET(req: Request) {
     "Send us your hair pics from the top, back and front. Let us understand the hair loss pattern, volume, texture and color. We keep the pics confidential.";
   const thankText = "Thank you! We shall study the hair loss pattern and get back to you.";
 
-  const confirmTop = addNode("message_text", { text: confirmText }, 2940, 20);
-  const webhookCallNow = addNode("webhook", { url: webhookUrl }, 2940, 180);
-  const confirmBot = addNode("message_text", { text: confirmText }, 2940, 340);
+  const confirmTop = addNode("message_text", { text: confirmText }, 3300, 20);
+  const webhookCallNow = addNode("webhook", { url: webhookUrl }, 3300, 180);
+  const confirmBot = addNode("message_text", { text: confirmText }, 3300, 340);
 
-  const photoTop = addNode("message_text", { text: photoText }, 3300, 20);
-  const photoCall = addNode("message_text", { text: photoText }, 3300, 180);
-  const photoBot = addNode("message_text", { text: photoText }, 3300, 340);
+  const photoTop = addNode("message_text", { text: photoText }, 3660, 20);
+  const photoCall = addNode("message_text", { text: photoText }, 3660, 180);
+  const photoBot = addNode("message_text", { text: photoText }, 3660, 340);
 
-  const thankTop = addNode("message_text", { text: thankText }, 3660, 20);
-  const thankCall = addNode("message_text", { text: thankText }, 3660, 180);
-  const thankBot = addNode("message_text", { text: thankText }, 3660, 340);
+  const thankTop = addNode("message_text", { text: thankText }, 4020, 20);
+  const thankCall = addNode("message_text", { text: thankText }, 4020, 180);
+  const thankBot = addNode("message_text", { text: thankText }, 4020, 340);
 
+  // ---- Edges ----
   makeEdge(askName, null, askCity);
 
   for (const city of [
@@ -240,17 +247,24 @@ export async function GET(req: Request) {
     "Jaipur",
     "Lucknow",
   ]) {
-    makeEdge(askCity, city, askProduct);
+    makeEdge(askCity, city, webhookLead);
   }
   makeEdge(askCity, "None of the above", askCustomCity);
-  makeEdge(askCustomCity, null, askProduct);
+  makeEdge(askCustomCity, null, webhookLead);
 
+  // After Sheets webhook → product question
+  makeEdge(webhookLead, null, askProduct);
+
+  // CRITICAL product wiring (do not cross these in the canvas):
+  //   Hair Patch              → Which Hair Patch
+  //   Scalp Micro Pigmentation → smp_price_details
+  //   Hair Transplant         → urgency (no patch question)
+  //   Front Hairline          → front_hairline template
   makeEdge(askProduct, "Hair Patch", askPatchType);
   makeEdge(askProduct, "Scalp Micro Pigmentation", tplSmp);
-  makeEdge(askProduct, "Hair Transplant", webhookHT);
+  makeEdge(askProduct, "Hair Transplant", askUrgency);
   makeEdge(askProduct, "Front Hairline", tplFront);
 
-  makeEdge(webhookHT, null, askPatchType);
   makeEdge(tplSmp, null, waitReply);
   makeEdge(tplFront, null, waitReply);
 
@@ -297,11 +311,17 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     success: true,
-    message: `AHL UTM Flow seeded on ${bpid} — ${nodes.length} nodes, ${edges.length} edges. Other flows unchanged.`,
+    message: `AHL UTM Flow reseeded on ${bpid} — name→city→n8n→product (Hair Patch≠SMP). Other flows unchanged.`,
     flowId,
     bpid,
     nodeCount: nodes.length,
     edgeCount: edges.length,
     startNode: askName,
+    productWiring: {
+      "Hair Patch": "Which Hair Patch you want?",
+      "Scalp Micro Pigmentation": "smp_price_details",
+      "Hair Transplant": "How soon…",
+      "Front Hairline": "front_hairline_system_videos_update",
+    },
   });
 }

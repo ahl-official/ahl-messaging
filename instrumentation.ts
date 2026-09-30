@@ -98,7 +98,7 @@ export async function register() {
   // to the prod domain, which would make local ticks fire against prod (wrong
   // server → 500s). INTERNAL_TICK_BASE can override for unusual setups.
   const origin =
-    process.env.INTERNAL_TICK_BASE || `http://127.0.0.1:${process.env.PORT || "3000"}`;
+    process.env.INTERNAL_TICK_BASE || `http://127.0.0.1:${process.env.PORT || "3001"}`;
 
   async function tick() {
     try {

@@ -82,7 +82,7 @@ export async function GET(req: Request) {
         } else {
             logs.push(`SUCCESS: First node exists. Type: ${firstNode.node_type}. Config: ${JSON.stringify(firstNode.config)}`);
 
-            const origin = process.env.INTERNAL_TICK_BASE || `http://127.0.0.1:${process.env.PORT || "3000"}`;
+            const origin = process.env.INTERNAL_TICK_BASE || `http://127.0.0.1:${process.env.PORT || "3001"}`;
             logs.push(`If this node calls callSend(), it will fetch from: ${origin}/api/send-message`);
 
             try {

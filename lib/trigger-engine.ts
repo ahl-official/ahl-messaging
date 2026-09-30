@@ -280,22 +280,32 @@ function pickButton(node: NodeRow, text: string): string | null {
   // Handle both standard button arrays { label: string } and simple string arrays from Ask List / Ask Button
   let options: string[] = [];
   if (Array.isArray(cfg.list_options) && cfg.list_options.length > 0) {
-    options = cfg.list_options.map(String);
+    options = cfg.list_options.map(String).filter(Boolean);
   } else if (Array.isArray(cfg.buttons)) {
-    options = cfg.buttons.map((b: any) => typeof b === 'string' ? b : String(b?.label ?? ""));
+    options = cfg.buttons
+      .map((b: any) => (typeof b === "string" ? b : String(b?.label ?? "")))
+      .filter(Boolean);
   }
 
-  console.log(`[trigger-engine] pickButton node=${node.id} options=[${options.join(', ')}] reply="${text}"`);
+  console.log(`[trigger-engine] pickButton node=${node.id} options=[${options.join(", ")}] reply="${text}"`);
   if (options.length === 0) return null;
-  const reply = text.trim().toLowerCase();
 
-  const asNum = Number(reply);
+  // Normalize: "1. Hair Patch" / "1) Hair Patch" / "1 Hair Patch" → try number + bare text.
+  const raw = text.trim();
+  const reply = raw.toLowerCase();
+  const numbered = reply.match(/^(\d{1,2})(?:[\.\)\:\-\]]|\s)+(.+)$/);
+  const asNum = Number(numbered ? numbered[1] : reply);
   if (Number.isInteger(asNum) && asNum >= 1 && asNum <= options.length) {
+    // Prefer the number when they replied "1" or "1. Hair Patch".
+    // Do NOT use the trailing text alone when a number is present — that
+    // used to allow a mistyped "1. something" to fuzzy-match the wrong row.
     console.log(`[trigger-engine] pickButton matched by number ${asNum} → "${options[asNum - 1]}"`);
     return options[asNum - 1];
   }
 
-  const hit = options.find((o) => o.trim().toLowerCase() === reply);
+  const bare = (numbered ? numbered[2] : reply).trim().toLowerCase();
+
+  const hit = options.find((o) => o.trim().toLowerCase() === bare);
   if (hit) {
     console.log(`[trigger-engine] pickButton matched by text → "${hit}"`);
     return hit;
@@ -306,10 +316,23 @@ function pickButton(node: NodeRow, text: string): string | null {
     const opt = o.trim();
     if (opt.length <= 20) return false;
     const lower = opt.toLowerCase();
-    return lower.slice(0, 24) === reply || lower.slice(0, 20) === reply;
+    return lower.slice(0, 24) === bare || lower.slice(0, 20) === bare;
   });
-  console.log(`[trigger-engine] pickButton matched by text → ${prefix ? `"${prefix}"` : "null (no match)"}`);
-  return prefix ?? null;
+  if (prefix) {
+    console.log(`[trigger-engine] pickButton matched by truncated title → "${prefix}"`);
+    return prefix;
+  }
+  // Unique substring only (e.g. "hair patch" inside "Hair Patch") — never
+  // pick when 2+ options contain the reply (avoids Hair Patch vs SMP mixups).
+  if (bare.length >= 3) {
+    const contains = options.filter((o) => o.trim().toLowerCase().includes(bare));
+    if (contains.length === 1) {
+      console.log(`[trigger-engine] pickButton matched by unique contains → "${contains[0]}"`);
+      return contains[0];
+    }
+  }
+  console.log(`[trigger-engine] pickButton matched by text → null (no match)`);
+  return null;
 }
 
 /** Resolve the next node from `fromId`. `label` selects a branch edge; when
@@ -920,17 +943,52 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
     case "webhook": {
       const url = String(cfg.url ?? "").trim();
       if (url) {
-        await fetch(url, {
+        // Fire-and-forget — never block the WhatsApp conversation on n8n /
+        // Google Sheets. A slow or hung webhook was causing 30–60s gaps
+        // between the customer's tap and the next bot question.
+        const utmParams =
+          ctx.contact.utm_params && typeof ctx.contact.utm_params === "object"
+            ? (ctx.contact.utm_params as Record<string, unknown>)
+            : {};
+        const payload = {
+          contact_id: ctx.contactId,
+          wa_id: ctx.waId,
+          phone: ctx.waId,
+          business_phone_number_id: ctx.bpid,
+          // Flat fields n8n / Sheets map easily
+          name:
+            ctx.vars.user_name ||
+            ctx.vars.Name ||
+            ctx.vars.name ||
+            String(ctx.contact.name ?? ctx.contact.profile_name ?? ""),
+          city: ctx.vars.city || ctx.vars.City || "",
+          product: ctx.vars.product || "",
+          patch_type: ctx.vars.patch_type || "",
+          urgency: ctx.vars.urgency || "",
+          platform: ctx.vars.platform || "",
+          utm_source: String(ctx.contact.utm_source ?? utmParams.utm_source ?? ""),
+          campaign_name: String(utmParams.campaign_name ?? utmParams.utm_campaign ?? ""),
+          adset_name: String(utmParams.adset_name ?? utmParams.utm_adset ?? ""),
+          ad_name: String(utmParams.ad_name ?? utmParams.utm_content ?? ""),
+          campaign_source: String(
+            utmParams.campaign_source ?? utmParams.utm_source ?? utmParams.source ?? "",
+          ),
+          placement: String(utmParams.placement ?? ""),
+          lead_source: "WhatsApp",
+          utm_params: utmParams,
+          vars: ctx.vars,
+        };
+        void fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contact_id: ctx.contactId,
-            wa_id: ctx.waId,
-            business_phone_number_id: ctx.bpid,
-            vars: ctx.vars,
-          }),
-          signal: AbortSignal.timeout(10_000),
-        }).catch(() => { });
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(8_000),
+        }).catch((err) => {
+          console.warn(
+            "[trigger-engine] webhook POST failed:",
+            err instanceof Error ? err.message : err,
+          );
+        });
       }
       return null;
     }
@@ -1015,16 +1073,24 @@ async function sendCtaUrl(ctx: RunContext, bodyText: string, btn: { text: string
 async function callSend(ctx: RunContext, extra: Record<string, unknown>): Promise<void> {
   const token = await getCredential("webhook_internal_token");
   if (!token) return;
-  const origin = process.env.INTERNAL_TICK_BASE || `http://127.0.0.1:${process.env.PORT || "3000"}`;
-  await fetch(`${origin}/api/send-message`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ contact_id: ctx.contactId, wa_id: ctx.waId, ...extra }),
-  }).then(async (res) => {
+  // Always 127.0.0.1 (not localhost) — Node can hang 30–60s resolving
+  // localhost → ::1 when the server only listens on IPv4.
+  const origin =
+    process.env.INTERNAL_TICK_BASE || `http://127.0.0.1:${process.env.PORT || "3001"}`;
+  try {
+    const res = await fetch(`${origin}/api/send-message`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ contact_id: ctx.contactId, wa_id: ctx.waId, ...extra }),
+      signal: AbortSignal.timeout(20_000),
+    });
     if (!res.ok) {
       console.error(`[trigger-engine] callSend HTTP ${res.status}:`, await res.text());
     }
-  }).catch((err) => {
-    console.error("[trigger-engine] callSend Exception:", err.message);
-  });
+  } catch (err) {
+    console.error(
+      "[trigger-engine] callSend Exception:",
+      err instanceof Error ? err.message : err,
+    );
+  }
 }
