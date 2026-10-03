@@ -7,8 +7,8 @@ export const dynamic = "force-dynamic";
  * Seeds ONLY the "AHL UTM Flow" trigger graph.
  * Does not create, rename, or delete any other flow.
  *
- * Order (matches Interakt recording + n8n Sheets need):
- *   Name → City → n8n webhook (name/city/UTM) → Product branches → …
+ * Order:
+ *   n8n webhook (phone+UTM immediately) → Name → City → n8n → Product → …
  *
  * GET /api/admin/seed-ahl-utm?bpid=<phone_number_id>
  */
@@ -41,7 +41,7 @@ export async function GET(req: Request) {
       trigger_type: "keyword",
       trigger_config: {
         match: "starts",
-        phrases: ["Hi! Tell me more", "Tell me more"],
+        phrases: ["Hi! Tell me more", "Hi! Tell me more:"],
       },
       enabled: true,
     })
@@ -78,6 +78,9 @@ export async function GET(req: Request) {
   }
 
   const webhookUrl = "https://n8n.hairscalptradingco.com/webhook/ahl-flow-webhook";
+
+  // ---- 0. Sheet first (phone + UTM) — silent leads still land ----
+  const webhookFirst = addNode("webhook", { url: webhookUrl }, 0, 80);
 
   // ---- 1. Name ----
   const askName = addNode(
@@ -234,6 +237,7 @@ export async function GET(req: Request) {
   const thankBot = addNode("message_text", { text: thankText }, 4020, 340);
 
   // ---- Edges ----
+  makeEdge(webhookFirst, null, askName);
   makeEdge(askName, null, askCity);
 
   for (const city of [
@@ -307,16 +311,16 @@ export async function GET(req: Request) {
   const { error: edgeErr } = await supabase.from("trigger_edges").insert(edges);
   if (edgeErr) return NextResponse.json({ error: edgeErr }, { status: 500 });
 
-  await supabase.from("trigger_flows").update({ start_node_id: askName }).eq("id", flowId);
+  await supabase.from("trigger_flows").update({ start_node_id: webhookFirst }).eq("id", flowId);
 
   return NextResponse.json({
     success: true,
-    message: `AHL UTM Flow reseeded on ${bpid} — name→city→n8n→product (Hair Patch≠SMP). Other flows unchanged.`,
+    message: `AHL UTM Flow reseeded on ${bpid} — webhook(phone+UTM)→name→city→n8n→product. Other flows unchanged.`,
     flowId,
     bpid,
     nodeCount: nodes.length,
     edgeCount: edges.length,
-    startNode: askName,
+    startNode: webhookFirst,
     productWiring: {
       "Hair Patch": "Which Hair Patch you want?",
       "Scalp Micro Pigmentation": "smp_price_details",

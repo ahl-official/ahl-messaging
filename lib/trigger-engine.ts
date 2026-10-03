@@ -16,6 +16,7 @@
 
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { getCredential } from "@/lib/credentials";
+import { parseUtm } from "@/lib/utm";
 
 type Admin = ReturnType<typeof createServiceRoleClient>;
 
@@ -64,6 +65,36 @@ function textMatches(text: string, cfg: FlowRow["trigger_config"]): boolean {
   return phrases.some((p) =>
     mode === "exact" ? t === p : mode === "starts" ? t.startsWith(p) : t.includes(p),
   );
+}
+
+/** Seed run vars from the opening inbound (UTM dump / wa.me text / URL). */
+function seedVarsFromInbound(inboundText: string): Record<string, string> {
+  const seedVars: Record<string, string> = {};
+  const text = (inboundText ?? "").trim();
+  if (!text) return seedVars;
+  seedVars.inbound_text = text;
+  seedVars.first_message = text;
+
+  const fromText = parseUtm(text);
+  if (fromText) {
+    for (const [key, value] of Object.entries(fromText)) {
+      if (value) seedVars[key] = value;
+    }
+  }
+
+  const urlMatch = text.match(/(https?:\/\/[^\s]+)/);
+  if (urlMatch) {
+    try {
+      const parsedUrl = new URL(urlMatch[0]);
+      seedVars.Path = parsedUrl.pathname;
+      for (const [key, value] of parsedUrl.searchParams.entries()) {
+        if (value && !(key in seedVars)) seedVars[key] = value;
+      }
+    } catch {
+      // ignore invalid URLs
+    }
+  }
+  return seedVars;
 }
 
 /** Match the inbound against the number's keyword flows and run the first
@@ -156,7 +187,14 @@ export async function matchAndRunTriggers(params: {
       const prevMs = prev?.timestamp ? Date.parse(prev.timestamp as string) : 0;
       const newSession = !prevMs || Date.now() - prevMs > SESSION_GAP_MS;
       if (newSession) {
-        await runFlow(admin, fmFlow, { contactId, waId, bpid }, fmFlow.start_node_id);
+        await runFlow(
+          admin,
+          fmFlow,
+          { contactId, waId, bpid },
+          fmFlow.start_node_id,
+          undefined,
+          seedVarsFromInbound(inboundText),
+        );
         return { matched: true };
       }
     }
@@ -175,25 +213,14 @@ export async function matchAndRunTriggers(params: {
     if (!flow.start_node_id) continue;
     if (!textMatches(inboundText, flow.trigger_config)) continue;
 
-    // Automatically parse any embedded URLs for UTM/Campaign parameters!
-    const seedVars: Record<string, string> = {};
-    const urlMatch = inboundText.match(/(https?:\/\/[^\s]+)/);
-    if (urlMatch) {
-      try {
-        const parsedUrl = new URL(urlMatch[0]);
-
-        // Natively grab the pathname as a variable (e.g. /lp/hair-loss-test)
-        seedVars["Path"] = parsedUrl.pathname;
-
-        for (const [key, value] of parsedUrl.searchParams.entries()) {
-          seedVars[key] = value;
-        }
-      } catch (e) {
-        // gracefully ignore invalid URLs
-      }
-    }
-
-    await runFlow(admin, flow, { contactId, waId, bpid }, flow.start_node_id, undefined, seedVars);
+    await runFlow(
+      admin,
+      flow,
+      { contactId, waId, bpid },
+      flow.start_node_id,
+      undefined,
+      seedVarsFromInbound(inboundText),
+    );
     return { matched: true };
   }
   return { matched: false };
@@ -946,10 +973,23 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
         // Fire-and-forget — never block the WhatsApp conversation on n8n /
         // Google Sheets. A slow or hung webhook was causing 30–60s gaps
         // between the customer's tap and the next bot question.
-        const utmParams =
+        const contactUtm =
           ctx.contact.utm_params && typeof ctx.contact.utm_params === "object"
             ? (ctx.contact.utm_params as Record<string, unknown>)
             : {};
+        // Prefer contact attribution; fall back to UTM keys seeded from the
+        // opening inbound (covers race / silent first-message sheet rows).
+        const utmParams: Record<string, unknown> = { ...contactUtm };
+        for (const [k, v] of Object.entries(ctx.vars)) {
+          if (
+            v &&
+            (k.startsWith("utm_") ||
+              ["fbclid", "ctwa_clid", "gclid", "placement", "source_id", "campaign_id", "ad_id", "adset_id"].includes(k)) &&
+            utmParams[k] == null
+          ) {
+            utmParams[k] = v;
+          }
+        }
         const payload = {
           contact_id: ctx.contactId,
           wa_id: ctx.waId,
@@ -962,18 +1002,33 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
             ctx.vars.name ||
             String(ctx.contact.name ?? ctx.contact.profile_name ?? ""),
           city: ctx.vars.city || ctx.vars.City || "",
-          product: ctx.vars.product || "",
+          product:
+            ctx.vars.product_choice ||
+            ctx.vars.interested_in ||
+            ctx.vars.product ||
+            "",
+          interested_in: ctx.vars.interested_in || "",
+          product_choice: ctx.vars.product_choice || "",
           patch_type: ctx.vars.patch_type || "",
           urgency: ctx.vars.urgency || "",
           platform: ctx.vars.platform || "",
-          utm_source: String(ctx.contact.utm_source ?? utmParams.utm_source ?? ""),
+          inbound_text: ctx.vars.inbound_text || ctx.vars.first_message || "",
+          utm_source: String(
+            ctx.contact.utm_source ?? utmParams.utm_source ?? ctx.vars.utm_source ?? "",
+          ),
+          utm_medium: String(utmParams.utm_medium ?? ctx.vars.utm_medium ?? ""),
+          utm_campaign: String(utmParams.utm_campaign ?? ctx.vars.utm_campaign ?? ""),
+          utm_content: String(utmParams.utm_content ?? ctx.vars.utm_content ?? ""),
+          utm_term: String(utmParams.utm_term ?? ctx.vars.utm_term ?? ""),
+          utm_id: String(utmParams.utm_id ?? ctx.vars.utm_id ?? ""),
           campaign_name: String(utmParams.campaign_name ?? utmParams.utm_campaign ?? ""),
           adset_name: String(utmParams.adset_name ?? utmParams.utm_adset ?? ""),
           ad_name: String(utmParams.ad_name ?? utmParams.utm_content ?? ""),
           campaign_source: String(
             utmParams.campaign_source ?? utmParams.utm_source ?? utmParams.source ?? "",
           ),
-          placement: String(utmParams.placement ?? ""),
+          placement: String(utmParams.placement ?? ctx.vars.placement ?? ""),
+          fbclid: String(utmParams.fbclid ?? ctx.vars.fbclid ?? ""),
           lead_source: "WhatsApp",
           utm_params: utmParams,
           vars: ctx.vars,

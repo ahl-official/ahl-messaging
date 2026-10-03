@@ -500,30 +500,6 @@ async function processWebhook(body: WAWebhookBody) {
           direction: "inbound",
         });
 
-        // Kick trigger flows IMMEDIATELY (in-process) — before campaign /
-        // LSQ side-work — so the customer gets the next bot question with
-        // no 30–60s wait. Audio waits for Whisper (transcribe route).
-        const isAudioMsg =
-          msg.type === "audio" ||
-          (msg.type as string) === "voice" ||
-          (mediaMime ?? "").startsWith("audio/");
-        if (insertedRow && !isAudioMsg && businessPhoneNumberId) {
-          const { kickInboundAutomation } = await import("@/lib/kick-inbound-automation");
-          void kickInboundAutomation({
-            contactId: contact.id,
-            waId,
-            bpid: businessPhoneNumberId,
-            inboundText: (extractContent(msg) ?? "").trim(),
-            inboundType: msg.type,
-            inboundMediaUrl: mediaUrl,
-          }).catch((e) => {
-            console.error(
-              "[webhook] kickInboundAutomation failed:",
-              e instanceof Error ? e.message : e,
-            );
-          });
-        }
-
         // Persist the client's accept/reject onto whatsapp_call_permissions
         // so the next dial bypasses CPR (for accept) or surfaces the
         // denial (for reject).
@@ -581,12 +557,9 @@ async function processWebhook(body: WAWebhookBody) {
         // opt-out so future campaigns skip them.
         const inboundText = (extractContent(msg) ?? "").trim();
 
-        // Campaign attribution — a Click-to-WhatsApp ad attaches a
-        // `referral` object (source_id / ctwa_clid / source_url, invisible
-        // to the lead), while a wa.me?text=... link drops utm_*/source_id
-        // into the first message text. Prefer the referral; fall back to
-        // the text marker. Stamp it on the contact ONCE; the
-        // `.is(utm_source, null)` guard preserves first-touch attribution.
+        // Campaign attribution — stamp BEFORE kicking trigger flows so the
+        // first sheet webhook already has phone + UTM (silent leads never
+        // answer name/city). Prefer CTWA referral; fall back to text UTM.
         const attribution =
           buildReferralParams(msg.referral) ?? parseUtm(inboundText);
         if (attribution) {
@@ -598,6 +571,29 @@ async function processWebhook(body: WAWebhookBody) {
             })
             .eq("id", contact.id)
             .is("utm_source", null);
+        }
+
+        // Kick trigger flows AFTER attribution so n8n/Sheets get UTM on
+        // the first hit. Audio waits for Whisper (transcribe route).
+        const isAudioMsg =
+          msg.type === "audio" ||
+          (msg.type as string) === "voice" ||
+          (mediaMime ?? "").startsWith("audio/");
+        if (insertedRow && !isAudioMsg && businessPhoneNumberId) {
+          const { kickInboundAutomation } = await import("@/lib/kick-inbound-automation");
+          void kickInboundAutomation({
+            contactId: contact.id,
+            waId,
+            bpid: businessPhoneNumberId,
+            inboundText,
+            inboundType: msg.type,
+            inboundMediaUrl: mediaUrl,
+          }).catch((e) => {
+            console.error(
+              "[webhook] kickInboundAutomation failed:",
+              e instanceof Error ? e.message : e,
+            );
+          });
         }
 
         const isStop = /^(stop|unsubscribe|stop all|opt out|optout|unsub|band karo|rok do|stop kar)$/i.test(inboundText);
