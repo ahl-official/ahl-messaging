@@ -981,6 +981,31 @@ function NodeConfig({
               <input value={String(c.var_name ?? "")} onChange={(e) => onSet({ var_name: e.target.value })} className={inputCls} placeholder="my_var" />
             </Field>
           )}
+          {node_type === "ask_text" ? (
+            <div className="rounded-md border bg-secondary/30 p-2">
+              <label className="flex cursor-pointer items-center justify-between gap-2">
+                <span className="text-[11px] font-semibold">Remind if reply isn&apos;t a valid answer</span>
+                <input
+                  type="checkbox"
+                  checked={Boolean(c.remind_on_invalid)}
+                  onChange={(e) => onSet({ remind_on_invalid: e.target.checked })}
+                  className="h-4 w-4 accent-primary"
+                />
+              </label>
+              {c.remind_on_invalid ? (
+                <textarea
+                  value={String(c.invalid_reply_message ?? "")}
+                  onChange={(e) => onSet({ invalid_reply_message: e.target.value })}
+                  rows={2}
+                  className={cn(inputCls, "mt-2 resize-y")}
+                  placeholder="Please tell us your name to proceed further 🙏"
+                />
+              ) : null}
+              <p className="mt-1.5 text-[10px] text-muted-foreground">
+                Blocks UTM dumps, links, and empty/too-short replies; flow stays on this step.
+              </p>
+            </div>
+          ) : null}
         </div>
       );
     case "ask_list":

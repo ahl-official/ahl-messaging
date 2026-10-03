@@ -88,6 +88,8 @@ export async function GET(req: Request) {
     {
       text: "Hello, Welcome to American Hairline! We're delighted to have you here. May we know your name?",
       var_name: "user_name",
+      remind_on_invalid: true,
+      invalid_reply_message: "Please tell us your name to proceed further 🙏",
     },
     80,
     80,
