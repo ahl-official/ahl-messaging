@@ -42,6 +42,56 @@ export function parseUtm(text: string | null | undefined): UtmParams | null {
   return Object.keys(out).length ? out : null;
 }
 
+/** LP WhatsApp prefill uses PascalCase query keys — map onto snake_case bag. */
+const LP_QUERY_ALIASES: Record<string, string> = {
+  campaignname: "campaign_name",
+  adsetname: "adset_name",
+  adname: "ad_name",
+  campaignsource: "campaign_source",
+  placement: "placement",
+  utm_source: "utm_source",
+  utm_medium: "utm_medium",
+  utm_campaign: "utm_campaign",
+  utm_content: "utm_content",
+  utm_term: "utm_term",
+  fbclid: "fbclid",
+  gclid: "gclid",
+  msclkid: "msclkid",
+  ttclid: "ttclid",
+  wa_tracking: "wa_tracking",
+};
+
+/**
+ * Full attribution from a wa.me / "Hi! Tell me more: https://…?AdSetName=…"
+ * inbound: regex UTMs + URL query (including LP PascalCase keys).
+ */
+export function parseInboundAttribution(
+  text: string | null | undefined,
+): UtmParams | null {
+  if (!text?.trim()) return null;
+  const out: UtmParams = { ...(parseUtm(text) ?? {}) };
+
+  const urlMatch = text.match(/(https?:\/\/[^\s]+)/);
+  if (urlMatch) {
+    try {
+      const parsed = new URL(urlMatch[0]);
+      for (const [rawKey, rawVal] of parsed.searchParams.entries()) {
+        const val = rawVal.trim();
+        if (!val) continue;
+        const lower = rawKey.toLowerCase();
+        const canonical = LP_QUERY_ALIASES[lower] ?? lower;
+        if (!(canonical in out)) out[canonical] = val;
+        // Keep original key too (AdSetName) for any consumer that expects it.
+        if (!(rawKey in out)) out[rawKey] = val;
+      }
+    } catch {
+      /* ignore bad URLs */
+    }
+  }
+
+  return Object.keys(out).length ? out : null;
+}
+
 // Meta ad-attribution values that can be mapped to LSQ schema fields
 // (Settings → CRM → Facebook Ads fields). `key` is the
 // contacts.utm_params key; `label` is what the operator sees.

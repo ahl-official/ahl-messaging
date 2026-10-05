@@ -188,10 +188,10 @@ async function seedOne(bpid) {
   );
 
   for (const opt of interestOptions) {
-    const wh = addNode("webhook", { url: WEBHOOK_URL }, 2120, opt.y);
-    makeEdge(askInterest, opt.label, wh);
-
+    // One sheet append after final product — skip the interest-stage webhook
+    // that was creating duplicate rows for the same lead.
     if (opt.choices.length === 0) {
+      const wh = addNode("webhook", { url: WEBHOOK_URL }, 2120, opt.y);
       const help = addNode(
         "message_text",
         {
@@ -201,6 +201,7 @@ async function seedOne(bpid) {
         2460,
         opt.y,
       );
+      makeEdge(askInterest, opt.label, wh);
       makeEdge(wh, null, help);
       makeEdge(help, null, thanksCall);
       continue;
@@ -213,11 +214,11 @@ async function seedOne(bpid) {
         var_name: "product_choice",
         buttons: opt.choices.map((label) => ({ label })),
       },
-      2460,
+      2120,
       opt.y,
     );
-    const whChoice = addNode("webhook", { url: WEBHOOK_URL }, 2640, opt.y);
-    makeEdge(wh, null, askSubtype);
+    const whChoice = addNode("webhook", { url: WEBHOOK_URL }, 2460, opt.y);
+    makeEdge(askInterest, opt.label, askSubtype);
     for (const choice of opt.choices) {
       makeEdge(askSubtype, choice, whChoice);
     }

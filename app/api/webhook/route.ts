@@ -12,7 +12,7 @@ import {
 } from "@/lib/portfolios";
 import { dispatchOutboundWebhook } from "@/lib/outbound-webhooks";
 import { broadcastInbox } from "@/lib/realtime-inbox";
-import { parseUtm, buildReferralParams, attributionLabel } from "@/lib/utm";
+import { buildReferralParams, attributionLabel, parseInboundAttribution } from "@/lib/utm";
 
 async function downloadInboundMedia(
   mediaId: string,
@@ -561,7 +561,7 @@ async function processWebhook(body: WAWebhookBody) {
         // first sheet webhook already has phone + UTM (silent leads never
         // answer name/city). Prefer CTWA referral; fall back to text UTM.
         const attribution =
-          buildReferralParams(msg.referral) ?? parseUtm(inboundText);
+          buildReferralParams(msg.referral) ?? parseInboundAttribution(inboundText);
         if (attribution) {
           await supabase
             .from("contacts")

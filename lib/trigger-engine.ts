@@ -80,6 +80,32 @@ function isAcceptableAskTextReply(text: string): boolean {
   return letters.length >= 2;
 }
 
+/** LP wa.me links use PascalCase (AdSetName); sheet/n8n expect snake_case. */
+const UTM_KEY_ALIASES: Array<[canonical: string, ...aliases: string[]]> = [
+  ["campaign_name", "CampaignName", "utm_campaign"],
+  ["adset_name", "AdSetName", "adsetname", "utm_adset"],
+  ["ad_name", "AdName", "adname"],
+  ["campaign_source", "CampaignSource", "utm_source"],
+  ["placement", "Placement"],
+  ["utm_source", "CampaignSource"],
+  ["utm_campaign", "CampaignName"],
+  ["utm_content", "utm_content"],
+  ["utm_term", "utm_term"],
+  ["utm_medium", "utm_medium"],
+  ["fbclid", "fbclid"],
+  ["gclid", "gclid"],
+  ["wa_tracking", "wa_tracking"],
+];
+
+function putAliased(
+  bag: Record<string, string>,
+  key: string,
+  value: string,
+): void {
+  if (!value || key in bag) return;
+  bag[key] = value;
+}
+
 /** Seed run vars from the opening inbound (UTM dump / wa.me text / URL). */
 function seedVarsFromInbound(inboundText: string): Record<string, string> {
   const seedVars: Record<string, string> = {};
@@ -107,7 +133,44 @@ function seedVarsFromInbound(inboundText: string): Record<string, string> {
       // ignore invalid URLs
     }
   }
+
+  // Mirror LP PascalCase query keys onto the snake_case names n8n maps.
+  const lower = new Map<string, string>();
+  for (const [k, v] of Object.entries(seedVars)) {
+    if (v) lower.set(k.toLowerCase(), v);
+  }
+  for (const [canonical, ...aliases] of UTM_KEY_ALIASES) {
+    if (seedVars[canonical]) continue;
+    for (const alias of [canonical, ...aliases]) {
+      const hit = lower.get(alias.toLowerCase());
+      if (hit) {
+        putAliased(seedVars, canonical, hit);
+        break;
+      }
+    }
+  }
   return seedVars;
+}
+
+/** Read first non-empty value from utm bag + run vars (any case). */
+function pickAttr(
+  utmParams: Record<string, unknown>,
+  vars: Record<string, string>,
+  ...keys: string[]
+): string {
+  const lowerUtm = new Map<string, unknown>();
+  for (const [k, v] of Object.entries(utmParams)) lowerUtm.set(k.toLowerCase(), v);
+  const lowerVars = new Map<string, string>();
+  for (const [k, v] of Object.entries(vars)) lowerVars.set(k.toLowerCase(), v);
+
+  for (const key of keys) {
+    const lk = key.toLowerCase();
+    const fromUtm = lowerUtm.get(lk);
+    if (fromUtm != null && String(fromUtm).trim()) return String(fromUtm).trim();
+    const fromVar = lowerVars.get(lk);
+    if (fromVar?.trim()) return fromVar.trim();
+  }
+  return "";
 }
 
 /** Match the inbound against the number's keyword flows and run the first
@@ -1005,17 +1068,63 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
             : {};
         // Prefer contact attribution; fall back to UTM keys seeded from the
         // opening inbound (covers race / silent first-message sheet rows).
+        // LP prefill uses PascalCase (AdSetName) — merge those too.
         const utmParams: Record<string, unknown> = { ...contactUtm };
+        const attrKeys = new Set([
+          "fbclid",
+          "ctwa_clid",
+          "gclid",
+          "msclkid",
+          "ttclid",
+          "placement",
+          "source_id",
+          "campaign_id",
+          "ad_id",
+          "adset_id",
+          "campaign_name",
+          "adset_name",
+          "ad_name",
+          "campaign_source",
+          "wa_tracking",
+          "campaignname",
+          "adsetname",
+          "adname",
+          "campaignsource",
+        ]);
         for (const [k, v] of Object.entries(ctx.vars)) {
           if (
             v &&
-            (k.startsWith("utm_") ||
-              ["fbclid", "ctwa_clid", "gclid", "placement", "source_id", "campaign_id", "ad_id", "adset_id"].includes(k)) &&
+            (k.startsWith("utm_") || attrKeys.has(k.toLowerCase())) &&
             utmParams[k] == null
           ) {
             utmParams[k] = v;
           }
         }
+        const campaignName = pickAttr(
+          utmParams,
+          ctx.vars,
+          "campaign_name",
+          "CampaignName",
+          "utm_campaign",
+        );
+        const adsetName = pickAttr(
+          utmParams,
+          ctx.vars,
+          "adset_name",
+          "AdSetName",
+          "adsetname",
+          "utm_adset",
+        );
+        const adName = pickAttr(utmParams, ctx.vars, "ad_name", "AdName", "adname");
+        const campaignSource = pickAttr(
+          utmParams,
+          ctx.vars,
+          "campaign_source",
+          "CampaignSource",
+          "utm_source",
+          "source",
+        );
+        const placement = pickAttr(utmParams, ctx.vars, "placement", "Placement");
         const payload = {
           contact_id: ctx.contactId,
           wa_id: ctx.waId,
@@ -1040,21 +1149,22 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
           platform: ctx.vars.platform || "",
           inbound_text: ctx.vars.inbound_text || ctx.vars.first_message || "",
           utm_source: String(
-            ctx.contact.utm_source ?? utmParams.utm_source ?? ctx.vars.utm_source ?? "",
+            (ctx.contact.utm_source ??
+              pickAttr(utmParams, ctx.vars, "utm_source", "CampaignSource")) ||
+              "",
           ),
-          utm_medium: String(utmParams.utm_medium ?? ctx.vars.utm_medium ?? ""),
-          utm_campaign: String(utmParams.utm_campaign ?? ctx.vars.utm_campaign ?? ""),
-          utm_content: String(utmParams.utm_content ?? ctx.vars.utm_content ?? ""),
-          utm_term: String(utmParams.utm_term ?? ctx.vars.utm_term ?? ""),
-          utm_id: String(utmParams.utm_id ?? ctx.vars.utm_id ?? ""),
-          campaign_name: String(utmParams.campaign_name ?? utmParams.utm_campaign ?? ""),
-          adset_name: String(utmParams.adset_name ?? utmParams.utm_adset ?? ""),
-          ad_name: String(utmParams.ad_name ?? utmParams.utm_content ?? ""),
-          campaign_source: String(
-            utmParams.campaign_source ?? utmParams.utm_source ?? utmParams.source ?? "",
-          ),
-          placement: String(utmParams.placement ?? ctx.vars.placement ?? ""),
-          fbclid: String(utmParams.fbclid ?? ctx.vars.fbclid ?? ""),
+          utm_medium: pickAttr(utmParams, ctx.vars, "utm_medium"),
+          utm_campaign: pickAttr(utmParams, ctx.vars, "utm_campaign", "CampaignName"),
+          utm_content: pickAttr(utmParams, ctx.vars, "utm_content"),
+          utm_term: pickAttr(utmParams, ctx.vars, "utm_term"),
+          utm_id: pickAttr(utmParams, ctx.vars, "utm_id"),
+          campaign_name: campaignName,
+          adset_name: adsetName,
+          ad_name: adName,
+          campaign_source: campaignSource,
+          placement,
+          fbclid: pickAttr(utmParams, ctx.vars, "fbclid"),
+          wa_tracking: pickAttr(utmParams, ctx.vars, "wa_tracking"),
           lead_source: "WhatsApp",
           utm_params: utmParams,
           vars: ctx.vars,
