@@ -40,7 +40,12 @@ function prettyPayload(raw: string | null): string {
 }
 
 // The events worth wiring for this dashboard — one-click add.
-const SUGGESTED = ["Lead Stage Change", "Lead Ownership Change", "Lead Update"];
+const SUGGESTED = [
+  "WhatsApp Lead Stage Change",
+  "Lead Stage Change",
+  "Lead Ownership Change",
+  "Lead Update",
+];
 
 function timeAgo(iso: string | null): string {
   if (!iso) return "never";

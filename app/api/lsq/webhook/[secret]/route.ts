@@ -16,6 +16,7 @@ import {
   recordLsqWebhookHit,
   parseLsqWebhookPayload,
   applyLsqLeadToContacts,
+  classifyWhatsAppLead,
 } from "@/lib/lsq-webhook";
 import { enrollDripsForLead } from "@/lib/drip";
 import { recordSeenFieldValues } from "@/lib/lsq-field-suggestions";
@@ -61,7 +62,30 @@ export async function POST(
   }
 
   const lead = parseLsqWebhookPayload(payload);
-  const updated = await applyLsqLeadToContacts(lead);
+  const channel = classifyWhatsAppLead(lead);
+
+  // WhatsApp-inbox sync only. Explicit call/walk-in/etc. payloads are
+  // logged (Connected badge still ticks) but do not touch contacts /
+  // funnel / drips / automations.
+  if (channel === "not_whatsapp") {
+    return NextResponse.json({
+      ok: true,
+      matched_contacts: 0,
+      drips_enrolled: 0,
+      skipped: "not_whatsapp",
+      channel,
+      parsed: {
+        mobile: lead.mobile,
+        mobile_last10: lead.mobile ? lead.mobile.slice(-10) : null,
+        prospect_id: lead.prospect_id,
+        stage: lead.stage,
+        source: lead.source,
+        platform: lead.platform,
+      },
+    });
+  }
+
+  const updated = await applyLsqLeadToContacts(lead, { whatsappOnly: true });
   // Learn the field values that ride along on this lead (Sub source, City,
   // Source Medium… have no master dropdown in LSQ) for the drip value picker.
   void recordSeenFieldValues(lead.fields);
@@ -91,17 +115,20 @@ export async function POST(
     console.warn("[lsq-webhook] lead automations failed:", e instanceof Error ? e.message : e);
   }
 
-  // Always 200 — a non-2xx makes LSQ retry/disable the webhook. A miss
-  // (lead we don't have a contact for) is normal, not an error.
+  // Always 200 — a non-2xx makes CRM retry/disable the webhook. A miss
+  // (lead we don't have a WhatsApp contact for) is normal, not an error.
   return NextResponse.json({
     ok: true,
     matched_contacts: updated,
     drips_enrolled: enrolled,
+    channel,
     parsed: {
       mobile: lead.mobile,
+      mobile_last10: lead.mobile ? lead.mobile.slice(-10) : null,
       prospect_id: lead.prospect_id,
       stage: lead.stage,
       source: lead.source,
+      platform: lead.platform,
     },
   });
 }

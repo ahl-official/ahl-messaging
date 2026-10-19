@@ -163,9 +163,24 @@ async function logWebhookEventToDb(
     activity: str(after.ProspectActivityName_Max ?? obj.ProspectActivityName_Max),
     prospect_id: str(after.ProspectID ?? obj.ProspectID),
     prospect_auto_id: str(after.ProspectAutoId ?? obj.ProspectAutoId),
-    phone: str(after.Phone ?? after.Mobile ?? obj.Phone),
-    stage: str(after.ProspectStage ?? obj.ProspectStage),
-    source: str(after.Source ?? obj.Source),
+    // Prefer AHL Firebase client phone (`mobileNo`) over generic Phone.
+    phone: str(
+      after.mobileNo ??
+        after.MobileNo ??
+        after.Mobile ??
+        after.Phone ??
+        obj.mobileNo ??
+        obj.Mobile ??
+        obj.Phone,
+    ),
+    stage: str(
+      after.leadStatus ??
+        after.LeadStatus ??
+        after.ProspectStage ??
+        obj.leadStatus ??
+        obj.ProspectStage,
+    ),
+    source: str(after.platform ?? after.Source ?? obj.platform ?? obj.Source),
     payload,
   });
   if (error || !hook?.id) return;
@@ -187,7 +202,7 @@ async function logWebhookEventToDb(
 // ---------------------------------------------------------------------------
 
 export interface ParsedLsqLead {
-  mobile: string | null;       // digits only
+  mobile: string | null;       // digits only — client/WhatsApp number
   prospect_id: string | null;
   stage: string | null;
   lead_number: string | null;
@@ -196,6 +211,8 @@ export interface ParsedLsqLead {
   first_name: string | null;
   source: string | null;       // LSQ Source (drives drip source-filter)
   sub_source: string | null;   // LSQ Sub source
+  /** AHL Firebase `platform` (e.g. "WhatsApp") when present. */
+  platform: string | null;
   /** Every flattened leaf from the push, keyed by lowercased field name.
    *  Lets the drip engine match on ANY LSQ field (mx_Brand, mx_NDR_Reason…). */
   fields: Record<string, string>;
@@ -264,39 +281,62 @@ export function parseLsqWebhookPayload(payload: unknown): ParsedLsqLead {
     flattenLeaves(rec.After ?? rec.after, map);
   }
 
+  // Phone priority matters for AHL Firebase: `mobileNo` is the client
+  // WhatsApp number. Generic `Phone` is often the agent / dialler line —
+  // matching that would update the wrong inbox chat (or none).
   const rawMobile = firstMatch(map, [
-    "phone",
+    "mobileno",
+    "clientphone",
+    "clientmobile",
+    "clientmobileno",
+    "whatsapp",
+    "whatsappnumber",
+    "wa_id",
+    "waid",
     "mobile",
     "mobilenumber",
     "phonenumber",
     "mx_phone",
     "primaryphone",
     "leadmobile",
+    "phone",
   ]);
   const mobile = rawMobile ? rawMobile.replace(/[^\d]/g, "") : null;
 
+  // Stage: prefer explicit lead-stage keys. Avoid bare `status` winning
+  // over `leadStatus` when both exist (assignment/sync clutter).
+  const stage = firstMatch(map, [
+    "leadstatus",
+    "prospectstage",
+    "leadstage",
+    "currentstage",
+    "stage",
+    "status",
+  ]);
+
   return {
     mobile: mobile && mobile.length >= 7 ? mobile : null,
-    prospect_id: firstMatch(map, ["prospectid", "leadid", "prospect_id", "id"]),
-    stage: firstMatch(map, [
-      "prospectstage",
-      "stage",
-      "leadstage",
-      "currentstage",
-      "status",
-      "leadstatus",
+    prospect_id: firstMatch(map, [
+      "prospectid",
+      "leadid",
+      "prospect_id",
+      "id",
     ]),
+    stage,
     lead_number: firstMatch(map, [
       "prospectautoid",
       "leadnumber",
       "autoid",
       "lead_number",
+      "leadid",
     ]),
     owner_name: firstMatch(map, [
       "owneridname",
       "ownername",
       "leadowner",
       "owner",
+      "assignedto",
+      "assigned_to",
     ]),
     owner_email: firstMatch(map, [
       "owneridemailaddress",
@@ -304,10 +344,12 @@ export function parseLsqWebhookPayload(payload: unknown): ParsedLsqLead {
       "leadowneremailaddress",
     ]),
     first_name: firstMatch(map, [
+      "clientname",
       "firstname",
       "first name",
       "first_name",
       "mx_first_name",
+      "name",
     ]),
     source: firstMatch(map, [
       "source",
@@ -326,8 +368,53 @@ export function parseLsqWebhookPayload(payload: unknown): ParsedLsqLead {
       "prospectsubsource",
       "leadsubsource",
     ]),
+    platform: firstMatch(map, [
+      "platform",
+      "channel",
+      "medium",
+      "leadplatform",
+      "mx_platform",
+    ]),
     fields: Object.fromEntries(map),
   };
+}
+
+/** Whether this payload is clearly a WhatsApp (or non-WhatsApp) lead.
+ *  `null` = platform unknown — still try phone match (inbox contacts
+ *  are WhatsApp-only, so a miss is a natural filter). */
+export function classifyWhatsAppLead(
+  lead: ParsedLsqLead,
+): "whatsapp" | "not_whatsapp" | "unknown" {
+  const raw = [
+    lead.platform,
+    lead.source,
+    lead.fields.platform,
+    lead.fields.channel,
+    lead.fields.calltype,
+    lead.fields.call_type,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  if (!raw.trim()) return "unknown";
+  if (
+    /whats\s*app|\bwa\b|oneinbox|interakt|waha|evolution|baileys|cloud api/.test(
+      raw,
+    )
+  ) {
+    return "whatsapp";
+  }
+  // Explicit non-WA channels — skip so call/walk-in stage noise doesn't
+  // thrash inbox contacts that happen to share a digit fragment.
+  if (
+    /\b(pstn|landline|walk[\s-]?in|clinic visit|sms|email|phone call|outgoing call|incoming call)\b/.test(
+      raw,
+    ) &&
+    !/whats\s*app/.test(raw)
+  ) {
+    return "not_whatsapp";
+  }
+  return "unknown";
 }
 
 // ---------------------------------------------------------------------------
@@ -337,11 +424,19 @@ export function parseLsqWebhookPayload(payload: unknown): ParsedLsqLead {
 /** Mirror a parsed lead onto every matching contact row. Matches on
  *  `lsq_prospect_id` first, then falls back to the last-10-digits of the
  *  mobile (so siblings of the same customer across business numbers all
- *  stay in sync). Returns how many rows were updated. */
+ *  stay in sync). Returns how many rows were updated.
+ *
+ *  Only WhatsApp inbox contacts exist in `contacts` — a phone with no
+ *  chat yields 0. Pass `whatsappOnly: true` to also skip payloads whose
+ *  platform/source is explicitly non-WhatsApp (calls, walk-ins, etc.). */
 export async function applyLsqLeadToContacts(
   lead: ParsedLsqLead,
+  opts?: { whatsappOnly?: boolean },
 ): Promise<number> {
   if (!lead.stage && !lead.prospect_id && !lead.owner_name && !lead.first_name) {
+    return 0;
+  }
+  if (opts?.whatsappOnly && classifyWhatsAppLead(lead) === "not_whatsapp") {
     return 0;
   }
   const admin = createServiceRoleClient();
@@ -358,15 +453,17 @@ export async function applyLsqLeadToContacts(
     }
   }
   if (lead.mobile) {
-    // wa_id is digits-only with country code; LSQ mobile may or may not
-    // carry it. Match on the trailing 10 digits — the national part.
+    // wa_id is digits-only with country code; LSQ/Firebase mobile may or
+    // may not carry it. Match on the trailing 10 digits — national part.
     const last10 = lead.mobile.slice(-10);
-    const { data } = await admin
-      .from("contacts")
-      .select("id, name")
-      .ilike("wa_id", `%${last10}`);
-    for (const r of (data ?? []) as Array<{ id: string; name: string | null }>) {
-      byId.set(r.id, { name: r.name });
+    if (last10.length === 10) {
+      const { data } = await admin
+        .from("contacts")
+        .select("id, name")
+        .ilike("wa_id", `%${last10}`);
+      for (const r of (data ?? []) as Array<{ id: string; name: string | null }>) {
+        byId.set(r.id, { name: r.name });
+      }
     }
   }
   if (byId.size === 0) return 0;

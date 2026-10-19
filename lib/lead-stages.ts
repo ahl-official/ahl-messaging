@@ -5,12 +5,15 @@
 // Pure constant; safe to import on both client and server.
 export const ALL_LEAD_STAGES = [
   "New Lead",
-  "Contacted",
-  "Follow Up",
-  "NBD Booked",
-  "NBD Not Visited",
-  "NBD Done",
-  "Not Booked",
-  "Order Booked",
-  "Lost Lead",
+  "Warm Lead",
+  "Cold Lead 1",
+  "Cold Lead 2",
+  "Deferred Lead",
+  "Ringing / Busy",
+  "Not Reachable",
+  "Consultation Booked",
+  "Consultation Visited",
+  "Lost",
+  "Dead",
+  "Not Visited Lost",
 ] as const;
