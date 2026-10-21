@@ -107,7 +107,7 @@ export async function POST(
   return NextResponse.json({
     ok: true,
     matched_contacts: updated,
-    drips_enrolled: enrolled,
+    drips_enrolled: 0,
     channel,
     parsed: {
       mobile: lead.mobile,
