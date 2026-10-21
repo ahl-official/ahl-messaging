@@ -86,34 +86,21 @@ export async function POST(
   }
 
   const updated = await applyLsqLeadToContacts(lead, { whatsappOnly: true });
-  // Learn the field values that ride along on this lead (Sub source, City,
-  // Source Medium… have no master dropdown in LSQ) for the drip value picker.
-  void recordSeenFieldValues(lead.fields);
-  // Live drip trigger — enroll matching contacts (stage + optional source).
-  let enrolled = 0;
-  try {
-    enrolled = await enrollDripsForLead(lead);
-  } catch (e) {
-    console.warn("[lsq-webhook] drip enroll failed:", e instanceof Error ? e.message : e);
-  }
 
-  // Also feed Lead Distribution — so leads on THIS webhook show up there and
-  // get assigned (deduped by ProspectID; no-op when distribution is disabled).
-  try {
-    if (payload && typeof payload === "object") {
-      await ingestDistributionLead(payload as Record<string, unknown>);
+  // Fire secondary triggers (drips, automations, distribution) asynchronously in the background
+  // so the HTTP connection returns immediately and never times out the caller (e.g. Cloud Run).
+  void (async () => {
+    try {
+      void recordSeenFieldValues(lead.fields);
+      await enrollDripsForLead(lead);
+      if (payload && typeof payload === "object") {
+        await ingestDistributionLead(payload as Record<string, unknown>);
+      }
+      await runLeadAutomations(lead);
+    } catch (e) {
+      console.warn("[lsq-webhook] background trigger failed:", e instanceof Error ? e.message : e);
     }
-  } catch (e) {
-    console.warn("[lsq-webhook] distribution ingest failed:", e instanceof Error ? e.message : e);
-  }
-
-  // Run published Lead Automations — match the trigger stage, evaluate the
-  // flow's If/Else, and fire actions (e.g. send a WhatsApp template).
-  try {
-    await runLeadAutomations(lead);
-  } catch (e) {
-    console.warn("[lsq-webhook] lead automations failed:", e instanceof Error ? e.message : e);
-  }
+  })();
 
   // Always 200 — a non-2xx makes CRM retry/disable the webhook. A miss
   // (lead we don't have a WhatsApp contact for) is normal, not an error.

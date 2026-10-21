@@ -185,16 +185,22 @@ async function logWebhookEventToDb(
   });
   if (error || !hook?.id) return;
 
-  // Ring-buffer: drop this webhook's rows beyond the newest N.
-  const { data: old } = await admin
-    .from("lsq_webhook_events")
-    .select("id")
-    .eq("webhook_id", hook.id)
-    .order("received_at", { ascending: false })
-    .range(EVENTS_KEEP_PER_HOOK, EVENTS_KEEP_PER_HOOK + 500);
-  if (old && old.length > 0) {
-    await admin.from("lsq_webhook_events").delete().in("id", old.map((o) => o.id as string));
-  }
+  // Ring-buffer: prune older rows in background so the webhook request does not block/timeout.
+  void (async () => {
+    try {
+      const { data: old } = await admin
+        .from("lsq_webhook_events")
+        .select("id")
+        .eq("webhook_id", hook.id)
+        .order("received_at", { ascending: false })
+        .range(EVENTS_KEEP_PER_HOOK, EVENTS_KEEP_PER_HOOK + 500);
+      if (old && old.length > 0) {
+        await admin.from("lsq_webhook_events").delete().in("id", old.map((o) => o.id as string));
+      }
+    } catch (e) {
+      console.warn("[lsq-webhook] ring-buffer cleanup failed:", e);
+    }
+  })();
 }
 
 // ---------------------------------------------------------------------------
