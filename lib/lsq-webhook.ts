@@ -470,7 +470,7 @@ export async function applyLsqLeadToContacts(
   const allIds = Array.from(byId.keys());
 
   const patch: Record<string, unknown> = {
-    lsq_synced_at: new Date().toISOString(),
+    lsq_last_sync_at: new Date().toISOString(),
   };
   if (lead.stage) patch.lsq_stage = lead.stage;
   if (lead.lead_number) patch.lsq_lead_number = lead.lead_number;
