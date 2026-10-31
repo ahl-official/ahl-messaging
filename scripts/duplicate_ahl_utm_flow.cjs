@@ -1,13 +1,18 @@
 /**
- * Duplicate AHL UTM Flow V2 Generator
+ * Duplicate AHL UTM Flow V2 Generator (Consultation & Payment Optimized)
  * 
- * Clones the exact structure of the live "AHL UTM Flow" without modifying the original.
- * Generates RFC 4122 standard UUIDs for all nodes and connections so Postgres accepts them.
+ * - Leaves live "AHL UTM Flow" 100% untouched.
+ * - Uses engaging, conversational, low-friction questions while preserving all original options.
+ * - Saves every user selection into variables (name, city, product, patch_type, urgency, platform, consultation_slot, resistance_choice).
+ * - Routes all webhooks to n8n: https://n8n.hairscalptradingco.com/webhook/ahl-flow-webhook
+ * - Generates valid RFC 4122 UUIDs for all nodes.
  */
 
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+
+const N8N_WEBHOOK_URL = 'https://n8n.hairscalptradingco.com/webhook/ahl-flow-webhook';
 
 // Map human-readable node names to valid UUIDs
 const idMap = new Map();
@@ -25,19 +30,19 @@ const nodes = [
     id: getId('trigger_entry'),
     node_type: 'keyword',
     config: {
-      phrases: ['mai set bani'],
+      phrases: ['mai set bani', 'Hi! Tell me more', 'Tell me more'],
       match: 'contains',
-      description: 'User sends WhatsApp message with UTM campaign trigger'
+      description: 'Opening trigger matching UTM ad traffic'
     },
     position: { x: 50, y: 250 }
   },
 
-  // --- STEP 1: INITIAL WEBHOOK & NAME REQUEST ---
+  // --- STEP 1: INITIAL N8N WEBHOOK & NAME REQUEST ---
   {
     id: getId('webhook_1'),
     node_type: 'webhook',
     config: {
-      url: 'https://crm.hairscalptradingco.com/webhook/scan-flow-webhook',
+      url: N8N_WEBHOOK_URL,
       method: 'POST'
     },
     position: { x: 300, y: 400 }
@@ -46,17 +51,20 @@ const nodes = [
     id: getId('ask_name'),
     node_type: 'ask_text',
     config: {
-      text: "Hello, Welcome to American Hairline! We're delighted to have you here. May we know your name?"
+      text: "Hello! 👋 Welcome to American Hairline.\nWe're delighted to connect with you! To help you with the right specialist, may we know your *Name*?",
+      var_name: 'name',
+      remind_on_invalid: true,
+      invalid_reply_message: 'Please share your name so we can assist you better 🙏'
     },
     position: { x: 350, y: 150 }
   },
 
-  // --- STEP 2: POST-NAME WEBHOOK & CITY SELECTION ---
+  // --- STEP 2: POST-NAME N8N WEBHOOK & CITY SELECTION ---
   {
     id: getId('webhook_2'),
     node_type: 'webhook',
     config: {
-      url: 'https://crm.hairscalptradingco.com/webhook/scan-flow-webhook',
+      url: N8N_WEBHOOK_URL,
       method: 'POST'
     },
     position: { x: 600, y: 100 }
@@ -65,7 +73,8 @@ const nodes = [
     id: getId('ask_city'),
     node_type: 'ask_list',
     config: {
-      text: 'May I know, which city are you from?',
+      text: 'Nice to connect with you! 😊 Which city are you currently located in? (Tap below to select):',
+      var_name: 'city',
       buttons: [
         { label: 'Mumbai' },
         { label: 'Bangalore' },
@@ -85,17 +94,18 @@ const nodes = [
     id: getId('ask_custom_city'),
     node_type: 'ask_text',
     config: {
-      text: 'Which city are you from?'
+      text: 'No problem! Could you please type and send the city or region you are from?',
+      var_name: 'city'
     },
     position: { x: 950, y: 550 }
   },
 
-  // --- STEP 3: POST-CITY WEBHOOK & PRODUCT SELECTION ---
+  // --- STEP 3: POST-CITY N8N WEBHOOK & PRODUCT SELECTION ---
   {
     id: getId('webhook_3'),
     node_type: 'webhook',
     config: {
-      url: 'https://crm.hairscalptradingco.com/webhook/scan-flow-webhook',
+      url: N8N_WEBHOOK_URL,
       method: 'POST'
     },
     position: { x: 1050, y: 200 }
@@ -104,7 +114,8 @@ const nodes = [
     id: getId('ask_product'),
     node_type: 'ask_button',
     config: {
-      text: 'What product are you interested in?',
+      text: 'To guide you to the right hair specialist, which hair solution would you like to explore today? 👇',
+      var_name: 'product',
       buttons: [
         { label: 'Hair Patch' },
         { label: 'Scalp Micro Pigmentation' },
@@ -121,7 +132,8 @@ const nodes = [
     id: getId('ask_hair_patch_type'),
     node_type: 'ask_button',
     config: {
-      text: 'Which Hair Patch you want?',
+      text: 'Great choice! Which type of Hair Patch system are you interested in? (Tap below):',
+      var_name: 'patch_type',
       buttons: [
         { label: 'Clip-On' },
         { label: 'Stick-On' },
@@ -172,7 +184,8 @@ const nodes = [
     id: getId('ask_urgency'),
     node_type: 'ask_button',
     config: {
-      text: 'Thank you for your interest in our solution! How soon are you looking for a solution?',
+      text: 'Got it! To help us organize your consultation schedule, how soon are you looking for a solution?',
+      var_name: 'urgency',
       buttons: [
         { label: 'Within 3 Days' },
         { label: 'Within a Week' },
@@ -188,7 +201,8 @@ const nodes = [
     id: getId('ask_platform'),
     node_type: 'ask_button',
     config: {
-      text: 'Which platform is comfortable for you?',
+      text: 'Which consultation format would be most comfortable for you? 👇',
+      var_name: 'platform',
       buttons: [
         { label: 'Book Online Consult' },
         { label: 'In-Person Consult' },
@@ -211,7 +225,7 @@ const nodes = [
     id: getId('webhook_consult_init'),
     node_type: 'webhook',
     config: {
-      url: 'https://crm.hairscalptradingco.com/webhook/scan-flow-webhook',
+      url: N8N_WEBHOOK_URL,
       method: 'POST'
     },
     position: { x: 2650, y: 150 }
@@ -220,7 +234,8 @@ const nodes = [
     id: getId('ask_time_slot'),
     node_type: 'ask_list',
     config: {
-      text: 'Please select your preferred consultation time slot:\n(Nominal ₹300 fee, 100% adjusted in your service package)',
+      text: 'Perfect! Please choose your preferred consultation time slot:\n(Nominal ₹300 fee, 100% adjusted in your final service package) 🗓️',
+      var_name: 'consultation_slot',
       buttons: [
         { label: 'Tomorrow - 12:00 PM' },
         { label: 'Tomorrow - 02:00 PM' },
@@ -236,7 +251,8 @@ const nodes = [
     id: getId('send_payment_link'),
     node_type: 'message_buttons',
     config: {
-      text: 'Your consultation slot is tentatively reserved! ⏳\n\nTo lock your appointment pass, please complete the ₹300 consultation fee using the link below:\n👉 https://rzp.io/l/ahl-consult\n\n(Supports GPay, PhonePe, Paytm & Cards)',
+      text: 'Your consultation slot is tentatively reserved! ⏳\n\nTo lock your appointment pass, please complete the ₹300 consultation fee using the link below:\n👉 https://rzp.io/l/ahl-consult\n\n(Supports GPay, PhonePe, Paytm & UPI)',
+      var_name: 'payment_status',
       buttons: [
         { label: 'Pay ₹300 (GPay/UPI)', url: 'https://rzp.io/l/ahl-consult' },
         { label: 'Confirmed Payment' }
@@ -250,7 +266,7 @@ const nodes = [
     id: getId('send_photo_request'),
     node_type: 'message_text',
     config: {
-      text: 'You may also share 1-2 photos of your scalp (top, front & back) here so our senior specialist can study your hair loss pattern before your session. All photos remain 100% confidential.'
+      text: 'Optional: You may also share 1-2 photos of your scalp (top, front & back) here so our senior specialist can study your hair loss pattern before your session. All photos remain 100% confidential. 📸'
     },
     position: { x: 3500, y: 150 }
   },
@@ -268,7 +284,8 @@ const nodes = [
     id: getId('ask_resistance_followup'),
     node_type: 'ask_button',
     config: {
-      text: 'Hi! We noticed your consultation slot is still pending confirmation. May we help you with anything?',
+      text: 'Hi! We noticed your consultation slot is still pending confirmation. How can we best assist you?',
+      var_name: 'resistance_choice',
       buttons: [
         { label: 'Need more details' },
         { label: 'Call me first' }
@@ -288,7 +305,7 @@ const nodes = [
     id: getId('webhook_urgent_callback'),
     node_type: 'webhook',
     config: {
-      url: 'https://crm.hairscalptradingco.com/webhook/scan-flow-webhook',
+      url: N8N_WEBHOOK_URL,
       method: 'POST'
     },
     position: { x: 4100, y: 450 }
@@ -400,7 +417,7 @@ const completeFlowV2 = {
   enabled: false, // SAFE: Created as disabled/draft so live flow is 100% untouched
   trigger_type: 'keyword',
   trigger_config: {
-    phrases: ['mai set bani'],
+    phrases: ['mai set bani', 'Hi! Tell me more', 'Tell me more'],
     match: 'contains'
   },
   priority: 200,
@@ -414,4 +431,6 @@ const completeFlowV2 = {
 const outputPath = path.join(__dirname, 'ahl_utm_flow_v2.json');
 fs.writeFileSync(outputPath, JSON.stringify(completeFlowV2, null, 2));
 console.log(`Successfully generated AHL UTM Flow V2 with ${nodes.length} nodes and ${edges.length} edges!`);
+console.log(`All webhooks set to: ${N8N_WEBHOOK_URL}`);
+console.log(`All variables configured: name, city, product, patch_type, urgency, platform, consultation_slot, resistance_choice.`);
 console.log(`Saved graph file to: ${outputPath}`);

@@ -4,23 +4,27 @@
   "trigger_type": "keyword",
   "trigger_config": {
     "phrases": [
-      "mai set bani"
+      "mai set bani",
+      "Hi! Tell me more",
+      "Tell me more"
     ],
     "match": "contains"
   },
   "priority": 200,
   "graph": {
-    "start_node_id": "99759ae3-33ef-4ea8-aa32-11e7d15d2372",
+    "start_node_id": "6ab61609-5017-4096-9ba8-61e0f6ec0ace",
     "nodes": [
       {
-        "id": "99759ae3-33ef-4ea8-aa32-11e7d15d2372",
+        "id": "6ab61609-5017-4096-9ba8-61e0f6ec0ace",
         "node_type": "keyword",
         "config": {
           "phrases": [
-            "mai set bani"
+            "mai set bani",
+            "Hi! Tell me more",
+            "Tell me more"
           ],
           "match": "contains",
-          "description": "User sends WhatsApp message with UTM campaign trigger"
+          "description": "Opening trigger matching UTM ad traffic"
         },
         "position": {
           "x": 50,
@@ -28,10 +32,10 @@
         }
       },
       {
-        "id": "3302c4a2-f4f6-470f-af38-349d30020512",
+        "id": "82d4c832-ff7c-4686-948a-707b2ae15e9a",
         "node_type": "webhook",
         "config": {
-          "url": "https://crm.hairscalptradingco.com/webhook/scan-flow-webhook",
+          "url": "https://n8n.hairscalptradingco.com/webhook/ahl-flow-webhook",
           "method": "POST"
         },
         "position": {
@@ -40,10 +44,13 @@
         }
       },
       {
-        "id": "6d6e9ecc-f0f4-4373-94b6-cfa39116a4de",
+        "id": "4a3f39df-9bce-4dea-a1f4-d6d83a3a6196",
         "node_type": "ask_text",
         "config": {
-          "text": "Hello, Welcome to American Hairline! We're delighted to have you here. May we know your name?"
+          "text": "Hello! 👋 Welcome to American Hairline.\nWe're delighted to connect with you! To help you with the right specialist, may we know your *Name*?",
+          "var_name": "name",
+          "remind_on_invalid": true,
+          "invalid_reply_message": "Please share your name so we can assist you better 🙏"
         },
         "position": {
           "x": 350,
@@ -51,10 +58,10 @@
         }
       },
       {
-        "id": "e101b7f4-e57a-4fd8-836a-dca215c212f2",
+        "id": "66bbe4eb-2326-4807-8de1-196a9f074e70",
         "node_type": "webhook",
         "config": {
-          "url": "https://crm.hairscalptradingco.com/webhook/scan-flow-webhook",
+          "url": "https://n8n.hairscalptradingco.com/webhook/ahl-flow-webhook",
           "method": "POST"
         },
         "position": {
@@ -63,10 +70,11 @@
         }
       },
       {
-        "id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
+        "id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
         "node_type": "ask_list",
         "config": {
-          "text": "May I know, which city are you from?",
+          "text": "Nice to connect with you! 😊 Which city are you currently located in? (Tap below to select):",
+          "var_name": "city",
           "buttons": [
             {
               "label": "Mumbai"
@@ -106,10 +114,11 @@
         }
       },
       {
-        "id": "4e777134-8c94-4a85-90a4-3307c309121e",
+        "id": "aa12de10-0300-4a8e-9725-8dff8f80ad22",
         "node_type": "ask_text",
         "config": {
-          "text": "Which city are you from?"
+          "text": "No problem! Could you please type and send the city or region you are from?",
+          "var_name": "city"
         },
         "position": {
           "x": 950,
@@ -117,10 +126,10 @@
         }
       },
       {
-        "id": "538dd18c-b648-4d98-ac55-4d3ab7c18a71",
+        "id": "3d1cdd46-5f3c-47c2-9dd6-5c91eadefc29",
         "node_type": "webhook",
         "config": {
-          "url": "https://crm.hairscalptradingco.com/webhook/scan-flow-webhook",
+          "url": "https://n8n.hairscalptradingco.com/webhook/ahl-flow-webhook",
           "method": "POST"
         },
         "position": {
@@ -129,10 +138,11 @@
         }
       },
       {
-        "id": "dc1e4018-fd7c-47cd-a46f-b438bd18354e",
+        "id": "09c41bdd-9257-468b-8419-21942cccd61d",
         "node_type": "ask_button",
         "config": {
-          "text": "What product are you interested in?",
+          "text": "To guide you to the right hair specialist, which hair solution would you like to explore today? 👇",
+          "var_name": "product",
           "buttons": [
             {
               "label": "Hair Patch"
@@ -154,10 +164,11 @@
         }
       },
       {
-        "id": "7db2b5b4-169a-418b-9bcc-6798c36f434d",
+        "id": "22f31612-bf6d-4df4-a5a4-c102915893da",
         "node_type": "ask_button",
         "config": {
-          "text": "Which Hair Patch you want?",
+          "text": "Great choice! Which type of Hair Patch system are you interested in? (Tap below):",
+          "var_name": "patch_type",
           "buttons": [
             {
               "label": "Clip-On"
@@ -176,7 +187,7 @@
         }
       },
       {
-        "id": "238bb963-ac6d-40f4-bbd3-866d0302a0eb",
+        "id": "7dc4759b-5596-44b1-96b6-cbd8dfad07ee",
         "node_type": "send_template",
         "config": {
           "template_name": "smp_price_details"
@@ -187,7 +198,7 @@
         }
       },
       {
-        "id": "c63d8c22-3200-4c0c-a02e-1afdf100504c",
+        "id": "626496b1-df2e-443d-87e3-dede8a4332c9",
         "node_type": "wait_reply",
         "config": {
           "label": "Client ke reply ka intezaar"
@@ -198,7 +209,7 @@
         }
       },
       {
-        "id": "a102a7b6-e5fb-4c73-b0fc-2a2927a48763",
+        "id": "ac8ac1c8-4edc-4679-b398-75d016d70bbe",
         "node_type": "send_template",
         "config": {
           "template_name": "front_hairline_system_videos_update"
@@ -209,7 +220,7 @@
         }
       },
       {
-        "id": "a33a4f34-82a2-4f19-afdc-68ef91066b6c",
+        "id": "336a834b-75e4-4f10-80bc-f1a2a495782d",
         "node_type": "wait_reply",
         "config": {
           "label": "Client ke reply ka intezaar"
@@ -220,10 +231,11 @@
         }
       },
       {
-        "id": "e3dcd7fe-036a-4b2e-8f30-d823e7463efe",
+        "id": "623a5ad9-2a3c-4618-903c-ee62438bd09e",
         "node_type": "ask_button",
         "config": {
-          "text": "Thank you for your interest in our solution! How soon are you looking for a solution?",
+          "text": "Got it! To help us organize your consultation schedule, how soon are you looking for a solution?",
+          "var_name": "urgency",
           "buttons": [
             {
               "label": "Within 3 Days"
@@ -245,10 +257,11 @@
         }
       },
       {
-        "id": "9dfca28c-a3a6-417f-81e8-515fab060d61",
+        "id": "1a5e769b-69d5-4f32-8d0f-c84973d30de4",
         "node_type": "ask_button",
         "config": {
-          "text": "Which platform is comfortable for you?",
+          "text": "Which consultation format would be most comfortable for you? 👇",
+          "var_name": "platform",
           "buttons": [
             {
               "label": "Book Online Consult"
@@ -267,7 +280,7 @@
         }
       },
       {
-        "id": "ef640ff3-efd6-420e-afb1-2d05cece3709",
+        "id": "9f76a61b-6e97-4b1b-a9fc-aa164297fc7f",
         "node_type": "send_template",
         "config": {
           "template_name": "call_now_utility"
@@ -278,10 +291,10 @@
         }
       },
       {
-        "id": "0ef2cd32-05eb-46ac-8886-266feb3f9b74",
+        "id": "c7552ee1-ba6a-4084-8f89-c41aba0b9828",
         "node_type": "webhook",
         "config": {
-          "url": "https://crm.hairscalptradingco.com/webhook/scan-flow-webhook",
+          "url": "https://n8n.hairscalptradingco.com/webhook/ahl-flow-webhook",
           "method": "POST"
         },
         "position": {
@@ -290,10 +303,11 @@
         }
       },
       {
-        "id": "2a31010f-b2a9-4a43-abd0-85a7e23d81c4",
+        "id": "fea2ce4e-8cd4-449c-a4d8-381ee39ee32c",
         "node_type": "ask_list",
         "config": {
-          "text": "Please select your preferred consultation time slot:\n(Nominal ₹300 fee, 100% adjusted in your service package)",
+          "text": "Perfect! Please choose your preferred consultation time slot:\n(Nominal ₹300 fee, 100% adjusted in your final service package) 🗓️",
+          "var_name": "consultation_slot",
           "buttons": [
             {
               "label": "Tomorrow - 12:00 PM"
@@ -315,10 +329,11 @@
         }
       },
       {
-        "id": "1f09f1c1-13dc-473e-b601-56e4db1891ac",
+        "id": "39308914-0b89-4054-ab77-52dcd3bd3d8b",
         "node_type": "message_buttons",
         "config": {
-          "text": "Your consultation slot is tentatively reserved! ⏳\n\nTo lock your appointment pass, please complete the ₹300 consultation fee using the link below:\n👉 https://rzp.io/l/ahl-consult\n\n(Supports GPay, PhonePe, Paytm & Cards)",
+          "text": "Your consultation slot is tentatively reserved! ⏳\n\nTo lock your appointment pass, please complete the ₹300 consultation fee using the link below:\n👉 https://rzp.io/l/ahl-consult\n\n(Supports GPay, PhonePe, Paytm & UPI)",
+          "var_name": "payment_status",
           "buttons": [
             {
               "label": "Pay ₹300 (GPay/UPI)",
@@ -335,10 +350,10 @@
         }
       },
       {
-        "id": "52ecfd98-a075-4b30-bcb6-09415dc3e446",
+        "id": "de6abc11-e876-4e12-853a-50c98d16e2c4",
         "node_type": "message_text",
         "config": {
-          "text": "You may also share 1-2 photos of your scalp (top, front & back) here so our senior specialist can study your hair loss pattern before your session. All photos remain 100% confidential."
+          "text": "Optional: You may also share 1-2 photos of your scalp (top, front & back) here so our senior specialist can study your hair loss pattern before your session. All photos remain 100% confidential. 📸"
         },
         "position": {
           "x": 3500,
@@ -346,7 +361,7 @@
         }
       },
       {
-        "id": "e4b8dd24-fb45-4ddf-a14e-104a1da44dd7",
+        "id": "ccd1183f-1626-4664-8694-ed912ca675ec",
         "node_type": "wait_reply",
         "config": {
           "label": "Wait for client reply / payment"
@@ -357,10 +372,11 @@
         }
       },
       {
-        "id": "b08bd13d-8cc0-4e10-af9d-e399aa817a52",
+        "id": "ebef35a7-cb87-49d9-8e39-754844eb2192",
         "node_type": "ask_button",
         "config": {
-          "text": "Hi! We noticed your consultation slot is still pending confirmation. May we help you with anything?",
+          "text": "Hi! We noticed your consultation slot is still pending confirmation. How can we best assist you?",
+          "var_name": "resistance_choice",
           "buttons": [
             {
               "label": "Need more details"
@@ -376,7 +392,7 @@
         }
       },
       {
-        "id": "28cc8808-5677-42fb-b4b9-f7e28be8265e",
+        "id": "13cc9779-59d8-4d8c-9116-57693348f2a0",
         "node_type": "message_text",
         "config": {
           "text": "Here is our detailed technical video explaining non-surgical hair replacement:\n👉 https://youtu.be/americanhairline-guide\n\nWhenever you are ready, you can book your slot anytime!"
@@ -387,10 +403,10 @@
         }
       },
       {
-        "id": "65672483-6de1-4db3-8412-d5a3f9ec0520",
+        "id": "478b5325-62bd-4dea-a9ff-006b98b375de",
         "node_type": "webhook",
         "config": {
-          "url": "https://crm.hairscalptradingco.com/webhook/scan-flow-webhook",
+          "url": "https://n8n.hairscalptradingco.com/webhook/ahl-flow-webhook",
           "method": "POST"
         },
         "position": {
@@ -399,7 +415,7 @@
         }
       },
       {
-        "id": "d76a4416-67ad-46cb-9fae-24dc8b3ec462",
+        "id": "5241612a-6296-4aaf-81f0-ad7476757fed",
         "node_type": "message_text",
         "config": {
           "text": "Understood! Our senior clinic advisor will call you shortly to assist you with all your queries."
@@ -412,265 +428,265 @@
     ],
     "edges": [
       {
-        "from_node_id": "99759ae3-33ef-4ea8-aa32-11e7d15d2372",
-        "to_node_id": "3302c4a2-f4f6-470f-af38-349d30020512"
+        "from_node_id": "6ab61609-5017-4096-9ba8-61e0f6ec0ace",
+        "to_node_id": "82d4c832-ff7c-4686-948a-707b2ae15e9a"
       },
       {
-        "from_node_id": "99759ae3-33ef-4ea8-aa32-11e7d15d2372",
-        "to_node_id": "6d6e9ecc-f0f4-4373-94b6-cfa39116a4de"
+        "from_node_id": "6ab61609-5017-4096-9ba8-61e0f6ec0ace",
+        "to_node_id": "4a3f39df-9bce-4dea-a1f4-d6d83a3a6196"
       },
       {
-        "from_node_id": "6d6e9ecc-f0f4-4373-94b6-cfa39116a4de",
-        "to_node_id": "e101b7f4-e57a-4fd8-836a-dca215c212f2"
+        "from_node_id": "4a3f39df-9bce-4dea-a1f4-d6d83a3a6196",
+        "to_node_id": "66bbe4eb-2326-4807-8de1-196a9f074e70"
       },
       {
-        "from_node_id": "6d6e9ecc-f0f4-4373-94b6-cfa39116a4de",
-        "to_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1"
+        "from_node_id": "4a3f39df-9bce-4dea-a1f4-d6d83a3a6196",
+        "to_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "538dd18c-b648-4d98-ac55-4d3ab7c18a71",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "3d1cdd46-5f3c-47c2-9dd6-5c91eadefc29",
         "branch_label": "Mumbai"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "dc1e4018-fd7c-47cd-a46f-b438bd18354e",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "09c41bdd-9257-468b-8419-21942cccd61d",
         "branch_label": "Mumbai"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "538dd18c-b648-4d98-ac55-4d3ab7c18a71",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "3d1cdd46-5f3c-47c2-9dd6-5c91eadefc29",
         "branch_label": "Bangalore"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "dc1e4018-fd7c-47cd-a46f-b438bd18354e",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "09c41bdd-9257-468b-8419-21942cccd61d",
         "branch_label": "Bangalore"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "538dd18c-b648-4d98-ac55-4d3ab7c18a71",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "3d1cdd46-5f3c-47c2-9dd6-5c91eadefc29",
         "branch_label": "Hyderabad"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "dc1e4018-fd7c-47cd-a46f-b438bd18354e",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "09c41bdd-9257-468b-8419-21942cccd61d",
         "branch_label": "Hyderabad"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "538dd18c-b648-4d98-ac55-4d3ab7c18a71",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "3d1cdd46-5f3c-47c2-9dd6-5c91eadefc29",
         "branch_label": "Delhi"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "dc1e4018-fd7c-47cd-a46f-b438bd18354e",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "09c41bdd-9257-468b-8419-21942cccd61d",
         "branch_label": "Delhi"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "538dd18c-b648-4d98-ac55-4d3ab7c18a71",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "3d1cdd46-5f3c-47c2-9dd6-5c91eadefc29",
         "branch_label": "Pune"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "dc1e4018-fd7c-47cd-a46f-b438bd18354e",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "09c41bdd-9257-468b-8419-21942cccd61d",
         "branch_label": "Pune"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "538dd18c-b648-4d98-ac55-4d3ab7c18a71",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "3d1cdd46-5f3c-47c2-9dd6-5c91eadefc29",
         "branch_label": "Kolkata"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "dc1e4018-fd7c-47cd-a46f-b438bd18354e",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "09c41bdd-9257-468b-8419-21942cccd61d",
         "branch_label": "Kolkata"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "538dd18c-b648-4d98-ac55-4d3ab7c18a71",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "3d1cdd46-5f3c-47c2-9dd6-5c91eadefc29",
         "branch_label": "Chennai"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "dc1e4018-fd7c-47cd-a46f-b438bd18354e",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "09c41bdd-9257-468b-8419-21942cccd61d",
         "branch_label": "Chennai"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "538dd18c-b648-4d98-ac55-4d3ab7c18a71",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "3d1cdd46-5f3c-47c2-9dd6-5c91eadefc29",
         "branch_label": "Jaipur"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "dc1e4018-fd7c-47cd-a46f-b438bd18354e",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "09c41bdd-9257-468b-8419-21942cccd61d",
         "branch_label": "Jaipur"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "538dd18c-b648-4d98-ac55-4d3ab7c18a71",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "3d1cdd46-5f3c-47c2-9dd6-5c91eadefc29",
         "branch_label": "Lucknow"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "dc1e4018-fd7c-47cd-a46f-b438bd18354e",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "09c41bdd-9257-468b-8419-21942cccd61d",
         "branch_label": "Lucknow"
       },
       {
-        "from_node_id": "19b6b15c-3ad9-4342-8e04-0f49fceb82b1",
-        "to_node_id": "4e777134-8c94-4a85-90a4-3307c309121e",
+        "from_node_id": "ed2aacba-08ec-4b46-8e69-7403515e9688",
+        "to_node_id": "aa12de10-0300-4a8e-9725-8dff8f80ad22",
         "branch_label": "None of the above"
       },
       {
-        "from_node_id": "4e777134-8c94-4a85-90a4-3307c309121e",
-        "to_node_id": "538dd18c-b648-4d98-ac55-4d3ab7c18a71"
+        "from_node_id": "aa12de10-0300-4a8e-9725-8dff8f80ad22",
+        "to_node_id": "3d1cdd46-5f3c-47c2-9dd6-5c91eadefc29"
       },
       {
-        "from_node_id": "4e777134-8c94-4a85-90a4-3307c309121e",
-        "to_node_id": "dc1e4018-fd7c-47cd-a46f-b438bd18354e"
+        "from_node_id": "aa12de10-0300-4a8e-9725-8dff8f80ad22",
+        "to_node_id": "09c41bdd-9257-468b-8419-21942cccd61d"
       },
       {
-        "from_node_id": "dc1e4018-fd7c-47cd-a46f-b438bd18354e",
-        "to_node_id": "7db2b5b4-169a-418b-9bcc-6798c36f434d",
+        "from_node_id": "09c41bdd-9257-468b-8419-21942cccd61d",
+        "to_node_id": "22f31612-bf6d-4df4-a5a4-c102915893da",
         "branch_label": "Hair Patch"
       },
       {
-        "from_node_id": "dc1e4018-fd7c-47cd-a46f-b438bd18354e",
-        "to_node_id": "238bb963-ac6d-40f4-bbd3-866d0302a0eb",
+        "from_node_id": "09c41bdd-9257-468b-8419-21942cccd61d",
+        "to_node_id": "7dc4759b-5596-44b1-96b6-cbd8dfad07ee",
         "branch_label": "Scalp Micro Pigmentation"
       },
       {
-        "from_node_id": "dc1e4018-fd7c-47cd-a46f-b438bd18354e",
-        "to_node_id": "e3dcd7fe-036a-4b2e-8f30-d823e7463efe",
+        "from_node_id": "09c41bdd-9257-468b-8419-21942cccd61d",
+        "to_node_id": "623a5ad9-2a3c-4618-903c-ee62438bd09e",
         "branch_label": "Hair Transplant"
       },
       {
-        "from_node_id": "dc1e4018-fd7c-47cd-a46f-b438bd18354e",
-        "to_node_id": "a102a7b6-e5fb-4c73-b0fc-2a2927a48763",
+        "from_node_id": "09c41bdd-9257-468b-8419-21942cccd61d",
+        "to_node_id": "ac8ac1c8-4edc-4679-b398-75d016d70bbe",
         "branch_label": "Front Hairline"
       },
       {
-        "from_node_id": "7db2b5b4-169a-418b-9bcc-6798c36f434d",
-        "to_node_id": "e3dcd7fe-036a-4b2e-8f30-d823e7463efe",
+        "from_node_id": "22f31612-bf6d-4df4-a5a4-c102915893da",
+        "to_node_id": "623a5ad9-2a3c-4618-903c-ee62438bd09e",
         "branch_label": "Clip-On"
       },
       {
-        "from_node_id": "7db2b5b4-169a-418b-9bcc-6798c36f434d",
-        "to_node_id": "e3dcd7fe-036a-4b2e-8f30-d823e7463efe",
+        "from_node_id": "22f31612-bf6d-4df4-a5a4-c102915893da",
+        "to_node_id": "623a5ad9-2a3c-4618-903c-ee62438bd09e",
         "branch_label": "Stick-On"
       },
       {
-        "from_node_id": "7db2b5b4-169a-418b-9bcc-6798c36f434d",
-        "to_node_id": "e3dcd7fe-036a-4b2e-8f30-d823e7463efe",
+        "from_node_id": "22f31612-bf6d-4df4-a5a4-c102915893da",
+        "to_node_id": "623a5ad9-2a3c-4618-903c-ee62438bd09e",
         "branch_label": "Need Help"
       },
       {
-        "from_node_id": "238bb963-ac6d-40f4-bbd3-866d0302a0eb",
-        "to_node_id": "c63d8c22-3200-4c0c-a02e-1afdf100504c"
+        "from_node_id": "7dc4759b-5596-44b1-96b6-cbd8dfad07ee",
+        "to_node_id": "626496b1-df2e-443d-87e3-dede8a4332c9"
       },
       {
-        "from_node_id": "c63d8c22-3200-4c0c-a02e-1afdf100504c",
-        "to_node_id": "e3dcd7fe-036a-4b2e-8f30-d823e7463efe"
+        "from_node_id": "626496b1-df2e-443d-87e3-dede8a4332c9",
+        "to_node_id": "623a5ad9-2a3c-4618-903c-ee62438bd09e"
       },
       {
-        "from_node_id": "a102a7b6-e5fb-4c73-b0fc-2a2927a48763",
-        "to_node_id": "a33a4f34-82a2-4f19-afdc-68ef91066b6c"
+        "from_node_id": "ac8ac1c8-4edc-4679-b398-75d016d70bbe",
+        "to_node_id": "336a834b-75e4-4f10-80bc-f1a2a495782d"
       },
       {
-        "from_node_id": "a33a4f34-82a2-4f19-afdc-68ef91066b6c",
-        "to_node_id": "e3dcd7fe-036a-4b2e-8f30-d823e7463efe"
+        "from_node_id": "336a834b-75e4-4f10-80bc-f1a2a495782d",
+        "to_node_id": "623a5ad9-2a3c-4618-903c-ee62438bd09e"
       },
       {
-        "from_node_id": "e3dcd7fe-036a-4b2e-8f30-d823e7463efe",
-        "to_node_id": "9dfca28c-a3a6-417f-81e8-515fab060d61",
+        "from_node_id": "623a5ad9-2a3c-4618-903c-ee62438bd09e",
+        "to_node_id": "1a5e769b-69d5-4f32-8d0f-c84973d30de4",
         "branch_label": "Within 3 Days"
       },
       {
-        "from_node_id": "e3dcd7fe-036a-4b2e-8f30-d823e7463efe",
-        "to_node_id": "9dfca28c-a3a6-417f-81e8-515fab060d61",
+        "from_node_id": "623a5ad9-2a3c-4618-903c-ee62438bd09e",
+        "to_node_id": "1a5e769b-69d5-4f32-8d0f-c84973d30de4",
         "branch_label": "Within a Week"
       },
       {
-        "from_node_id": "e3dcd7fe-036a-4b2e-8f30-d823e7463efe",
-        "to_node_id": "9dfca28c-a3a6-417f-81e8-515fab060d61",
+        "from_node_id": "623a5ad9-2a3c-4618-903c-ee62438bd09e",
+        "to_node_id": "1a5e769b-69d5-4f32-8d0f-c84973d30de4",
         "branch_label": "Within a Month"
       },
       {
-        "from_node_id": "e3dcd7fe-036a-4b2e-8f30-d823e7463efe",
-        "to_node_id": "9dfca28c-a3a6-417f-81e8-515fab060d61",
+        "from_node_id": "623a5ad9-2a3c-4618-903c-ee62438bd09e",
+        "to_node_id": "1a5e769b-69d5-4f32-8d0f-c84973d30de4",
         "branch_label": "Not Urgent"
       },
       {
-        "from_node_id": "9dfca28c-a3a6-417f-81e8-515fab060d61",
-        "to_node_id": "ef640ff3-efd6-420e-afb1-2d05cece3709",
+        "from_node_id": "1a5e769b-69d5-4f32-8d0f-c84973d30de4",
+        "to_node_id": "9f76a61b-6e97-4b1b-a9fc-aa164297fc7f",
         "branch_label": "Call Now"
       },
       {
-        "from_node_id": "9dfca28c-a3a6-417f-81e8-515fab060d61",
-        "to_node_id": "0ef2cd32-05eb-46ac-8886-266feb3f9b74",
+        "from_node_id": "1a5e769b-69d5-4f32-8d0f-c84973d30de4",
+        "to_node_id": "c7552ee1-ba6a-4084-8f89-c41aba0b9828",
         "branch_label": "Book Online Consult"
       },
       {
-        "from_node_id": "9dfca28c-a3a6-417f-81e8-515fab060d61",
-        "to_node_id": "2a31010f-b2a9-4a43-abd0-85a7e23d81c4",
+        "from_node_id": "1a5e769b-69d5-4f32-8d0f-c84973d30de4",
+        "to_node_id": "fea2ce4e-8cd4-449c-a4d8-381ee39ee32c",
         "branch_label": "Book Online Consult"
       },
       {
-        "from_node_id": "9dfca28c-a3a6-417f-81e8-515fab060d61",
-        "to_node_id": "0ef2cd32-05eb-46ac-8886-266feb3f9b74",
+        "from_node_id": "1a5e769b-69d5-4f32-8d0f-c84973d30de4",
+        "to_node_id": "c7552ee1-ba6a-4084-8f89-c41aba0b9828",
         "branch_label": "In-Person Consult"
       },
       {
-        "from_node_id": "9dfca28c-a3a6-417f-81e8-515fab060d61",
-        "to_node_id": "2a31010f-b2a9-4a43-abd0-85a7e23d81c4",
+        "from_node_id": "1a5e769b-69d5-4f32-8d0f-c84973d30de4",
+        "to_node_id": "fea2ce4e-8cd4-449c-a4d8-381ee39ee32c",
         "branch_label": "In-Person Consult"
       },
       {
-        "from_node_id": "2a31010f-b2a9-4a43-abd0-85a7e23d81c4",
-        "to_node_id": "1f09f1c1-13dc-473e-b601-56e4db1891ac",
+        "from_node_id": "fea2ce4e-8cd4-449c-a4d8-381ee39ee32c",
+        "to_node_id": "39308914-0b89-4054-ab77-52dcd3bd3d8b",
         "branch_label": "Tomorrow - 12:00 PM"
       },
       {
-        "from_node_id": "2a31010f-b2a9-4a43-abd0-85a7e23d81c4",
-        "to_node_id": "1f09f1c1-13dc-473e-b601-56e4db1891ac",
+        "from_node_id": "fea2ce4e-8cd4-449c-a4d8-381ee39ee32c",
+        "to_node_id": "39308914-0b89-4054-ab77-52dcd3bd3d8b",
         "branch_label": "Tomorrow - 02:00 PM"
       },
       {
-        "from_node_id": "2a31010f-b2a9-4a43-abd0-85a7e23d81c4",
-        "to_node_id": "1f09f1c1-13dc-473e-b601-56e4db1891ac",
+        "from_node_id": "fea2ce4e-8cd4-449c-a4d8-381ee39ee32c",
+        "to_node_id": "39308914-0b89-4054-ab77-52dcd3bd3d8b",
         "branch_label": "Tomorrow - 04:00 PM"
       },
       {
-        "from_node_id": "2a31010f-b2a9-4a43-abd0-85a7e23d81c4",
-        "to_node_id": "1f09f1c1-13dc-473e-b601-56e4db1891ac",
+        "from_node_id": "fea2ce4e-8cd4-449c-a4d8-381ee39ee32c",
+        "to_node_id": "39308914-0b89-4054-ab77-52dcd3bd3d8b",
         "branch_label": "Tomorrow - 06:00 PM"
       },
       {
-        "from_node_id": "1f09f1c1-13dc-473e-b601-56e4db1891ac",
-        "to_node_id": "52ecfd98-a075-4b30-bcb6-09415dc3e446"
+        "from_node_id": "39308914-0b89-4054-ab77-52dcd3bd3d8b",
+        "to_node_id": "de6abc11-e876-4e12-853a-50c98d16e2c4"
       },
       {
-        "from_node_id": "1f09f1c1-13dc-473e-b601-56e4db1891ac",
-        "to_node_id": "e4b8dd24-fb45-4ddf-a14e-104a1da44dd7"
+        "from_node_id": "39308914-0b89-4054-ab77-52dcd3bd3d8b",
+        "to_node_id": "ccd1183f-1626-4664-8694-ed912ca675ec"
       },
       {
-        "from_node_id": "e4b8dd24-fb45-4ddf-a14e-104a1da44dd7",
-        "to_node_id": "b08bd13d-8cc0-4e10-af9d-e399aa817a52"
+        "from_node_id": "ccd1183f-1626-4664-8694-ed912ca675ec",
+        "to_node_id": "ebef35a7-cb87-49d9-8e39-754844eb2192"
       },
       {
-        "from_node_id": "b08bd13d-8cc0-4e10-af9d-e399aa817a52",
-        "to_node_id": "28cc8808-5677-42fb-b4b9-f7e28be8265e",
+        "from_node_id": "ebef35a7-cb87-49d9-8e39-754844eb2192",
+        "to_node_id": "13cc9779-59d8-4d8c-9116-57693348f2a0",
         "branch_label": "Need more details"
       },
       {
-        "from_node_id": "b08bd13d-8cc0-4e10-af9d-e399aa817a52",
-        "to_node_id": "65672483-6de1-4db3-8412-d5a3f9ec0520",
+        "from_node_id": "ebef35a7-cb87-49d9-8e39-754844eb2192",
+        "to_node_id": "478b5325-62bd-4dea-a9ff-006b98b375de",
         "branch_label": "Call me first"
       },
       {
-        "from_node_id": "65672483-6de1-4db3-8412-d5a3f9ec0520",
-        "to_node_id": "d76a4416-67ad-46cb-9fae-24dc8b3ec462"
+        "from_node_id": "478b5325-62bd-4dea-a9ff-006b98b375de",
+        "to_node_id": "5241612a-6296-4aaf-81f0-ad7476757fed"
       }
     ]
   }
