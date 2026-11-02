@@ -17,7 +17,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const N8N_WEBHOOK_URL = 'https://n8n.hairscalptradingco.com/webhook-test/79a84078-337b-44d7-9f98-ded629f37c86';
+const N8N_WEBHOOK_URL = 'https://n8n.hairscalptradingco.com/webhook/79a84078-337b-44d7-9f98-ded629f37c86';
 const TECH_VIDEO_URL = 'https://youtu.be/B7kamqdiJSY?si=GzSAwvGucX1Lvues';
 const RAZORPAY_PAYMENT_URL = 'https://rzp.io/rzp/ahl-consultation-wa';
 
@@ -370,13 +370,13 @@ const edges = [
 
 const completeFlowV2 = {
   name: 'AHL UTM Flow - V2 (Consultation & Payment Optimized)',
-  enabled: false, // SAFE: Created as disabled/draft so live flow is 100% untouched
+  enabled: true,
   trigger_type: 'keyword',
   trigger_config: {
-    phrases: ['mai set bani', 'Hi! Tell me more', 'Tell me more'],
+    phrases: ['mai set bani', 'Hi! Tell me more', 'Tell me more', 'hello', 'hi', 'hii', 'restart', 'start'],
     match: 'contains'
   },
-  priority: 200,
+  priority: 50,
   graph: {
     start_node_id: getId('webhook_1'),
     nodes,

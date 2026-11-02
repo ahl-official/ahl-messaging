@@ -57,13 +57,19 @@ async function install() {
     .maybeSingle();
 
   if (existing) {
-    console.log(`Flow "${flowData.name}" already exists on this number (ID: ${existing.id}). Updating its graph...`);
-    await sb.from('trigger_flows').update({ start_node_id: null }).eq('id', existing.id);
+    console.log(`Flow "${flowData.name}" already exists on this number (ID: ${existing.id}). Updating its graph and triggers...`);
+    await sb.from('trigger_flows').update({
+      start_node_id: null,
+      trigger_config: flowData.trigger_config,
+      priority: flowData.priority,
+      enabled: flowData.enabled
+    }).eq('id', existing.id);
     await sb.from('trigger_edges').delete().eq('flow_id', existing.id);
     await sb.from('trigger_nodes').delete().eq('flow_id', existing.id);
     await insertGraph(existing.id, flowData.graph);
     console.log(`\n✅ Graph updated successfully with ${flowData.graph.nodes.length} nodes and ${flowData.graph.edges.length} connections!`);
-    console.log(`Status: DISABLED (Draft) — your live AHL UTM Flow is 100% untouched.`);
+    console.log(`Status: ${flowData.enabled ? 'ENABLED' : 'DISABLED'} | Priority: ${flowData.priority}`);
+    console.log(`Trigger phrases: ${JSON.stringify(flowData.trigger_config.phrases)}`);
     return;
   }
 

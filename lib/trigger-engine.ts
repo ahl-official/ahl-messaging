@@ -198,7 +198,8 @@ export async function matchAndRunTriggers(params: {
   // Check if this inbound message is a fresh ad click / keyword restart (carries UTM params or entry trigger)
   const isFreshAdClickOrRestart =
     /\b(utm_|fbclid|gclid|ctwa_clid|placement\s*=)/i.test(inboundText) ||
-    inboundText.toLowerCase().includes("tell me more");
+    inboundText.toLowerCase().includes("tell me more") ||
+    /\b(hello|hi|hii|hey|restart|start)\b/i.test(inboundText);
 
   if (isFreshAdClickOrRestart) {
     // Cancel any stale/parked waiting runs for this contact so the flow restarts fresh!

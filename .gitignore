@@ -31,8 +31,11 @@ yarn-error.log*
 /Kunal CRM Code*/
 *firebase-adminsdk*.json
 *ahl-crm-database*.json
-scratch_sheet*
+scratch*
 sheet_frames/
+
+# n8n workflows (keep local, do not push to VPS)
+/scripts/n8n_*.json
 
 # Agent context files
 decision.md
