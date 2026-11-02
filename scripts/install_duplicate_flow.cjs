@@ -1,7 +1,7 @@
 /**
  * Install Duplicate Flow into Supabase Database
  * 
- * Safely inserts 'AHL UTM Flow - V2' as an inactive/draft workflow.
+ * Safely inserts or updates 'AHL UTM Flow - V2 (Consultation & Payment Optimized)' as an inactive/draft workflow.
  * Run with:
  *   node scripts/install_duplicate_flow.cjs
  * Or with a specific phone number ID:
@@ -36,12 +36,17 @@ async function install() {
   const jsonPath = path.join(__dirname, 'ahl_utm_flow_v2.json');
   const flowData = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
 
-  // Use CLI arg or default to the exact ID shown in the user's screenshot
-  // (+91 73041 89059 / AHL Messaging: 1198859879988526)
+  // Default to AHL Messaging (+91 73041 89059 / ID: 1198859879988526)
   const cliBpid = process.argv[2]?.trim();
   const bpid = cliBpid || '1198859879988526';
 
-  console.log(`Targeting Business Phone Number ID: ${bpid} (+91 73041 89059 / AHL Messaging)`);
+  console.log(`\n======================================================`);
+  console.log(`Targeting Business Phone Number ID: ${bpid}`);
+  console.log(`Account: AHL Messaging (+91 73041 89059)`);
+  console.log(`Flow Name: "${flowData.name}"`);
+  console.log(`Total Nodes: ${flowData.graph.nodes.length}`);
+  console.log(`Total Edges: ${flowData.graph.edges.length}`);
+  console.log(`======================================================\n`);
 
   // Check if V2 already exists for this number to avoid duplication
   const { data: existing } = await sb
@@ -53,9 +58,12 @@ async function install() {
 
   if (existing) {
     console.log(`Flow "${flowData.name}" already exists on this number (ID: ${existing.id}). Updating its graph...`);
+    await sb.from('trigger_flows').update({ start_node_id: null }).eq('id', existing.id);
+    await sb.from('trigger_edges').delete().eq('flow_id', existing.id);
     await sb.from('trigger_nodes').delete().eq('flow_id', existing.id);
     await insertGraph(existing.id, flowData.graph);
-    console.log("✅ Graph updated successfully with all 25 nodes and 55 connections!");
+    console.log(`\n✅ Graph updated successfully with ${flowData.graph.nodes.length} nodes and ${flowData.graph.edges.length} connections!`);
+    console.log(`Status: DISABLED (Draft) — your live AHL UTM Flow is 100% untouched.`);
     return;
   }
 
@@ -67,7 +75,7 @@ async function install() {
     trigger_type: flowData.trigger_type,
     trigger_config: flowData.trigger_config,
     priority: flowData.priority,
-    start_node_id: flowData.graph.start_node_id
+    start_node_id: null // set after inserting nodes
   }).select('id').single();
 
   if (flowErr || !newFlow) {
@@ -78,9 +86,9 @@ async function install() {
   console.log(`Created new flow row: ${newFlow.id}`);
   await insertGraph(newFlow.id, flowData.graph);
   console.log(`\n🎉 SUCCESS! Installed "${flowData.name}" on number ${bpid}!`);
-  console.log(`Total: 25 nodes and 55 connections fully connected.`);
-  console.log(`Status: DISABLED (Draft) — your running AHL UTM Flow is 100% untouched.`);
-  console.log(`You can now open it in your dashboard under: Automation -> Trigger Flows`);
+  console.log(`Total: ${flowData.graph.nodes.length} nodes and ${flowData.graph.edges.length} connections fully connected.`);
+  console.log(`Status: DISABLED (Draft) — your live running AHL UTM Flow is 100% untouched.`);
+  console.log(`You can view and test it under: Automation -> Trigger Flows`);
 }
 
 async function insertGraph(flowId, graph) {
@@ -106,7 +114,7 @@ async function insertGraph(flowId, graph) {
   const { error: edgeErr } = await sb.from('trigger_edges').insert(edgeRows);
   if (edgeErr) throw edgeErr;
 
-  // Mirror non-branch edges to next_node_id
+  // Mirror non-branch edges to next_node_id for linear fallback
   for (const n of graph.nodes) {
     const out = graph.edges.find((e) => e.from_node_id === n.id && !e.branch_label);
     if (out) {
@@ -114,6 +122,7 @@ async function insertGraph(flowId, graph) {
     }
   }
 
+  // Set flow start_node_id
   await sb.from('trigger_flows').update({ start_node_id: graph.start_node_id }).eq('id', flowId);
 }
 

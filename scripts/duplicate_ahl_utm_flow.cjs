@@ -1,18 +1,25 @@
 /**
  * Duplicate AHL UTM Flow V2 Generator (Consultation & Payment Optimized)
  * 
- * - Leaves live "AHL UTM Flow" 100% untouched.
- * - Uses engaging, conversational, low-friction questions while preserving all original options.
- * - Saves every user selection into variables (name, city, product, patch_type, urgency, platform, consultation_slot, resistance_choice).
- * - Routes all webhooks to n8n: https://n8n.hairscalptradingco.com/webhook/ahl-flow-webhook
- * - Generates valid RFC 4122 UUIDs for all nodes.
+ * Features & Fixes:
+ * - Untouched live flow: Updates "AHL UTM Flow - V2 (Consultation & Payment Optimized)".
+ * - Test Webhook URL: https://n8n.hairscalptradingco.com/webhook-test/79a84078-337b-44d7-9f98-ded629f37c86
+ * - Removed Call Now option and Call Now template completely.
+ * - Removed duplicate Razorpay link (single clean link in text + interactive [Confirmed Payment] button).
+ * - Connected "Confirmed Payment" to:
+ *     1) n8n payment confirmation webhook (records status: 'Customer Confirmed (Verification Pending)')
+ *     2) Confirmation message stating team is verifying payment + requesting 1-2 scalp photos.
+ * - Unified 2-minute technical video for all 4 products.
+ * - Fixed ₹500 fee across all copy.
  */
 
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const N8N_WEBHOOK_URL = 'https://n8n.hairscalptradingco.com/webhook/ahl-flow-webhook';
+const N8N_WEBHOOK_URL = 'https://n8n.hairscalptradingco.com/webhook-test/79a84078-337b-44d7-9f98-ded629f37c86';
+const TECH_VIDEO_URL = 'https://youtu.be/B7kamqdiJSY?si=GzSAwvGucX1Lvues';
+const RAZORPAY_PAYMENT_URL = 'https://rzp.io/rzp/ahl-consultation-wa';
 
 // Map human-readable node names to valid UUIDs
 const idMap = new Map();
@@ -23,20 +30,8 @@ function getId(name) {
   return idMap.get(name);
 }
 
-// Build the complete graph
+// Build graph nodes
 const nodes = [
-  // --- TRIGGER ---
-  {
-    id: getId('trigger_entry'),
-    node_type: 'keyword',
-    config: {
-      phrases: ['mai set bani', 'Hi! Tell me more', 'Tell me more'],
-      match: 'contains',
-      description: 'Opening trigger matching UTM ad traffic'
-    },
-    position: { x: 50, y: 250 }
-  },
-
   // --- STEP 1: INITIAL N8N WEBHOOK & NAME REQUEST ---
   {
     id: getId('webhook_1'),
@@ -45,7 +40,7 @@ const nodes = [
       url: N8N_WEBHOOK_URL,
       method: 'POST'
     },
-    position: { x: 300, y: 400 }
+    position: { x: 100, y: 200 }
   },
   {
     id: getId('ask_name'),
@@ -56,7 +51,7 @@ const nodes = [
       remind_on_invalid: true,
       invalid_reply_message: 'Please share your name so we can assist you better 🙏'
     },
-    position: { x: 350, y: 150 }
+    position: { x: 350, y: 200 }
   },
 
   // --- STEP 2: POST-NAME N8N WEBHOOK & CITY SELECTION ---
@@ -67,7 +62,7 @@ const nodes = [
       url: N8N_WEBHOOK_URL,
       method: 'POST'
     },
-    position: { x: 600, y: 100 }
+    position: { x: 600, y: 200 }
   },
   {
     id: getId('ask_city'),
@@ -88,7 +83,7 @@ const nodes = [
         { label: 'None of the above' }
       ]
     },
-    position: { x: 750, y: 200 }
+    position: { x: 850, y: 200 }
   },
   {
     id: getId('ask_custom_city'),
@@ -97,7 +92,7 @@ const nodes = [
       text: 'No problem! Could you please type and send the city or region you are from?',
       var_name: 'city'
     },
-    position: { x: 950, y: 550 }
+    position: { x: 1100, y: 450 }
   },
 
   // --- STEP 3: POST-CITY N8N WEBHOOK & PRODUCT SELECTION ---
@@ -108,7 +103,7 @@ const nodes = [
       url: N8N_WEBHOOK_URL,
       method: 'POST'
     },
-    position: { x: 1050, y: 200 }
+    position: { x: 1150, y: 200 }
   },
   {
     id: getId('ask_product'),
@@ -123,11 +118,11 @@ const nodes = [
         { label: 'Front Hairline' }
       ]
     },
-    position: { x: 1250, y: 250 }
+    position: { x: 1400, y: 200 }
   },
 
   // --- STEP 4: PRODUCT BRANCHING ---
-  // A) Hair Patch Sub-options
+  // Hair Patch Sub-options (Clip-On / Stick-On / Need Help)
   {
     id: getId('ask_hair_patch_type'),
     node_type: 'ask_button',
@@ -140,46 +135,20 @@ const nodes = [
         { label: 'Need Help' }
       ]
     },
-    position: { x: 1550, y: 50 }
+    position: { x: 1680, y: 80 }
   },
 
-  // B) SMP Template + Wait for reply
+  // --- STEP 5: 2-MINUTE TECHNICAL EXPLAINER VIDEO ---
   {
-    id: getId('tmpl_smp'),
-    node_type: 'send_template',
+    id: getId('send_tech_video'),
+    node_type: 'message_text',
     config: {
-      template_name: 'smp_price_details'
+      text: `Awesome! Before we proceed, take a quick look at this 2-minute technical video explaining how our natural hair systems work:\n\n🎬 *Watch Video:* ${TECH_VIDEO_URL}\n\n(This will give you a clear view of our seamless technique and results!)`
     },
-    position: { x: 1550, y: 200 }
-  },
-  {
-    id: getId('wait_smp'),
-    node_type: 'wait_reply',
-    config: {
-      label: 'Client ke reply ka intezaar'
-    },
-    position: { x: 1800, y: 200 }
+    position: { x: 1950, y: 200 }
   },
 
-  // C) Front Hairline Template + Wait for reply
-  {
-    id: getId('tmpl_front_hairline'),
-    node_type: 'send_template',
-    config: {
-      template_name: 'front_hairline_system_videos_update'
-    },
-    position: { x: 1550, y: 400 }
-  },
-  {
-    id: getId('wait_fhl'),
-    node_type: 'wait_reply',
-    config: {
-      label: 'Client ke reply ka intezaar'
-    },
-    position: { x: 1800, y: 400 }
-  },
-
-  // --- STEP 5: URGENCY SELECTION ---
+  // --- STEP 6: URGENCY SELECTION ---
   {
     id: getId('ask_urgency'),
     node_type: 'ask_button',
@@ -193,10 +162,10 @@ const nodes = [
         { label: 'Not Urgent' }
       ]
     },
-    position: { x: 2050, y: 250 }
+    position: { x: 2250, y: 200 }
   },
 
-  // --- STEP 6: PLATFORM / CONSULTATION MODE ---
+  // --- STEP 7: PLATFORM / CONSULTATION MODE (Call Now completely removed) ---
   {
     id: getId('ask_platform'),
     node_type: 'ask_button',
@@ -205,22 +174,13 @@ const nodes = [
       var_name: 'platform',
       buttons: [
         { label: 'Book Online Consult' },
-        { label: 'In-Person Consult' },
-        { label: 'Call Now' }
+        { label: 'In-Person Consult' }
       ]
     },
-    position: { x: 2350, y: 250 }
-  },
-  {
-    id: getId('tmpl_call_now'),
-    node_type: 'send_template',
-    config: {
-      template_name: 'call_now_utility'
-    },
-    position: { x: 2650, y: 450 }
+    position: { x: 2550, y: 200 }
   },
 
-  // --- STEP 7 (ENHANCED): TIME SLOT SELECTION ---
+  // --- STEP 8: TIME SLOT SELECTION & CONSULTATION WEBHOOK ---
   {
     id: getId('webhook_consult_init'),
     node_type: 'webhook',
@@ -228,13 +188,13 @@ const nodes = [
       url: N8N_WEBHOOK_URL,
       method: 'POST'
     },
-    position: { x: 2650, y: 150 }
+    position: { x: 2850, y: 200 }
   },
   {
     id: getId('ask_time_slot'),
     node_type: 'ask_list',
     config: {
-      text: 'Perfect! Please choose your preferred consultation time slot:\n(Nominal ₹300 fee, 100% adjusted in your final service package) 🗓️',
+      text: 'Perfect! Please choose your preferred consultation time slot:\n(Nominal ₹500 fee, 100% adjusted in your final service package) 🗓️',
       var_name: 'consultation_slot',
       buttons: [
         { label: 'Tomorrow - 12:00 PM' },
@@ -243,42 +203,50 @@ const nodes = [
         { label: 'Tomorrow - 06:00 PM' }
       ]
     },
-    position: { x: 2900, y: 200 }
+    position: { x: 3100, y: 200 }
   },
 
-  // --- STEP 8 (ENHANCED): PAYMENT CTA URL BUTTON & DIRECT LINK ---
+  // --- STEP 9: CLEAN PAYMENT PROMPT (SINGLE LINK + INTERACTIVE CONFIRMED PAYMENT BUTTON) ---
   {
     id: getId('send_payment_link'),
     node_type: 'message_buttons',
     config: {
-      text: 'Your consultation slot is tentatively reserved! ⏳\n\nTo lock your appointment pass, please complete the ₹300 consultation fee using the link below:\n👉 https://rzp.io/l/ahl-consult\n\n(Supports GPay, PhonePe, Paytm & UPI)',
+      text: `Your consultation slot is tentatively reserved! ⏳\n\nTo lock your appointment pass, please complete the ₹500 consultation fee using the link below:\n👉 ${RAZORPAY_PAYMENT_URL}\n\n(100% adjusted against your final package. Supports GPay, PhonePe, Paytm & UPI)\n\nOnce completed, tap below:`,
       var_name: 'payment_status',
       buttons: [
-        { label: 'Pay ₹300 (GPay/UPI)', url: 'https://rzp.io/l/ahl-consult' },
         { label: 'Confirmed Payment' }
       ]
     },
-    position: { x: 3200, y: 200 }
+    position: { x: 3400, y: 200 }
   },
 
-  // --- STEP 9: OPTIONAL SCALP PHOTO REQUEST (UNBLOCKED) ---
+  // --- STEP 10: CONFIRMED PAYMENT ACTION (WEBHOOK + VERIFICATION & PHOTO REQUEST) ---
   {
-    id: getId('send_photo_request'),
+    id: getId('webhook_payment_confirmed'),
+    node_type: 'webhook',
+    config: {
+      url: N8N_WEBHOOK_URL,
+      method: 'POST'
+    },
+    position: { x: 3700, y: 150 }
+  },
+  {
+    id: getId('msg_payment_confirmed'),
     node_type: 'message_text',
     config: {
-      text: 'Optional: You may also share 1-2 photos of your scalp (top, front & back) here so our senior specialist can study your hair loss pattern before your session. All photos remain 100% confidential. 📸'
+      text: 'Thank you! 🙏 We have received your appointment confirmation request. Our team will verify your payment details shortly.\n\nTo help our senior hair specialist study your hair loss pattern before your session, please share 1-2 clear photos of your scalp (top, front & crown) here. All photos remain 100% confidential. 📸'
     },
-    position: { x: 3500, y: 150 }
+    position: { x: 3980, y: 150 }
   },
 
-  // --- STEP 10 (ENHANCED): RESISTANCE & DROP-OFF HANDLING ---
+  // --- STEP 11: DROP-OFF / TIMEOUT HANDLING (IF NO PAYMENT / NO REPLY) ---
   {
     id: getId('wait_payment_reply'),
     node_type: 'wait_reply',
     config: {
       label: 'Wait for client reply / payment'
     },
-    position: { x: 3500, y: 350 }
+    position: { x: 3700, y: 350 }
   },
   {
     id: getId('ask_resistance_followup'),
@@ -291,15 +259,15 @@ const nodes = [
         { label: 'Call me first' }
       ]
     },
-    position: { x: 3800, y: 350 }
+    position: { x: 4000, y: 350 }
   },
   {
     id: getId('send_more_info_video'),
     node_type: 'message_text',
     config: {
-      text: 'Here is our detailed technical video explaining non-surgical hair replacement:\n👉 https://youtu.be/americanhairline-guide\n\nWhenever you are ready, you can book your slot anytime!'
+      text: `Here is our detailed technical video explaining non-surgical hair replacement:\n👉 ${TECH_VIDEO_URL}\n\nWhenever you are ready, you can book your slot anytime!`
     },
-    position: { x: 4100, y: 250 }
+    position: { x: 4300, y: 250 }
   },
   {
     id: getId('webhook_urgent_callback'),
@@ -308,7 +276,7 @@ const nodes = [
       url: N8N_WEBHOOK_URL,
       method: 'POST'
     },
-    position: { x: 4100, y: 450 }
+    position: { x: 4300, y: 450 }
   },
   {
     id: getId('msg_callback_confirmed'),
@@ -316,91 +284,79 @@ const nodes = [
     config: {
       text: 'Understood! Our senior clinic advisor will call you shortly to assist you with all your queries.'
     },
-    position: { x: 4350, y: 450 }
+    position: { x: 4550, y: 450 }
   }
 ];
 
-// Connect all edges strictly preserving every single original link
+// Graph Connections (Edges)
 const edges = [
-  // Trigger -> Webhook 1 & Name
-  { from_node_id: getId('trigger_entry'), to_node_id: getId('webhook_1') },
-  { from_node_id: getId('trigger_entry'), to_node_id: getId('ask_name') },
+  // Start: Webhook 1 -> Ask Name
+  { from_node_id: getId('webhook_1'), to_node_id: getId('ask_name') },
 
-  // Name -> Webhook 2 & City List
+  // Ask Name -> Webhook 2 (Updates Name) -> Ask City
   { from_node_id: getId('ask_name'), to_node_id: getId('webhook_2') },
-  { from_node_id: getId('ask_name'), to_node_id: getId('ask_city') },
+  { from_node_id: getId('webhook_2'), to_node_id: getId('ask_city') },
 
-  // City List -> Webhook 3 & Product
+  // City List Options -> Webhook 3 (Updates City) -> Ask Product
   { from_node_id: getId('ask_city'), to_node_id: getId('webhook_3'), branch_label: 'Mumbai' },
-  { from_node_id: getId('ask_city'), to_node_id: getId('ask_product'), branch_label: 'Mumbai' },
   { from_node_id: getId('ask_city'), to_node_id: getId('webhook_3'), branch_label: 'Bangalore' },
-  { from_node_id: getId('ask_city'), to_node_id: getId('ask_product'), branch_label: 'Bangalore' },
   { from_node_id: getId('ask_city'), to_node_id: getId('webhook_3'), branch_label: 'Hyderabad' },
-  { from_node_id: getId('ask_city'), to_node_id: getId('ask_product'), branch_label: 'Hyderabad' },
   { from_node_id: getId('ask_city'), to_node_id: getId('webhook_3'), branch_label: 'Delhi' },
-  { from_node_id: getId('ask_city'), to_node_id: getId('ask_product'), branch_label: 'Delhi' },
   { from_node_id: getId('ask_city'), to_node_id: getId('webhook_3'), branch_label: 'Pune' },
-  { from_node_id: getId('ask_city'), to_node_id: getId('ask_product'), branch_label: 'Pune' },
   { from_node_id: getId('ask_city'), to_node_id: getId('webhook_3'), branch_label: 'Kolkata' },
-  { from_node_id: getId('ask_city'), to_node_id: getId('ask_product'), branch_label: 'Kolkata' },
   { from_node_id: getId('ask_city'), to_node_id: getId('webhook_3'), branch_label: 'Chennai' },
-  { from_node_id: getId('ask_city'), to_node_id: getId('ask_product'), branch_label: 'Chennai' },
   { from_node_id: getId('ask_city'), to_node_id: getId('webhook_3'), branch_label: 'Jaipur' },
-  { from_node_id: getId('ask_city'), to_node_id: getId('ask_product'), branch_label: 'Jaipur' },
   { from_node_id: getId('ask_city'), to_node_id: getId('webhook_3'), branch_label: 'Lucknow' },
-  { from_node_id: getId('ask_city'), to_node_id: getId('ask_product'), branch_label: 'Lucknow' },
 
-  // None of the above -> Custom City Text -> Webhook 3 & Product
+  // "None of the above" -> Ask Custom City -> Webhook 3 -> Ask Product
   { from_node_id: getId('ask_city'), to_node_id: getId('ask_custom_city'), branch_label: 'None of the above' },
   { from_node_id: getId('ask_custom_city'), to_node_id: getId('webhook_3') },
-  { from_node_id: getId('ask_custom_city'), to_node_id: getId('ask_product') },
 
-  // Product Selection Branches
+  // Webhook 3 -> Ask Product
+  { from_node_id: getId('webhook_3'), to_node_id: getId('ask_product') },
+
+  // --- PRODUCT SELECTION ROUTING ---
+  // 1. Hair Patch -> Ask Patch Type -> Technical Video
   { from_node_id: getId('ask_product'), to_node_id: getId('ask_hair_patch_type'), branch_label: 'Hair Patch' },
-  { from_node_id: getId('ask_product'), to_node_id: getId('tmpl_smp'), branch_label: 'Scalp Micro Pigmentation' },
-  { from_node_id: getId('ask_product'), to_node_id: getId('ask_urgency'), branch_label: 'Hair Transplant' },
-  { from_node_id: getId('ask_product'), to_node_id: getId('tmpl_front_hairline'), branch_label: 'Front Hairline' },
+  { from_node_id: getId('ask_hair_patch_type'), to_node_id: getId('send_tech_video'), branch_label: 'Clip-On' },
+  { from_node_id: getId('ask_hair_patch_type'), to_node_id: getId('send_tech_video'), branch_label: 'Stick-On' },
+  { from_node_id: getId('ask_hair_patch_type'), to_node_id: getId('send_tech_video'), branch_label: 'Need Help' },
 
-  // Hair Patch Sub-branches -> Urgency
-  { from_node_id: getId('ask_hair_patch_type'), to_node_id: getId('ask_urgency'), branch_label: 'Clip-On' },
-  { from_node_id: getId('ask_hair_patch_type'), to_node_id: getId('ask_urgency'), branch_label: 'Stick-On' },
-  { from_node_id: getId('ask_hair_patch_type'), to_node_id: getId('ask_urgency'), branch_label: 'Need Help' },
+  // 2. Scalp Micro Pigmentation -> Directly to Technical Video
+  { from_node_id: getId('ask_product'), to_node_id: getId('send_tech_video'), branch_label: 'Scalp Micro Pigmentation' },
 
-  // SMP -> Wait Reply -> Urgency
-  { from_node_id: getId('tmpl_smp'), to_node_id: getId('wait_smp') },
-  { from_node_id: getId('wait_smp'), to_node_id: getId('ask_urgency') },
+  // 3. Hair Transplant -> Directly to Technical Video
+  { from_node_id: getId('ask_product'), to_node_id: getId('send_tech_video'), branch_label: 'Hair Transplant' },
 
-  // Front Hairline -> Wait Reply -> Urgency
-  { from_node_id: getId('tmpl_front_hairline'), to_node_id: getId('wait_fhl') },
-  { from_node_id: getId('wait_fhl'), to_node_id: getId('ask_urgency') },
+  // 4. Front Hairline -> Directly to Technical Video
+  { from_node_id: getId('ask_product'), to_node_id: getId('send_tech_video'), branch_label: 'Front Hairline' },
 
-  // Urgency Branches -> Platform
+  // Technical Video -> Ask Urgency
+  { from_node_id: getId('send_tech_video'), to_node_id: getId('ask_urgency') },
+
+  // Urgency Options -> Ask Platform
   { from_node_id: getId('ask_urgency'), to_node_id: getId('ask_platform'), branch_label: 'Within 3 Days' },
   { from_node_id: getId('ask_urgency'), to_node_id: getId('ask_platform'), branch_label: 'Within a Week' },
   { from_node_id: getId('ask_urgency'), to_node_id: getId('ask_platform'), branch_label: 'Within a Month' },
   { from_node_id: getId('ask_urgency'), to_node_id: getId('ask_platform'), branch_label: 'Not Urgent' },
 
-  // Platform Branches:
-  // Call Now -> Template Call Now Utility
-  { from_node_id: getId('ask_platform'), to_node_id: getId('tmpl_call_now'), branch_label: 'Call Now' },
-
-  // Book Online Consult & In-Person Consult -> Webhook & Slot Selection
+  // Platform Options (Only Online & In-Person, Call Now removed):
   { from_node_id: getId('ask_platform'), to_node_id: getId('webhook_consult_init'), branch_label: 'Book Online Consult' },
-  { from_node_id: getId('ask_platform'), to_node_id: getId('ask_time_slot'), branch_label: 'Book Online Consult' },
   { from_node_id: getId('ask_platform'), to_node_id: getId('webhook_consult_init'), branch_label: 'In-Person Consult' },
-  { from_node_id: getId('ask_platform'), to_node_id: getId('ask_time_slot'), branch_label: 'In-Person Consult' },
+  { from_node_id: getId('webhook_consult_init'), to_node_id: getId('ask_time_slot') },
 
-  // Time Slots -> Payment Link
+  // Time Slots -> Send Payment Link
   { from_node_id: getId('ask_time_slot'), to_node_id: getId('send_payment_link'), branch_label: 'Tomorrow - 12:00 PM' },
   { from_node_id: getId('ask_time_slot'), to_node_id: getId('send_payment_link'), branch_label: 'Tomorrow - 02:00 PM' },
   { from_node_id: getId('ask_time_slot'), to_node_id: getId('send_payment_link'), branch_label: 'Tomorrow - 04:00 PM' },
   { from_node_id: getId('ask_time_slot'), to_node_id: getId('send_payment_link'), branch_label: 'Tomorrow - 06:00 PM' },
 
-  // Payment Link -> Photo Request (Unblocked) & Wait for Payment/Reply
-  { from_node_id: getId('send_payment_link'), to_node_id: getId('send_photo_request') },
-  { from_node_id: getId('send_payment_link'), to_node_id: getId('wait_payment_reply') },
+  // Payment Link -> Confirmed Payment Button -> Webhook (n8n test) -> Confirmation Message & Photo Request
+  { from_node_id: getId('send_payment_link'), to_node_id: getId('webhook_payment_confirmed'), branch_label: 'Confirmed Payment' },
+  { from_node_id: getId('webhook_payment_confirmed'), to_node_id: getId('msg_payment_confirmed') },
 
-  // Wait for Payment/Reply -> Resistance Followup
+  // Payment Link -> Wait for Reply / Timeout -> Resistance Followup
+  { from_node_id: getId('send_payment_link'), to_node_id: getId('wait_payment_reply') },
   { from_node_id: getId('wait_payment_reply'), to_node_id: getId('ask_resistance_followup') },
 
   // Resistance Options:
@@ -422,7 +378,7 @@ const completeFlowV2 = {
   },
   priority: 200,
   graph: {
-    start_node_id: getId('trigger_entry'),
+    start_node_id: getId('webhook_1'),
     nodes,
     edges
   }
@@ -430,7 +386,13 @@ const completeFlowV2 = {
 
 const outputPath = path.join(__dirname, 'ahl_utm_flow_v2.json');
 fs.writeFileSync(outputPath, JSON.stringify(completeFlowV2, null, 2));
-console.log(`Successfully generated AHL UTM Flow V2 with ${nodes.length} nodes and ${edges.length} edges!`);
-console.log(`All webhooks set to: ${N8N_WEBHOOK_URL}`);
-console.log(`All variables configured: name, city, product, patch_type, urgency, platform, consultation_slot, resistance_choice.`);
-console.log(`Saved graph file to: ${outputPath}`);
+
+console.log(`Successfully generated AHL UTM Flow V2!`);
+console.log(`Total Nodes: ${nodes.length}`);
+console.log(`Total Edges: ${edges.length}`);
+console.log(`- Start Node: Webhook 1 (${getId('webhook_1')}) -> Ask Name`);
+console.log(`- Test n8n Webhook: ${N8N_WEBHOOK_URL}`);
+console.log(`- Removed "Call Now" option and template.`);
+console.log(`- Removed duplicate link (link printed once + [Confirmed Payment] button).`);
+console.log(`- Connected "Confirmed Payment" -> Webhook -> Confirmation message & photo request.`);
+console.log(`- JSON written to: ${outputPath}`);

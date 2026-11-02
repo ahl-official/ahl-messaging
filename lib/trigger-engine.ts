@@ -195,15 +195,29 @@ export async function matchAndRunTriggers(params: {
 
   const admin = createServiceRoleClient();
 
-  // 1) A flow waiting on this client's reply takes precedence over new triggers.
-  const resumed = await resumeWaitingRun(admin, { contactId, waId, bpid, inboundText, reply });
-  if (resumed) return { matched: true };
+  // Check if this inbound message is a fresh ad click / keyword restart (carries UTM params or entry trigger)
+  const isFreshAdClickOrRestart =
+    /\b(utm_|fbclid|gclid|ctwa_clid|placement\s*=)/i.test(inboundText) ||
+    inboundText.toLowerCase().includes("tell me more");
 
-  // 1.5) Don't STACK a second flow on a contact who is already mid-flow. If a
-  //      recent run is still running/waiting (e.g. parked on a buttons node and
-  //      the client typed something off-script), leave it be instead of
-  //      starting a fresh flow from a keyword / new-contact / template trigger.
-  if (await hasActiveRun(admin, contactId)) return { matched: false };
+  if (isFreshAdClickOrRestart) {
+    // Cancel any stale/parked waiting runs for this contact so the flow restarts fresh!
+    await admin
+      .from("trigger_runs")
+      .update({ status: "stopped", finished_at: new Date().toISOString() })
+      .eq("contact_id", contactId)
+      .in("status", ["running", "waiting"]);
+  } else {
+    // 1) A flow waiting on this client's reply takes precedence over new triggers.
+    const resumed = await resumeWaitingRun(admin, { contactId, waId, bpid, inboundText, reply });
+    if (resumed) return { matched: true };
+
+    // 1.5) Don't STACK a second flow on a contact who is already mid-flow. If a
+    //      recent run is still running/waiting (e.g. parked on a buttons node and
+    //      the client typed something off-script), leave it be instead of
+    //      starting a fresh flow from a keyword / new-contact / template trigger.
+    if (await hasActiveRun(admin, contactId)) return { matched: false };
+  }
 
   // 2) Template-reply flows — fire when this inbound is the first reply right
   //    after a template was sent to the client (optionally a named template).

@@ -28,6 +28,11 @@ yarn-error.log*
 
 # Local reference copy of AHL CRM — never commit (contains secrets)
 /Kunal CRM Code/
+/Kunal CRM Code*/
+*firebase-adminsdk*.json
+*ahl-crm-database*.json
+scratch_sheet*
+sheet_frames/
 
 # Agent context files
 decision.md
