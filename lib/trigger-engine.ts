@@ -1140,6 +1140,27 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
           "source",
         );
         const placement = pickAttr(utmParams, ctx.vars, "placement", "Placement");
+        // Explicit start vs mid-flow update for n8n / Sheets (no 24h guess).
+        // First webhook in this run → start; later webhooks → update.
+        // Node config can override: { "flow_event": "start" | "update" }.
+        const cfgEvent = String(cfg.flow_event ?? "").trim().toLowerCase();
+        let flowEvent: "start" | "update";
+        if (cfgEvent === "start" || cfgEvent === "update") {
+          flowEvent = cfgEvent;
+        } else {
+          const prior = Number(ctx.vars.__flow_webhook_count || "0");
+          flowEvent = prior > 0 ? "update" : "start";
+        }
+        const nextCount = String(Number(ctx.vars.__flow_webhook_count || "0") + 1);
+        ctx.vars.__flow_webhook_count = nextCount;
+        ctx.vars.flow_event = flowEvent;
+
+        const outboundVars: Record<string, string> = {};
+        for (const [k, v] of Object.entries(ctx.vars)) {
+          if (k.startsWith("__")) continue;
+          outboundVars[k] = v;
+        }
+
         const payload = {
           contact_id: ctx.contactId,
           wa_id: ctx.waId,
@@ -1181,8 +1202,10 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
           fbclid: pickAttr(utmParams, ctx.vars, "fbclid"),
           wa_tracking: pickAttr(utmParams, ctx.vars, "wa_tracking"),
           lead_source: "WhatsApp",
+          // n8n Decide: start = new row / retarget; update = edit same row
+          flow_event: flowEvent,
           utm_params: utmParams,
-          vars: ctx.vars,
+          vars: outboundVars,
         };
         void fetch(url, {
           method: "POST",
