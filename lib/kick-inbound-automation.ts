@@ -6,7 +6,10 @@
 // sweep — so flow replies felt 30–60s late.
 
 import { createServiceRoleClient } from "@/lib/supabase/server";
-import { getAutomationTestContactNumbers } from "@/lib/app-settings";
+import {
+  getAutomationTestContactNumbers,
+  isAutomationTestContactAllowed,
+} from "@/lib/app-settings";
 import { matchAndRunTriggers } from "@/lib/trigger-engine";
 
 export async function kickInboundAutomation(params: {
@@ -61,11 +64,8 @@ export async function kickInboundAutomation(params: {
   if (!config?.enabled) return { matched: false, aiEnqueued: false };
 
   const testPatients = await getAutomationTestContactNumbers();
-  if (testPatients.length > 0) {
-    const patientWa = waId.replace(/\D/g, "");
-    if (!testPatients.includes(patientWa)) {
-      return { matched: false, aiEnqueued: false };
-    }
+  if (!isAutomationTestContactAllowed(waId, testPatients)) {
+    return { matched: false, aiEnqueued: false };
   }
 
   const debounce = Math.max(

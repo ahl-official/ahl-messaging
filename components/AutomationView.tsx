@@ -4091,11 +4091,10 @@ function GuardrailsSection({
           rows={5}
           maxLength={20000}
           placeholder={
-            "One rule per line. Examples:\n" +
-            "• Never quote prices on WhatsApp — say a counselor will share them on a call.\n" +
-            "• Never claim a guaranteed result or 100% success rate.\n" +
-            "• Never mention competitor clinics by name.\n" +
-            "• If client mentions cardiac / pregnancy / minors, do not answer — say a doctor will reach out."
+            "Never share any price, cost, fee, ₹/Rs/INR amount, EMI, discount, or package rate — even if asked directly or it appears in knowledge.\n" +
+            "If the client asks kitna / price / cost / charges / package, say a counselor will share exact pricing on a call or consultation, then offer to book or connect them.\n" +
+            "Never invent or quote success rates, medical guarantees, or competitor prices.\n" +
+            "Never claim 100% results or guaranteed density."
           }
           className="w-full resize-y rounded-lg border border-rose-200/70 bg-background px-3 py-2 font-mono text-[12px] leading-relaxed outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-200/50"
         />

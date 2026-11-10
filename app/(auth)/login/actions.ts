@@ -13,6 +13,7 @@ import {
   createSession,
   SESSION_COOKIE_NAME,
 } from "@/lib/user-sessions";
+import { ensureTeamMemberLinkedForLogin } from "@/lib/team";
 
 const LOCKOUT_WINDOW_MIN = 15;
 const LOCKOUT_THRESHOLD = 5;
@@ -172,16 +173,22 @@ export async function signInAction(formData: FormData): Promise<{ error: string 
   }
   await recordLoginAttempt(email, ip, true);
 
-  // Block login for pending / deactivated members. Sign them out
-  // immediately so a stale session cookie isn't left behind. Redirect
-  // to /login with the same error code Google sign-in uses so both
-  // paths render the same prominent banner instead of an inline string.
+  // Block login for pending / deactivated members. Also link pre-invite
+  // rows (Team still shows "Invited") to this auth user by email.
   if (data?.user) {
-    const { data: member } = await supabase
-      .from("team_members")
-      .select("is_active, pending_approval")
-      .eq("user_id", data.user.id)
-      .maybeSingle();
+    const linked = await ensureTeamMemberLinkedForLogin({
+      userId: data.user.id,
+      email: data.user.email ?? email,
+    });
+    const member =
+      linked ??
+      (
+        await supabase
+          .from("team_members")
+          .select("is_active, pending_approval")
+          .eq("user_id", data.user.id)
+          .maybeSingle()
+      ).data;
     if (member?.pending_approval === true) {
       await supabase.auth.signOut();
       redirect("/login?error=pending_approval");

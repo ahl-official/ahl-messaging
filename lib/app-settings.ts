@@ -65,6 +65,27 @@ export async function getAutomationTestContactNumbers(): Promise<string[]> {
   }
 }
 
+/** True if inbound wa_id is on the test whitelist (exact or last-10 match). */
+export function isAutomationTestContactAllowed(
+  waId: string,
+  whitelist: string[],
+): boolean {
+  if (whitelist.length === 0) return true;
+  const patientWa = String(waId ?? "").replace(/\D/g, "");
+  if (!patientWa) return false;
+  const last10 = patientWa.slice(-10);
+  return whitelist.some((listed) => {
+    const d = String(listed ?? "").replace(/\D/g, "");
+    if (!d) return false;
+    return (
+      d === patientWa ||
+      d.slice(-10) === last10 ||
+      patientWa.endsWith(d) ||
+      d.endsWith(last10)
+    );
+  });
+}
+
 export async function setAutomationTestContactNumbers(
   waIds: string[],
 ): Promise<void> {

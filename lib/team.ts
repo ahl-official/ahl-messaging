@@ -48,6 +48,74 @@ export async function getCurrentMember(): Promise<TeamMember | null> {
 }
 
 /**
+ * After Google / password login: attach auth.users to a pre-invite
+ * team_members row matched by email when user_id was never linked
+ * (UI still shows "Invited"). Without this, login finds no row by
+ * user_id — or hits a stale inactive row — and agents see
+ * "deactivated" even though Team shows Deactivate on an Invited chip.
+ *
+ * Returns the membership flags after linking (or existing row).
+ */
+export async function ensureTeamMemberLinkedForLogin(opts: {
+  userId: string;
+  email: string | null | undefined;
+}): Promise<{
+  is_active: boolean;
+  pending_approval: boolean;
+  linked: boolean;
+} | null> {
+  const email = (opts.email ?? "").trim().toLowerCase();
+  if (!email) return null;
+
+  const admin = createServiceRoleClient();
+
+  const { data: byUser } = await admin
+    .from("team_members")
+    .select("id, is_active, pending_approval, user_id, email")
+    .eq("user_id", opts.userId)
+    .maybeSingle();
+
+  if (byUser) {
+    return {
+      is_active: byUser.is_active === true,
+      pending_approval: byUser.pending_approval === true,
+      linked: false,
+    };
+  }
+
+  // Pre-invite placeholder: same email, user_id still null.
+  const { data: byEmail } = await admin
+    .from("team_members")
+    .select("id, is_active, pending_approval, user_id")
+    .ilike("email", email)
+    .is("user_id", null)
+    .maybeSingle();
+
+  if (!byEmail) return null;
+
+  const { error } = await admin
+    .from("team_members")
+    .update({
+      user_id: opts.userId,
+      is_active: true,
+      pending_approval: false,
+    })
+    .eq("id", byEmail.id)
+    .is("user_id", null);
+
+  if (error) {
+    console.warn("[team] link invite on login failed:", error.message);
+    return {
+      is_active: byEmail.is_active === true,
+      pending_approval: byEmail.pending_approval === true,
+      linked: false,
+    };
+  }
+
+  return { is_active: true, pending_approval: false, linked: true };
+}
+
+/**
  * Lower-cased emails of every active "monitor" member — users who only
  * watch leads and don't work them. The Unassigned inbox filter treats a
  * lead owned by one of these as available. Service-role read so it's

@@ -6,6 +6,7 @@ import {
   sessionStartedCookieOptions,
 } from "@/lib/auth";
 import { createSession, SESSION_COOKIE_NAME } from "@/lib/user-sessions";
+import { ensureTeamMemberLinkedForLogin } from "@/lib/team";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -52,16 +53,21 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(buildLoginUrl(url, "domain_not_allowed"));
   }
 
-  // Distinguish three blocked states so the user-facing message can be
-  // accurate:
-  //   - pending_approval: self-signup waiting for owner review (new in 0020)
-  //   - is_active=false: previously approved, then deactivated by an admin
-  //   - row missing: very rare race with the DB trigger
-  const { data: member } = await supabase
-    .from("team_members")
-    .select("is_active, pending_approval")
-    .eq("user_id", data.user.id)
-    .maybeSingle();
+  // Distinguish blocked states. Also link pre-invite rows (email match,
+  // user_id null) so Google login works when Team still shows "Invited".
+  const linked = await ensureTeamMemberLinkedForLogin({
+    userId: data.user.id,
+    email: data.user.email,
+  });
+  const member =
+    linked ??
+    (
+      await supabase
+        .from("team_members")
+        .select("is_active, pending_approval")
+        .eq("user_id", data.user.id)
+        .maybeSingle()
+    ).data;
   if (member && member.pending_approval === true) {
     await supabase.auth.signOut();
     return NextResponse.redirect(buildLoginUrl(url, "pending_approval"));

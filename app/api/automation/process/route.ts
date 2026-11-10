@@ -1,7 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { getCredential } from "@/lib/credentials";
-import { getAutomationTestContactNumbers } from "@/lib/app-settings";
+import {
+  getAutomationTestContactNumbers,
+  isAutomationTestContactAllowed,
+} from "@/lib/app-settings";
 
 export const runtime = "nodejs";
 
@@ -110,11 +113,8 @@ export async function POST(request: NextRequest) {
   // freshly trained bot live-test on the production WhatsApp number
   // without exposing real customers to wrong answers.
   const testPatients = await getAutomationTestContactNumbers();
-  if (testPatients.length > 0) {
-    const patientWa = (contact.wa_id ?? "").replace(/\D/g, "");
-    if (!testPatients.includes(patientWa)) {
-      return NextResponse.json({ skipped: "not_in_test_patients" });
-    }
+  if (!isAutomationTestContactAllowed(contact.wa_id ?? "", testPatients)) {
+    return NextResponse.json({ skipped: "not_in_test_patients" });
   }
 
   // Debounce window is operator-set per number. Clamp so a misconfigured

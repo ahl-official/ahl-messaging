@@ -106,6 +106,175 @@ function putAliased(
   bag[key] = value;
 }
 
+/** Ask nodes that collect identity — skip re-asking when already known
+ *  (returning leads). Product / urgency / platform asks are NOT skipped. */
+const IDENTITY_ASK_VARS = new Set([
+  "name",
+  "user_name",
+  "fullname",
+  "full_name",
+  "city",
+]);
+
+function firstNonEmpty(...vals: Array<string | null | undefined>): string {
+  for (const v of vals) {
+    const s = String(v ?? "").trim();
+    if (s) return s;
+  }
+  return "";
+}
+
+function isNameAskVar(varName: string): boolean {
+  const n = varName.trim().toLowerCase();
+  return n === "name" || n === "user_name" || n === "fullname" || n === "full_name";
+}
+
+function isCityAskVar(varName: string): boolean {
+  return varName.trim().toLowerCase() === "city";
+}
+
+/** Known name for this run (vars or contact profile). */
+function knownLeadName(ctx: RunContext): string {
+  return firstNonEmpty(
+    ctx.vars.user_name,
+    ctx.vars.name,
+    ctx.vars.Name,
+    ctx.vars.full_name,
+    String(ctx.contact.name ?? ""),
+    String(ctx.contact.profile_name ?? ""),
+  );
+}
+
+/** Known city for this run (vars only — contacts table has no city column). */
+function knownLeadCity(ctx: RunContext): string {
+  return firstNonEmpty(ctx.vars.city, ctx.vars.City);
+}
+
+/**
+ * Prefill name/city on a new flow run from contact + the latest prior run
+ * vars so returning leads are not asked again. Does not overwrite vars
+ * already set on this run.
+ */
+async function hydrateIdentityVars(
+  admin: Admin,
+  contactId: string,
+  ctx: RunContext,
+): Promise<void> {
+  const contactName = firstNonEmpty(
+    String(ctx.contact.name ?? ""),
+    String(ctx.contact.profile_name ?? ""),
+  );
+  if (contactName) {
+    if (!ctx.vars.name?.trim()) ctx.vars.name = contactName;
+    if (!ctx.vars.user_name?.trim()) ctx.vars.user_name = contactName;
+  }
+
+  if (knownLeadCity(ctx)) return;
+
+  // Latest finished (or any) prior run for this contact that stored a city/name.
+  const { data: priorRuns } = await admin
+    .from("trigger_runs")
+    .select("id")
+    .eq("contact_id", contactId)
+    .in("status", ["completed", "waiting", "failed", "running"])
+    .order("created_at", { ascending: false })
+    .limit(8);
+
+  const runIds = (priorRuns ?? []).map((r) => r.id as string).filter(Boolean);
+  if (runIds.length === 0) return;
+
+  const { data: priorVars } = await admin
+    .from("trigger_run_vars")
+    .select("run_id, key, value")
+    .in("run_id", runIds)
+    .in("key", ["city", "City", "name", "user_name", "Name", "full_name"]);
+
+  if (!priorVars?.length) return;
+
+  // Prefer vars from the newest run that has them (runIds is newest-first).
+  const byRun = new Map<string, Record<string, string>>();
+  for (const row of priorVars) {
+    const rid = row.run_id as string;
+    const bag = byRun.get(rid) ?? {};
+    bag[String(row.key)] = String(row.value ?? "");
+    byRun.set(rid, bag);
+  }
+  for (const rid of runIds) {
+    const bag = byRun.get(rid);
+    if (!bag) continue;
+    const priorName = firstNonEmpty(bag.user_name, bag.name, bag.Name, bag.full_name);
+    const priorCity = firstNonEmpty(bag.city, bag.City);
+    if (priorName) {
+      if (!ctx.vars.name?.trim()) ctx.vars.name = priorName;
+      if (!ctx.vars.user_name?.trim()) ctx.vars.user_name = priorName;
+    }
+    if (priorCity && !knownLeadCity(ctx)) {
+      ctx.vars.city = priorCity;
+    }
+    if (knownLeadName(ctx) && knownLeadCity(ctx)) break;
+  }
+}
+
+/**
+ * If this ask node collects name/city and we already know the value,
+ * skip the question. Returns:
+ *   - { skip: false } → ask normally
+ *   - { skip: true, branch: null } → follow default out-edge (ask_text)
+ *   - { skip: true, branch: label } → follow labelled button edge
+ */
+function skipIdentityAskIfKnown(
+  node: NodeRow,
+  ctx: RunContext,
+): { skip: false } | { skip: true; branch: string | null } {
+  const cfg = node.config ?? {};
+  const varName = String(cfg.var_name ?? "").trim();
+  if (!varName || !IDENTITY_ASK_VARS.has(varName.toLowerCase())) {
+    return { skip: false };
+  }
+
+  if (isNameAskVar(varName)) {
+    const name = knownLeadName(ctx);
+    if (!name) return { skip: false };
+    ctx.vars[varName] = name;
+    if (!ctx.vars.user_name?.trim()) ctx.vars.user_name = name;
+    if (!ctx.vars.name?.trim()) ctx.vars.name = name;
+    console.log(
+      `[trigger-engine] skip identity ask node=${node.id} var=${varName} known name="${name}"`,
+    );
+    return { skip: true, branch: null };
+  }
+
+  if (isCityAskVar(varName)) {
+    const city = knownLeadCity(ctx);
+    if (!city) return { skip: false };
+    ctx.vars[varName] = city;
+    if (!ctx.vars.city?.trim()) ctx.vars.city = city;
+    console.log(
+      `[trigger-engine] skip identity ask node=${node.id} var=${varName} known city="${city}"`,
+    );
+
+    // ask_button / ask_list: match a city button so we follow the right edge.
+    if (node.node_type === "ask_button" || node.node_type === "ask_list" || node.node_type === "message_buttons") {
+      const buttons = Array.isArray(cfg.buttons)
+        ? (cfg.buttons as Array<{ label?: string }>)
+        : [];
+      const labels = buttons
+        .map((b) => String(b.label ?? "").trim())
+        .filter(Boolean);
+      const ci = city.toLowerCase();
+      const hit = labels.find((l) => l.toLowerCase() === ci);
+      if (hit) return { skip: true, branch: hit };
+      // Custom city from a prior run — take the "other" branch if present,
+      // then the next ask_text(city) will also skip because var is set.
+      const other = labels.find((l) => /none of the above|other/i.test(l));
+      if (other) return { skip: true, branch: other };
+    }
+    return { skip: true, branch: null };
+  }
+
+  return { skip: false };
+}
+
 /** Seed run vars from the opening inbound (UTM dump / wa.me text / URL). */
 function seedVarsFromInbound(inboundText: string): Record<string, string> {
   const seedVars: Record<string, string> = {};
@@ -545,6 +714,15 @@ async function runFlow(
   for (const v of savedVars ?? []) ctx.vars[v.key as string] = (v.value as string) ?? "";
   if (seedVars) for (const [k, val] of Object.entries(seedVars)) ctx.vars[k] = val;
 
+  // Returning leads: pull name/city from contact + prior runs so ask-name /
+  // ask-city nodes can be skipped; product questions still run.
+  if (!existingRunId) {
+    await hydrateIdentityVars(admin, base.contactId, ctx);
+  } else if (!knownLeadName(ctx) || !knownLeadCity(ctx)) {
+    // Resume path — fill gaps only (don't clobber reply just captured).
+    await hydrateIdentityVars(admin, base.contactId, ctx);
+  }
+
   let currentId: string | null = startNodeId;
   let steps = 0;
   console.log(`[trigger-engine] ▶ runFlow flowId=${flow.id} startNode=${startNodeId} contact=${base.contactId}`);
@@ -890,6 +1068,10 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
     }
     case "ask_text":
     case "ask_file": {
+      if (node.node_type === "ask_text") {
+        const skip = skipIdentityAskIfKnown(node, ctx);
+        if (skip.skip) return skip.branch;
+      }
       await sendText(ctx, interpolate(String(cfg.text ?? ""), ctx));
       clearReplyVars(ctx);
       return AWAIT_REPLY;
@@ -958,6 +1140,12 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
     case "message_buttons":
     case "ask_list":
     case "ask_button": {
+      // Returning lead with known city (etc.) — skip the identity ask and
+      // follow the matching branch (or default) without re-prompting.
+      if (node.node_type === "ask_list" || node.node_type === "ask_button") {
+        const skip = skipIdentityAskIfKnown(node, ctx);
+        if (skip.skip) return skip.branch;
+      }
       // Buttons can be branch buttons (no URL → client taps, flow branches) or
       // LINK buttons (URL set → tap opens the link, no branch). WhatsApp can't
       // mix a real link button with reply buttons, so we degrade gracefully.
