@@ -36,12 +36,15 @@ const LSQ_REFRESH_EVERY_MS = 15 * 60_000;
 // Retry parked LSQ Source/Sub-source pushes (rate-limit failures). The queue
 // schedules each row 2 min out, so a 2-min heartbeat lines up with that.
 const LSQ_PUSH_RETRY_EVERY_MS = 2 * 60_000;
+// Log / webhook retention prune — once a day is enough; tables stay tiny.
+const RETENTION_EVERY_MS = 24 * 60 * 60_000;
 const GLOBAL_KEY = "__qht_sweep_timer__";
 const PROFILE_PIC_TIMER_KEY = "__qht_profile_pic_timer__";
 const NIGHTLY_TIMER_KEY = "__qht_nightly_sync_timer__";
 const RECURRING_TIMER_KEY = "__qht_recurring_timer__";
 const LSQ_REFRESH_TIMER_KEY = "__qht_lsq_refresh_timer__";
 const LSQ_PUSH_RETRY_TIMER_KEY = "__qht_lsq_push_retry_timer__";
+const RETENTION_TIMER_KEY = "__qht_retention_timer__";
 
 // Cast process to a record so we can stash the timer handle without
 // adding a new global. Avoids duplicate timers across Next.js HMR
@@ -53,6 +56,7 @@ type GlobalWithTimer = typeof globalThis & {
   [RECURRING_TIMER_KEY]?: NodeJS.Timeout;
   [LSQ_REFRESH_TIMER_KEY]?: NodeJS.Timeout;
   [LSQ_PUSH_RETRY_TIMER_KEY]?: NodeJS.Timeout;
+  [RETENTION_TIMER_KEY]?: NodeJS.Timeout;
 };
 
 
@@ -347,6 +351,26 @@ export async function register() {
     }
   }
 
+  // Disposable log retention (webhooks ring-buffer, auth attempts, automation
+  // logs, disconnect history, finished trigger runs). Safe for self-host disk.
+  async function retentionTick() {
+    try {
+      const res = await fetch(`${origin}/api/cron/retention`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      if (!res.ok) {
+        console.warn(`[retention] HTTP ${res.status}`);
+        return;
+      }
+      const json = (await res.json()) as { total?: number };
+      if (json.total) console.log(`[retention] pruned ${json.total} rows`);
+    } catch (e) {
+      logTickErr("[retention]", e);
+    }
+  }
+
   // Run once shortly after boot so the first sweep happens within a
   // few seconds rather than the full 30s, then hand off to the
   // interval. Don't `await` — we don't want to block server startup.
@@ -378,6 +402,10 @@ export async function register() {
   setTimeout(() => {
     void lsqPushRetryTick();
   }, 90_000);
+  // Retention once shortly after boot, then daily.
+  setTimeout(() => {
+    void retentionTick();
+  }, 180_000);
 
   g[GLOBAL_KEY] = setInterval(() => {
     void tick();
@@ -401,8 +429,11 @@ export async function register() {
   g[LSQ_PUSH_RETRY_TIMER_KEY] = setInterval(() => {
     void lsqPushRetryTick();
   }, LSQ_PUSH_RETRY_EVERY_MS);
+  g[RETENTION_TIMER_KEY] = setInterval(() => {
+    void retentionTick();
+  }, RETENTION_EVERY_MS);
 
   console.log(
-    `[sweep] in-process scheduler armed — sweep+campaign every ${SWEEP_EVERY_MS / 1000}s, profile-pic refill every ${PROFILE_PIC_EVERY_MS / 1000}s, nightly-sync heartbeat every ${NIGHTLY_EVERY_MS / 1000}s`,
+    `[sweep] in-process scheduler armed — sweep+campaign every ${SWEEP_EVERY_MS / 1000}s, profile-pic refill every ${PROFILE_PIC_EVERY_MS / 1000}s, nightly-sync heartbeat every ${NIGHTLY_EVERY_MS / 1000}s, retention every ${RETENTION_EVERY_MS / 3600000}h`,
   );
 }
