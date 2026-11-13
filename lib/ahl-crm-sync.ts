@@ -23,8 +23,11 @@ function last10(mobile: string): string | null {
   return d.slice(-10);
 }
 
-/** Resolve CRM assignee display name → team_members row. */
-async function resolveTeamMember(
+/** Resolve CRM assignee display name / email → team_members row.
+ *  Firebase round-robin stores display names ("Rahul", "Mehjabeen");
+ *  inbox "LSQ-assigned only" filters on team_members.email — so we must
+ *  map name → login email here. */
+export async function resolveTeamMember(
   admin: ReturnType<typeof createServiceRoleClient>,
   assignedTo: string | null | undefined,
   assignedToEmail: string | null | undefined,

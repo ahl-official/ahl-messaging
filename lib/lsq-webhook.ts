@@ -482,7 +482,23 @@ export async function applyLsqLeadToContacts(
   if (lead.lead_number) patch.lsq_lead_number = lead.lead_number;
   if (lead.owner_name) patch.lsq_owner_name = lead.owner_name;
   // Normalised so the assigned-only inbox filter matches the agent's email.
-  if (lead.owner_email) patch.lsq_owner_email = lead.owner_email.trim().toLowerCase();
+  // Firebase CRM round-robin usually sends OwnerIdName / assignedTo (display
+  // name) with no email — resolve against team_members so agents see their
+  // chats when "Limit to LSQ-assigned chats" is on.
+  let ownerEmail = lead.owner_email?.trim().toLowerCase() || null;
+  if (!ownerEmail && lead.owner_name) {
+    const { resolveTeamMember } = await import("@/lib/ahl-crm-sync");
+    const member = await resolveTeamMember(admin, lead.owner_name, null);
+    if (member?.email) {
+      ownerEmail = member.email.toLowerCase();
+      if (member.user_id) {
+        patch.assigned_to = member.user_id;
+        patch.assigned_at = new Date().toISOString();
+      }
+      patch.assigned_to_email = ownerEmail;
+    }
+  }
+  if (ownerEmail) patch.lsq_owner_email = ownerEmail;
   if (lead.prospect_id) patch.lsq_prospect_id = lead.prospect_id;
   if (lead.source) patch.lsq_source = lead.source;
   if (lead.sub_source) patch.lsq_sub_source = lead.sub_source;
