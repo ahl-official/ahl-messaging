@@ -46,7 +46,8 @@ interface RunContext {
   contactId: string;
   waId: string;
   bpid: string;
-  runId: string;
+  /** Present during full flow execution; may be absent for one-off remind sends. */
+  runId?: string;
   contact: Record<string, unknown>;
   vars: Record<string, string>;
 }
@@ -1377,13 +1378,14 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
           flowEvent = prior > 0 ? "update" : "start";
           if (flowEvent === "start") {
             const cutoff = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
-            const { data: recentRuns } = await admin
+            let recentQuery = admin
               .from("trigger_runs")
               .select("id")
               .eq("contact_id", ctx.contactId)
-              .neq("id", ctx.runId)
               .gte("started_at", cutoff)
               .limit(20);
+            if (ctx.runId) recentQuery = recentQuery.neq("id", ctx.runId);
+            const { data: recentRuns } = await recentQuery;
             const runIds = (recentRuns ?? []).map((r) => r.id as string);
             if (runIds.length > 0) {
               const { count } = await admin
