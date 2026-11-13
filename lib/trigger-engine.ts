@@ -46,6 +46,7 @@ interface RunContext {
   contactId: string;
   waId: string;
   bpid: string;
+  runId: string;
   contact: Record<string, unknown>;
   vars: Record<string, string>;
 }
@@ -738,6 +739,7 @@ async function runFlow(
     contactId: base.contactId,
     waId: base.waId,
     bpid: base.bpid,
+    runId,
     contact: (contact ?? {}) as Record<string, unknown>,
     vars: {},
   };
