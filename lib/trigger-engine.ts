@@ -368,9 +368,41 @@ export async function matchAndRunTriggers(params: {
   const isFreshAdClickOrRestart =
     /\b(utm_|fbclid|gclid|ctwa_clid|placement\s*=)/i.test(inboundText) ||
     inboundText.toLowerCase().includes("tell me more") ||
+    /^https?:\/\//i.test(inboundText.trim()) ||
+    /\b(facebook\.com|fb\.watch|instagram\.com|youtu\.be|youtube\.com)\b/i.test(
+      inboundText,
+    ) ||
     /\b(hello|hi|hii|hey|restart|start)\b/i.test(inboundText);
 
   if (isFreshAdClickOrRestart) {
+    // If we already completed (or are mid) an intake flow in the last 24h,
+    // do NOT wipe it and start over — that was minting duplicate sheet/CRM
+    // rows on every "Hi! Tell me more" re-click (see Aswin 12 Nov).
+    const recentCutoff = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
+    const { data: recentIntake } = await admin
+      .from("trigger_runs")
+      .select("id, status")
+      .eq("contact_id", contactId)
+      .in("status", ["running", "waiting", "completed"])
+      .gte("started_at", recentCutoff)
+      .order("started_at", { ascending: false })
+      .limit(1);
+    if (recentIntake && recentIntake.length > 0) {
+      const st = String(recentIntake[0].status);
+      if (st === "running" || st === "waiting") {
+        const resumed = await resumeWaitingRun(admin, {
+          contactId,
+          waId,
+          bpid,
+          inboundText,
+          reply,
+        });
+        if (resumed) return { matched: true };
+        return { matched: true }; // keep existing run; don't stack
+      }
+      // completed in last 24h — skip restarting a full new intake
+      return { matched: false };
+    }
     // Cancel any stale/parked waiting runs for this contact so the flow restarts fresh!
     await admin
       .from("trigger_runs")
@@ -1328,8 +1360,11 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
           "source",
         );
         const placement = pickAttr(utmParams, ctx.vars, "placement", "Placement");
-        // Explicit start vs mid-flow update for n8n / Sheets (no 24h guess).
+        // Explicit start vs mid-flow update for n8n / Sheets.
         // First webhook in this run → start; later webhooks → update.
+        // ALSO: if this contact already fired a sheet webhook in the last 24h
+        // (even in a prior run — e.g. client re-clicks "Hi! Tell me more"),
+        // force update so Flexi Funnel / Leads Data does not get duplicate rows.
         // Node config can override: { "flow_event": "start" | "update" }.
         const cfgEvent = String(cfg.flow_event ?? "").trim().toLowerCase();
         let flowEvent: "start" | "update";
@@ -1338,6 +1373,25 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
         } else {
           const prior = Number(ctx.vars.__flow_webhook_count || "0");
           flowEvent = prior > 0 ? "update" : "start";
+          if (flowEvent === "start") {
+            const cutoff = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
+            const { data: recentRuns } = await admin
+              .from("trigger_runs")
+              .select("id")
+              .eq("contact_id", ctx.contactId)
+              .neq("id", ctx.runId)
+              .gte("started_at", cutoff)
+              .limit(20);
+            const runIds = (recentRuns ?? []).map((r) => r.id as string);
+            if (runIds.length > 0) {
+              const { count } = await admin
+                .from("trigger_run_vars")
+                .select("run_id", { count: "exact", head: true })
+                .in("run_id", runIds)
+                .eq("key", "__flow_webhook_count");
+              if ((count ?? 0) > 0) flowEvent = "update";
+            }
+          }
         }
         const nextCount = String(Number(ctx.vars.__flow_webhook_count || "0") + 1);
         ctx.vars.__flow_webhook_count = nextCount;
