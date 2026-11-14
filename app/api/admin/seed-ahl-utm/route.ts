@@ -99,7 +99,7 @@ export async function GET(req: Request) {
   const askCity = addNode(
     "ask_button",
     {
-      text: "Welcome! Which city are you in so I can guide you better?",
+      text: "May I know, which city are you from?",
       var_name: "city",
       buttons: [
         { label: "Mumbai" },
@@ -132,7 +132,7 @@ export async function GET(req: Request) {
   const askProduct = addNode(
     "ask_button",
     {
-      text: "Got it 🙂 What would you like help with?",
+      text: "What product are you interested in?",
       var_name: "product",
       buttons: [
         { label: "Hair Patch" },

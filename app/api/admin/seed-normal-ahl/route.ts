@@ -63,7 +63,7 @@ export async function GET(req: Request) {
 
     // Node 3: Ask City (Interactive List for 10 options)
     const n3 = addNode('ask_list', {
-        text: "Welcome! Which city are you in so I can guide you better?",
+        text: "May I know, which city are you from?",
         var_name: 'City',
         list_options: ["Mumbai", "Bangalore", "Delhi", "Hyderabad", "Pune", "Kolkata", "Chennai", "Jaipur", "Lucknow", "None of the above"]
     }, 250, 400);
