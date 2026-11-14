@@ -1926,6 +1926,22 @@ Output shape: a single JSON object whose keys exactly match the LSQ field names 
   for (const [Attribute, Value] of fieldMap) {
     fields.push({ Attribute, Value });
   }
+
+  // Sheet via n8n — when AI (not trigger) collected name+city, push the
+  // same ahl-flow-webhook payload so Flexi Funnel still gets the lead.
+  // Phone is always the WhatsApp id. Deduped until name/city/product change.
+  void pushAiCollectedToAhlSheet({
+    contactId,
+    waId,
+    extracted,
+    fieldMap,
+  }).catch((e) => {
+    console.warn(
+      "[automation] AI→sheet webhook failed:",
+      e instanceof Error ? e.message : e,
+    );
+  });
+
   if (fields.length === 0) return;
 
   // Lazy-import to avoid a circular dependency at module load.
@@ -2020,4 +2036,209 @@ Output shape: a single JSON object whose keys exactly match the LSQ field names 
       }
     }
   }
+}
+
+/** AHL Flexi Funnel / Leads Data — same n8n endpoint the trigger webhook uses. */
+const AHL_FLOW_SHEET_WEBHOOK =
+  "https://n8n.hairscalptradingco.com/webhook/ahl-flow-webhook";
+
+function isAhlSheetBusinessNumber(bpid: string | null | undefined): boolean {
+  const id = (bpid ?? "").trim();
+  if (!id) return false;
+  if (id === "1198859879988526") return true;
+  if (id.startsWith("waha:") && !/alchemane/i.test(id)) return true;
+  return false;
+}
+
+function pickExtractedString(
+  extracted: Record<string, unknown>,
+  fieldMap: Map<string, string>,
+  ...keys: string[]
+): string {
+  for (const key of keys) {
+    const fromMap = fieldMap.get(key);
+    if (fromMap?.trim()) return fromMap.trim();
+    const found = Object.keys(extracted).find(
+      (k) => k.toLowerCase() === key.toLowerCase(),
+    );
+    if (!found) continue;
+    const raw = extracted[found];
+    if (typeof raw === "string" && raw.trim()) return raw.trim();
+    if (typeof raw === "number" && Number.isFinite(raw)) return String(raw);
+  }
+  return "";
+}
+
+/**
+ * After AI extraction has name + city, POST to n8n so the sheet gets the
+ * lead even when no trigger flow webhook ran. Phone = WhatsApp wa_id.
+ */
+async function pushAiCollectedToAhlSheet(opts: {
+  contactId: string;
+  waId: string;
+  extracted: Record<string, unknown>;
+  fieldMap: Map<string, string>;
+}): Promise<void> {
+  const admin = createServiceRoleClient();
+  const { data: contact } = await admin
+    .from("contacts")
+    .select(
+      "id, wa_id, name, profile_name, business_phone_number_id, utm_params, utm_source",
+    )
+    .eq("id", opts.contactId)
+    .maybeSingle();
+  if (!contact) return;
+  if (!isAhlSheetBusinessNumber(contact.business_phone_number_id as string)) {
+    return;
+  }
+
+  const name = pickExtractedString(
+    opts.extracted,
+    opts.fieldMap,
+    "FirstName",
+    "mx_FirstName",
+    "name",
+  ) || String(contact.name ?? "").trim() || String(contact.profile_name ?? "").trim();
+
+  const city = pickExtractedString(
+    opts.extracted,
+    opts.fieldMap,
+    "mx_Lead_City",
+    "City",
+    "city",
+  );
+
+  // Wait until AI has both name and city (number is always wa_id).
+  if (!name || !city) {
+    return;
+  }
+
+  const product = pickExtractedString(
+    opts.extracted,
+    opts.fieldMap,
+    "mx_Interested_In",
+    "mx_Product",
+    "product",
+    "interested_in",
+  );
+
+  const sig = `${opts.waId}|${name}|${city}|${product}`.toLowerCase();
+  const prevUtm =
+    contact.utm_params && typeof contact.utm_params === "object"
+      ? ({ ...(contact.utm_params as Record<string, unknown>) } as Record<
+          string,
+          unknown
+        >)
+      : {};
+  if (String(prevUtm.__ai_sheet_sig ?? "") === sig) {
+    return; // unchanged since last AI sheet push
+  }
+
+  // Prefer update if we already pushed (AI or trigger) recently.
+  let flowEvent: "start" | "update" =
+    prevUtm.__ai_sheet_sig || prevUtm.__ai_sheet_pushed_at
+      ? "update"
+      : "start";
+  if (flowEvent === "start") {
+    const cutoff = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
+    const { data: recentRuns } = await admin
+      .from("trigger_runs")
+      .select("id")
+      .eq("contact_id", opts.contactId)
+      .gte("started_at", cutoff)
+      .limit(20);
+    const runIds = (recentRuns ?? []).map((r) => r.id as string);
+    if (runIds.length > 0) {
+      const { count } = await admin
+        .from("trigger_run_vars")
+        .select("run_id", { count: "exact", head: true })
+        .in("run_id", runIds)
+        .eq("key", "__flow_webhook_count");
+      if ((count ?? 0) > 0) flowEvent = "update";
+    }
+  }
+
+  const utmParams: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(prevUtm)) {
+    if (k.startsWith("__")) continue;
+    utmParams[k] = v;
+  }
+
+  const payload = {
+    contact_id: opts.contactId,
+    wa_id: opts.waId,
+    phone: opts.waId,
+    business_phone_number_id: contact.business_phone_number_id,
+    name,
+    ctwa_name: String(contact.profile_name ?? ""),
+    city,
+    product,
+    interested_in: product,
+    product_choice: product,
+    patch_type: "",
+    urgency: "",
+    platform: "",
+    inbound_text: "",
+    utm_source: String(contact.utm_source ?? utmParams.utm_source ?? ""),
+    utm_medium: String(utmParams.utm_medium ?? ""),
+    utm_campaign: String(
+      utmParams.utm_campaign ?? utmParams.CampaignName ?? "",
+    ),
+    utm_content: String(utmParams.utm_content ?? ""),
+    utm_term: String(utmParams.utm_term ?? ""),
+    utm_id: String(utmParams.utm_id ?? ""),
+    campaign_name: String(
+      utmParams.campaign_name ?? utmParams.CampaignName ?? "",
+    ),
+    adset_name: String(utmParams.adset_name ?? utmParams.AdSetName ?? ""),
+    ad_name: String(utmParams.ad_name ?? utmParams.AdName ?? ""),
+    campaign_source: String(
+      utmParams.campaign_source ?? utmParams.CampaignSource ?? "",
+    ),
+    placement: String(utmParams.placement ?? utmParams.Placement ?? ""),
+    fbclid: String(utmParams.fbclid ?? ""),
+    wa_tracking: String(utmParams.wa_tracking ?? ""),
+    lead_source: "WhatsApp",
+    source: "ai-assistant",
+    flow_event: flowEvent,
+    utm_params: utmParams,
+    vars: {
+      user_name: name,
+      name,
+      city,
+      product,
+      interested_in: product,
+    },
+  };
+
+  const res = await fetch(AHL_FLOW_SHEET_WEBHOOK, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(8_000),
+  });
+  if (!res.ok) {
+    console.warn(
+      `[automation] AI→sheet HTTP ${res.status} for ${opts.waId}`,
+    );
+    return;
+  }
+
+  await admin
+    .from("contacts")
+    .update({
+      utm_params: {
+        ...prevUtm,
+        __ai_sheet_sig: sig,
+        __ai_sheet_pushed_at: new Date().toISOString(),
+      },
+      ...(pickExtractedString(opts.extracted, opts.fieldMap, "FirstName")
+        ? { name }
+        : {}),
+    })
+    .eq("id", opts.contactId);
+
+  console.log(
+    `[automation] AI→sheet ${flowEvent} for ${opts.waId} name="${name}" city="${city}"`,
+  );
 }
