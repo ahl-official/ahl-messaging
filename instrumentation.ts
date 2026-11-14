@@ -22,6 +22,9 @@ if (typeof AbortSignal !== "undefined" && !AbortSignal.timeout) {
 }
 
 const SWEEP_EVERY_MS = 30_000;
+/** Drain AI debounce queue. External crontab was often late (~3–5 min);
+ *  keep an in-process poke so replies fire within a few seconds of due. */
+const PROCESS_PENDING_EVERY_MS = 5_000;
 const PROFILE_PIC_EVERY_MS = 5 * 60_000;
 // Nightly-sync heartbeat fires every minute; the endpoint itself
 // no-ops unless the current IST minute matches the configured slot.
@@ -39,6 +42,7 @@ const LSQ_PUSH_RETRY_EVERY_MS = 2 * 60_000;
 // Log / webhook retention prune — once a day is enough; tables stay tiny.
 const RETENTION_EVERY_MS = 24 * 60 * 60_000;
 const GLOBAL_KEY = "__qht_sweep_timer__";
+const PROCESS_PENDING_TIMER_KEY = "__qht_process_pending_timer__";
 const PROFILE_PIC_TIMER_KEY = "__qht_profile_pic_timer__";
 const NIGHTLY_TIMER_KEY = "__qht_nightly_sync_timer__";
 const RECURRING_TIMER_KEY = "__qht_recurring_timer__";
@@ -51,6 +55,7 @@ const RETENTION_TIMER_KEY = "__qht_retention_timer__";
 // reloads in dev — register() can be called multiple times.
 type GlobalWithTimer = typeof globalThis & {
   [GLOBAL_KEY]?: NodeJS.Timeout;
+  [PROCESS_PENDING_TIMER_KEY]?: NodeJS.Timeout;
   [PROFILE_PIC_TIMER_KEY]?: NodeJS.Timeout;
   [NIGHTLY_TIMER_KEY]?: NodeJS.Timeout;
   [RECURRING_TIMER_KEY]?: NodeJS.Timeout;
@@ -126,6 +131,34 @@ export async function register() {
       }
     } catch (e) {
       logTickErr("[sweep]", e);
+    }
+  }
+
+  async function processPendingTick() {
+    try {
+      const res = await fetch(`${origin}/api/automation/process-pending`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token }),
+      });
+      if (!res.ok) {
+        console.warn(`[process-pending] HTTP ${res.status}`);
+        return;
+      }
+      const json = (await res.json()) as {
+        processed?: number;
+        skipped?: number;
+      };
+      if (json.processed && json.processed > 0) {
+        console.log(
+          `[process-pending] processed=${json.processed} skipped=${json.skipped ?? 0}`,
+        );
+      }
+    } catch (e) {
+      logTickErr("[process-pending]", e);
     }
   }
 
@@ -376,6 +409,7 @@ export async function register() {
   // interval. Don't `await` — we don't want to block server startup.
   setTimeout(() => {
     void tick();
+    void processPendingTick();
     void campaignTick();
     void dripTick();
     void triggersTick();
@@ -414,6 +448,9 @@ export async function register() {
     void triggersTick();
     void leadDistTick();
   }, SWEEP_EVERY_MS);
+  g[PROCESS_PENDING_TIMER_KEY] = setInterval(() => {
+    void processPendingTick();
+  }, PROCESS_PENDING_EVERY_MS);
   g[PROFILE_PIC_TIMER_KEY] = setInterval(() => {
     void profilePicTick();
   }, PROFILE_PIC_EVERY_MS);
@@ -434,6 +471,6 @@ export async function register() {
   }, RETENTION_EVERY_MS);
 
   console.log(
-    `[sweep] in-process scheduler armed — sweep+campaign every ${SWEEP_EVERY_MS / 1000}s, profile-pic refill every ${PROFILE_PIC_EVERY_MS / 1000}s, nightly-sync heartbeat every ${NIGHTLY_EVERY_MS / 1000}s, retention every ${RETENTION_EVERY_MS / 3600000}h`,
+    `[sweep] in-process scheduler armed — process-pending every ${PROCESS_PENDING_EVERY_MS / 1000}s, sweep+campaign every ${SWEEP_EVERY_MS / 1000}s, profile-pic refill every ${PROFILE_PIC_EVERY_MS / 1000}s, nightly-sync heartbeat every ${NIGHTLY_EVERY_MS / 1000}s, retention every ${RETENTION_EVERY_MS / 3600000}h`,
   );
 }

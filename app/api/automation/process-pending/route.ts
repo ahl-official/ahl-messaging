@@ -27,13 +27,17 @@ export const maxDuration = 60;
 const MAX_BATCH = 25;
 
 async function handle(request: NextRequest) {
-  // Token in body for POST, ?token= for GET — accept either to make
-  // cron setup simple.
+  // Token: Authorization Bearer (in-process scheduler), body.token (POST
+  // cron), or ?token= (GET cron) — accept any so wakeups stay cheap.
   let token: string | null = null;
+  const auth = request.headers.get("authorization") || "";
+  if (auth.toLowerCase().startsWith("bearer ")) {
+    token = auth.slice(7).trim();
+  }
   if (request.method === "POST") {
     try {
       const body = (await request.json()) as { token?: string };
-      token = body.token ?? null;
+      if (!token) token = body.token ?? null;
     } catch {
       /* allow empty body */
     }

@@ -133,5 +133,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Wake the pending worker as soon as debounce elapses (don't wait on cron).
+  const token = (process.env.WEBHOOK_INTERNAL_TOKEN || "").trim();
+  if (token) {
+    const origin =
+      process.env.INTERNAL_TICK_BASE ||
+      `http://127.0.0.1:${process.env.PORT || "3001"}`;
+    const waitMs = debounce * 1000 + 300;
+    const t = setTimeout(() => {
+      void fetch(`${origin}/api/automation/process-pending`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token }),
+      }).catch(() => {});
+    }, waitMs);
+    t.unref?.();
+  }
+
   return NextResponse.json({ enqueued: true, process_at: processAt });
 }

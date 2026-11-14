@@ -79,5 +79,31 @@ export async function kickInboundAutomation(params: {
     .update({ automation_pending_at: processAt })
     .eq("id", contactId);
 
+  // Don't wait for cron — wake the pending worker right after debounce.
+  scheduleProcessPendingWake(debounce);
+
   return { matched: false, aiEnqueued: true };
+}
+
+/** Fire /api/automation/process-pending shortly after the debounce window. */
+function scheduleProcessPendingWake(debounceSeconds: number) {
+  const token = (process.env.WEBHOOK_INTERNAL_TOKEN || "").trim();
+  if (!token) return;
+  const origin =
+    process.env.INTERNAL_TICK_BASE ||
+    `http://127.0.0.1:${process.env.PORT || "3001"}`;
+  const waitMs = Math.max(0, debounceSeconds) * 1000 + 300;
+  const t = setTimeout(() => {
+    void fetch(`${origin}/api/automation/process-pending`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ token }),
+    }).catch(() => {
+      /* instrumentation interval is the backup */
+    });
+  }, waitMs);
+  t.unref?.();
 }
