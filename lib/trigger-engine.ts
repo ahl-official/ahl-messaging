@@ -384,8 +384,8 @@ export async function matchAndRunTriggers(params: {
   if (isAdOrLinkPayload || isGreetingRestart) {
     // If we already completed (or are mid) an intake flow in the last 24h:
     //  - mid-flow → resume / keep (don't stack)
-    //  - completed + ad/link again → suppress bot (no trigger restart, no AI)
-    //  - completed + plain Hi/Hello → allow keyword flow to start again
+    //  - completed + ad/link → suppress bot (no trigger, no AI)
+    //  - completed + Hi / keyword greeting → do NOT restart trigger; AI may reply
     const recentCutoff = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
     const { data: recentIntake } = await admin
       .from("trigger_runs")
@@ -408,15 +408,13 @@ export async function matchAndRunTriggers(params: {
         if (resumed) return { matched: true };
         return { matched: true }; // keep existing run; don't stack
       }
-      // completed in last 24h
+      // completed in last 24h — never restart intake on Hi / keyword / CTWA
       if (isAdOrLinkPayload) {
-        // Repeated CTWA/link — do not restart trigger and do not hand to AI
-        return { matched: true };
+        return { matched: true }; // repeated link: silence
       }
-      // Plain greeting after a completed intake → fall through and restart
+      return { matched: false }; // Hi / greeting: AI only, no trigger restart
     }
-    // Cancel any stale/parked waiting runs for this contact so the flow restarts fresh!
-    // (Skip cancel when we already returned above for mid-flow / repeated link.)
+    // No recent intake — cancel any stale parked runs so a fresh flow can start
     await admin
       .from("trigger_runs")
       .update({ status: "stopped", finished_at: new Date().toISOString() })
@@ -505,7 +503,22 @@ export async function matchAndRunTriggers(params: {
     }
   }
 
-  // 3) Otherwise try to start a keyword flow.
+  // 3) Otherwise try to start a keyword flow — but not if this contact already
+  //    finished an intake in the last 24h (Hi / keyword / CTWA must not re-fire).
+  {
+    const recentCutoff = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
+    const { data: recentDone } = await admin
+      .from("trigger_runs")
+      .select("id")
+      .eq("contact_id", contactId)
+      .eq("status", "completed")
+      .gte("started_at", recentCutoff)
+      .limit(1);
+    if (recentDone && recentDone.length > 0) {
+      return { matched: false };
+    }
+  }
+
   const { data: flows } = await admin
     .from("trigger_flows")
     .select("id, business_phone_number_id, trigger_type, trigger_config, start_node_id, priority")
