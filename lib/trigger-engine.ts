@@ -135,7 +135,11 @@ function isCityAskVar(varName: string): boolean {
   return varName.trim().toLowerCase() === "city";
 }
 
-/** Known name for this run (vars or contact profile). */
+/** Known *confirmed* name for this run — used to skip ask-name nodes.
+ *  Do NOT use WhatsApp profile_name: Meta/WA almost always sends a profile
+ *  handle on new CTWA chats, which wrongly skipped "May I know your name?"
+ *  and jumped straight to city. Only contact.name (captured earlier) or
+ *  run vars count as known. */
 function knownLeadName(ctx: RunContext): string {
   return firstNonEmpty(
     ctx.vars.user_name,
@@ -143,7 +147,6 @@ function knownLeadName(ctx: RunContext): string {
     ctx.vars.Name,
     ctx.vars.full_name,
     String(ctx.contact.name ?? ""),
-    String(ctx.contact.profile_name ?? ""),
   );
 }
 
@@ -162,10 +165,9 @@ async function hydrateIdentityVars(
   contactId: string,
   ctx: RunContext,
 ): Promise<void> {
-  const contactName = firstNonEmpty(
-    String(ctx.contact.name ?? ""),
-    String(ctx.contact.profile_name ?? ""),
-  );
+  // Only hydrate from contacts.name (user-/CRM-confirmed). profile_name is
+  // not a substitute — see knownLeadName().
+  const contactName = firstNonEmpty(String(ctx.contact.name ?? ""));
   if (contactName) {
     if (!ctx.vars.name?.trim()) ctx.vars.name = contactName;
     if (!ctx.vars.user_name?.trim()) ctx.vars.user_name = contactName;
@@ -1047,7 +1049,25 @@ async function resumeWaitingRun(
     }
     label = null; // freeform response, follows the single default out-edge
     const vn = String(cfg.var_name ?? "").trim();
-    if (vn && base.inboundText) base.reply[vn] = base.inboundText;
+    if (vn && base.inboundText) {
+      base.reply[vn] = base.inboundText;
+      // Typed name wins over CTWA/WhatsApp profile — persist so returning
+      // leads skip ask-name next time, and sheet updates get the real name.
+      if (isNameAskVar(vn) && isAcceptableAskTextReply(base.inboundText)) {
+        const typed = base.inboundText.trim();
+        base.reply.name = typed;
+        base.reply.user_name = typed;
+        void admin
+          .from("contacts")
+          .update({ name: typed })
+          .eq("id", base.contactId)
+          .then(({ error }) => {
+            if (error) {
+              console.warn("[trigger-engine] save typed name failed:", error.message);
+            }
+          });
+      }
+    }
   } else {
     const chosen = pickButton(node, base.inboundText);
     console.log(`[trigger-engine] resumeWaitingRun: pickButton result="${chosen}" for reply="${base.inboundText}" on node=${node.id} type=${node.node_type}`);
@@ -1412,12 +1432,19 @@ async function executeNode(admin: Admin, node: NodeRow, ctx: RunContext): Promis
           wa_id: ctx.waId,
           phone: ctx.waId,
           business_phone_number_id: ctx.bpid,
-          // Flat fields n8n / Sheets map easily
-          name:
-            ctx.vars.user_name ||
-            ctx.vars.Name ||
-            ctx.vars.name ||
-            String(ctx.contact.name ?? ctx.contact.profile_name ?? ""),
+          // Flat fields n8n / Sheets map easily.
+          // Name priority: typed / saved lead name → CTWA WhatsApp profile.
+          // We always ask for name on new chats; if they haven't answered yet
+          // (or never do), the sheet still gets the CTWA profile name.
+          name: firstNonEmpty(
+            ctx.vars.user_name,
+            ctx.vars.Name,
+            ctx.vars.name,
+            ctx.vars.full_name,
+            String(ctx.contact.name ?? ""),
+            String(ctx.contact.profile_name ?? ""),
+          ),
+          ctwa_name: String(ctx.contact.profile_name ?? ""),
           city: ctx.vars.city || ctx.vars.City || "",
           product:
             ctx.vars.product_choice ||

@@ -1291,7 +1291,9 @@ export async function runAutomation(opts: {
   // message), greet + ask name so we still capture lead details instead of
   // only asking language. Language can follow once they reply.
   if (!aiResp && !triggerIsImage && !contact.preferred_language && !history.some((m) => m.role === "assistant")) {
-    const alreadyNamed = Boolean((contact.name ?? "").trim() || (contact.profile_name ?? "").trim());
+    // profile_name alone does not count — new CTWA chats almost always have
+    // a WA profile handle; we still need to ask for their real name.
+    const alreadyNamed = Boolean((contact.name ?? "").trim());
     aiResp = {
       text: alreadyNamed
         ? "Hello! 🙂 Welcome to American Hairline. Which language would you prefer — English or Hinglish?"
