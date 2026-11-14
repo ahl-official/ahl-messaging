@@ -368,20 +368,24 @@ export async function matchAndRunTriggers(params: {
 
   const admin = createServiceRoleClient();
 
-  // Check if this inbound message is a fresh ad click / keyword restart (carries UTM params or entry trigger)
-  const isFreshAdClickOrRestart =
+  // Ad/CTWA/link payloads vs plain greeting restarts (Hi / Hello).
+  // "Hi! Tell me more: https://…" counts as an ad/link, not a greeting.
+  const isAdOrLinkPayload =
     /\b(utm_|fbclid|gclid|ctwa_clid|placement\s*=)/i.test(inboundText) ||
     inboundText.toLowerCase().includes("tell me more") ||
-    /^https?:\/\//i.test(inboundText.trim()) ||
+    /\bhttps?:\/\//i.test(inboundText) ||
     /\b(facebook\.com|fb\.watch|instagram\.com|youtu\.be|youtube\.com)\b/i.test(
       inboundText,
-    ) ||
+    );
+  const isGreetingRestart =
+    !isAdOrLinkPayload &&
     /\b(hello|hi|hii|hey|restart|start)\b/i.test(inboundText);
 
-  if (isFreshAdClickOrRestart) {
-    // If we already completed (or are mid) an intake flow in the last 24h,
-    // do NOT wipe it and start over — that was minting duplicate sheet/CRM
-    // rows on every "Hi! Tell me more" re-click (see Aswin 12 Nov).
+  if (isAdOrLinkPayload || isGreetingRestart) {
+    // If we already completed (or are mid) an intake flow in the last 24h:
+    //  - mid-flow → resume / keep (don't stack)
+    //  - completed + ad/link again → suppress bot (no trigger restart, no AI)
+    //  - completed + plain Hi/Hello → allow keyword flow to start again
     const recentCutoff = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
     const { data: recentIntake } = await admin
       .from("trigger_runs")
@@ -404,10 +408,15 @@ export async function matchAndRunTriggers(params: {
         if (resumed) return { matched: true };
         return { matched: true }; // keep existing run; don't stack
       }
-      // completed in last 24h — skip restarting a full new intake
-      return { matched: false };
+      // completed in last 24h
+      if (isAdOrLinkPayload) {
+        // Repeated CTWA/link — do not restart trigger and do not hand to AI
+        return { matched: true };
+      }
+      // Plain greeting after a completed intake → fall through and restart
     }
     // Cancel any stale/parked waiting runs for this contact so the flow restarts fresh!
+    // (Skip cancel when we already returned above for mid-flow / repeated link.)
     await admin
       .from("trigger_runs")
       .update({ status: "stopped", finished_at: new Date().toISOString() })
