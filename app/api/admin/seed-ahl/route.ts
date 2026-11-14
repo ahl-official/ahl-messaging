@@ -61,7 +61,7 @@ export async function GET(req: Request) {
     // with >3 options; the engine renders as interactive list automatically)
     // =====================================================================
     const askCity = addNode('ask_button', {
-        text: "May I know, which city are you from?",
+        text: "Welcome! Which city are you in so I can guide you better?",
         var_name: 'city',
         buttons: [
             { label: "Mumbai" }, { label: "Bangalore" }, { label: "Delhi" },
@@ -83,7 +83,7 @@ export async function GET(req: Request) {
     // NODE 4: Ask Product (ask_button — 4 options, rendered as list)
     // =====================================================================
     const askProduct = addNode('ask_button', {
-        text: "What product are you interested in?",
+        text: "Got it 🙂 What would you like help with?",
         var_name: 'product',
         buttons: [
             { label: "Hair Patch" },

@@ -75,6 +75,7 @@ const SEED_TAG = "seed-ig-kb-2026-11";
 
 const alsoMainCrm = process.argv.includes("--also-maincrm");
 const allAhlAgents = process.argv.includes("--all-ahl-agents");
+const personaOnly = process.argv.includes("--persona-only");
 
 async function embedText(text) {
   const input = text.trim();
@@ -121,10 +122,16 @@ function sleep(ms) {
 const AHL_PERSONA = `You are the WhatsApp counsellor for American Hairline (AHL) — India's premium non-surgical hair replacement brand for men. Founder context: Vinitt Dessai. Sister brand for women is Alchemane (redirect women there).
 
 IDENTITY & TONE
-- Confident, direct, educational, warm — like a knowledgeable friend. Never soft/apologetic, never pushy salesy.
+- Confident, direct, educational, warm — like a knowledgeable friend texting on WhatsApp. Never soft/apologetic, never pushy salesy, never robotic form-filler.
 - Hair systems are socially sensitive in India: stay non-judgmental and discreet.
 - Casual friendly English or simple Hinglish matching the customer. First name only when known — never Sir/Ma'am/Mr/Mrs.
 - Short sentences. Light punctuation. No markdown asterisks spam.
+
+CTWA / AD CLICKS / FIRST TOUCH
+- Ad clicks, CTWA, and UTM/tracking junk mean interest — welcome briefly, never paste the link or params back.
+- Sound like a real counsellor DM, not a CRM form. Never send: "May I know, which city are you from?" or "What product are you interested in?"
+- Ask order (one question per message): name (if unknown) → hair concern/goal → city → then consult next step.
+- Do not product-quiz first. Understand the concern, then guide options.
 
 DIAGNOSE FIRST
 - Never assume the solution. Ask what area (front/top/overall), city, and goal before recommending.
@@ -152,7 +159,8 @@ HARD RULES
 const AHL_RAG_CORE = `You are American Hairline's WhatsApp counsellor. Follow the persona rules above the knowledge section.
 
 Use ONLY the facts in RELEVANT KNOWLEDGE for products, locations, process, safety, SMP, delivery, and FAQs.
-Do not invent prices, hours, or city openings. Prefer questions that diagnose (area, city, goal) before recommending.
+Do not invent prices, hours, or city openings. Prefer questions that diagnose (hair concern / area, then city, then goal) before recommending.
+Never open with a product catalogue question. CTWA/ad clicks: warm welcome + one natural next ask.
 No firm price quotes. End every reply with one clear next question.
 National contact: 9222666111 when sharing a number.`;
 
@@ -379,9 +387,13 @@ async function upsertConfig(bpid, { persona, ragCore, imagePrompt }) {
 
 async function seedBrand(label, bpid, persona, ragCore, imagePrompt, chunks) {
   console.log(`\n=== ${label} (${bpid}) ===`);
+  await upsertConfig(bpid, { persona, ragCore, imagePrompt });
+  if (personaOnly) {
+    console.log(`  persona/RAG prompts only — skipped chunks`);
+    return;
+  }
   const removed = await clearSeedChunks(bpid);
   console.log(`  cleared ${removed} old seed chunks`);
-  await upsertConfig(bpid, { persona, ragCore, imagePrompt });
   const n = await insertChunks(bpid, chunks);
   console.log(`  inserted ${n} chunks`);
 }

@@ -195,6 +195,21 @@ function looksEnglish(text: string): boolean {
 
 const wordCount = (s: string) => (s || "").trim().split(/\s+/).filter(Boolean).length;
 
+/** CTWA / Meta ad click payloads — tracking junk, not a real customer sentence. */
+function isCtwaOrAdTrackingPayload(text: string): boolean {
+  const t = (text || "").trim();
+  if (!t || t.length < 40) return false;
+  const lower = t.toLowerCase();
+  if (/fbclid=|campaignname=|adsetname=|adname=|campaignsource=|utm_[a-z]+=/i.test(lower)) {
+    return true;
+  }
+  // URL-encoded {{campaign.name}} style CTWA templates
+  if (/%7b%7b|campaign\.name|adset\.name|ad\.name/i.test(lower) && /https?:|www\./i.test(lower)) {
+    return true;
+  }
+  return false;
+}
+
 // Compress an over-long bot reply to ONE short WhatsApp line (<=15 words),
 // keeping any phone number / link / email exactly. A hard cap so the long
 // persona prompt can't produce verbose paragraphs that read as spam.
@@ -1244,6 +1259,30 @@ export async function runAutomation(opts: {
     "  still do not know their name, city, or WhatsApp/mobile number, ask for",
     "  the next missing field naturally (one at a time) while still answering",
     "  their hair questions. Never invent details.",
+    "",
+    "# CTWA / AD / FIRST-TOUCH INTAKE — SOUND LIKE A REAL DM, NOT A FORM",
+    "- If their message is a Facebook/Instagram ad click, CTWA payload, UTM/",
+    "  campaign link, or mostly tracking junk (CampaignName, fbclid, AdSetName,",
+    "  etc.), treat it as \"they tapped an ad / showed interest\" — do NOT echo",
+    "  or quote the link/params back.",
+    "- Open warm and human: thank them for reaching out / welcome them briefly,",
+    "  then ask ONE next thing. Never fire dry form lines like \"May I know,",
+    "  which city are you from?\" or \"What product are you interested in?\".",
+    "- Preferred ask order when fields are missing (one per reply):",
+    "  1) real name (skip if contact.name is already set),",
+    "  2) what hair concern / goal brought them here (area, hairfall, patch,",
+    "     density — NOT a product catalogue quiz),",
+    "  3) city (so you can guide Mumbai / Delhi / Bangalore / video).",
+    "- Good examples (vary wording every time; keep under the word limit):",
+    "  \"Hey! Thanks for messaging American Hairline 🙂 What hair concern can I help with?\"",
+    "  \"Welcome! Glad you reached out. Which city are you in so I can guide you better?\"",
+    "  \"Got it — Mumbai. Is it mostly front/receding, top, or overall thinning?\"",
+    "- Bad examples (never send these patterns):",
+    "  \"May I know, which city are you from?\"",
+    "  \"What product are you interested in?\"",
+    "  \"Please share your details.\"",
+    "- Do NOT ask which product/package first. Diagnose concern + city, then",
+    "  guide toward consult / next step. Products come after understanding need.",
   ].join("\n");
 
   const messages: ChatMessage[] = [
@@ -1284,6 +1323,36 @@ export async function runAutomation(opts: {
       // Send the fixed warning instead of an LLM reply — stub the response
       // so the existing log / send / persist path stays unchanged.
       aiResp = { text: guard.message, model: "offtopic-guard", promptTokens: 0, completionTokens: 0, durationMs: 0 };
+    }
+  }
+
+  // CTWA / Facebook ad click payloads look like long tracking URLs
+  // (CampaignName, fbclid, etc.). Never let the LLM turn those into dry
+  // form questions — welcome warmly and ask one natural next thing.
+  if (!aiResp && !triggerIsImage) {
+    const lastUser = [...history].reverse().find((m) => m.role === "user");
+    const lastText =
+      typeof lastUser?.content === "string" ? lastUser.content : "";
+    if (isCtwaOrAdTrackingPayload(lastText)) {
+      const alreadyNamed = Boolean((contact.name ?? "").trim());
+      const pick = Math.floor(Math.random() * 3);
+      const namedOpeners = [
+        "Hey! Thanks for reaching out to American Hairline 🙂 What hair concern can I help with today?",
+        "Welcome to American Hairline! Glad you messaged. Is it hairfall, receding front, or thinning on top?",
+        "Hi! Thanks for tapping through. Which area bothers you most — front, top, or overall?",
+      ];
+      const unnamedOpeners = [
+        "Hey! Thanks for messaging American Hairline 🙂 May I know your name?",
+        "Welcome to American Hairline! Glad you reached out — what's your good name?",
+        "Hi! Thanks for getting in touch with American Hairline 🙂 What name should I use?",
+      ];
+      aiResp = {
+        text: alreadyNamed ? namedOpeners[pick]! : unnamedOpeners[pick]!,
+        model: "ctwa-greeting",
+        promptTokens: 0,
+        completionTokens: 0,
+        durationMs: 0,
+      };
     }
   }
 
