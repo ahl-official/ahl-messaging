@@ -82,16 +82,30 @@ export async function resolveTeamMember(
 
 /**
  * Mirror CRM stage + assignee onto matching WhatsApp contacts.
+ * Always ensures an AHL Messaging contact exists so Task 2 drips can enroll.
  * Returns how many contact rows were updated.
  */
 export async function applyAhlCrmLeadToContacts(
   payload: AhlCrmLeadSyncPayload,
-): Promise<{ updated: number; matchedIds: string[] }> {
+): Promise<{ updated: number; matchedIds: string[]; ensuredAhlMessaging: boolean }> {
   const mobile = String(payload.mobileNo ?? "").trim();
   const ten = last10(mobile);
-  if (!ten) return { updated: 0, matchedIds: [] };
+  if (!ten) return { updated: 0, matchedIds: [], ensuredAhlMessaging: false };
 
   const admin = createServiceRoleClient();
+
+  // Task 2: always have a send target on AHL Messaging (Meta templates).
+  const { ensureAhlMessagingContact } = await import("@/lib/ahl-messaging-contact");
+  const ensured = await ensureAhlMessagingContact({
+    mobile,
+    name: payload.clientName,
+    stage: payload.leadStatus,
+    ownerName: payload.assignedTo,
+    ownerEmail: payload.assignedToEmail,
+    prospectId: payload.leadUniqueId,
+    leadNumber: payload.leadUniqueId,
+  });
+
   const { data: contacts } = await admin
     .from("contacts")
     .select("id, name, assigned_to, assigned_to_email")
@@ -103,7 +117,13 @@ export async function applyAhlCrmLeadToContacts(
     assigned_to: string | null;
     assigned_to_email: string | null;
   }>;
-  if (list.length === 0) return { updated: 0, matchedIds: [] };
+  if (list.length === 0) {
+    return {
+      updated: ensured ? 1 : 0,
+      matchedIds: ensured ? [ensured.id] : [],
+      ensuredAhlMessaging: !!ensured,
+    };
+  }
 
   const member = await resolveTeamMember(
     admin,
@@ -140,7 +160,7 @@ export async function applyAhlCrmLeadToContacts(
   const { error } = await admin.from("contacts").update(patch).in("id", ids);
   if (error) {
     console.error("[ahl-crm-sync] contact update failed:", error.message);
-    return { updated: 0, matchedIds: [] };
+    return { updated: 0, matchedIds: [], ensuredAhlMessaging: !!ensured };
   }
 
   const clientName = String(payload.clientName ?? "").trim();
@@ -151,5 +171,9 @@ export async function applyAhlCrmLeadToContacts(
     }
   }
 
-  return { updated: ids.length, matchedIds: ids };
+  return {
+    updated: ids.length,
+    matchedIds: ids,
+    ensuredAhlMessaging: !!ensured,
+  };
 }

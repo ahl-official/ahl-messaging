@@ -14,6 +14,31 @@ import { createServiceRoleClient } from "@/lib/supabase/server";
 import { sendTemplate, sendTextMessage } from "@/lib/whatsapp";
 import { lsqGetLeadRawByPhone } from "@/lib/lsq";
 import type { ParsedLsqLead } from "@/lib/lsq-webhook";
+import {
+  AHL_MESSAGING_BPID,
+  ensureAhlMessagingContact,
+} from "@/lib/ahl-messaging-contact";
+
+/** Pilot owner filter. Default Mehjabeen; set DRIP_PILOT_OWNER=* to enroll all. */
+function dripPilotOwner(): string {
+  return (process.env.DRIP_PILOT_OWNER ?? "Mehjabeen").trim().toLowerCase();
+}
+
+function ownerMatchesPilot(ownerName: string | null | undefined): boolean {
+  const pilot = dripPilotOwner();
+  if (!pilot || pilot === "*" || pilot === "all") return true;
+  const owner = norm(ownerName);
+  if (!owner) return false;
+  if (owner === pilot) return true;
+  if (owner.startsWith(pilot + " ")) return true;
+  return owner.split(/\s+/)[0] === pilot;
+}
+
+/** Stages that must never receive Task 2 follow-ups (Vinitt stop rule). */
+const DRIP_TERMINAL_STAGES = new Set([
+  "consultation booked",
+  "consultation visited",
+]);
 
 interface DripRow {
   id: string;
@@ -67,6 +92,13 @@ function renderVars(s: string | null | undefined, name: string | null): string {
 export async function enrollDripsForLead(lead: ParsedLsqLead): Promise<number> {
   const stage = norm(lead.stage);
   if (!stage) return 0;
+
+  // Nobody booked / visited gets enrolled (global stop).
+  if (DRIP_TERMINAL_STAGES.has(stage)) return 0;
+
+  // Task 2 pilot: only Mehjabeen's leads (override with DRIP_PILOT_OWNER=*).
+  if (!ownerMatchesPilot(lead.owner_name)) return 0;
+
   const admin = createServiceRoleClient();
 
   const { data: drips } = await admin
@@ -145,6 +177,28 @@ export async function enrollDripsForLead(lead: ParsedLsqLead): Promise<number> {
         .ilike("wa_id", `%${last10}`);
       for (const r of data ?? []) byId.set(r.id as string, { wa_id: r.wa_id as string, name: r.name as string | null });
     }
+
+    // Task 2: CRM leads may never have messaged AHL Messaging. Create the
+    // contact on that Meta number so drip templates can send from it.
+    if (
+      byId.size === 0 &&
+      lead.mobile &&
+      drip.business_phone_number_id === AHL_MESSAGING_BPID
+    ) {
+      const ensured = await ensureAhlMessagingContact({
+        mobile: lead.mobile,
+        name: lead.first_name,
+        stage: lead.stage,
+        ownerName: lead.owner_name,
+        ownerEmail: lead.owner_email,
+        prospectId: lead.prospect_id,
+        leadNumber: lead.lead_number,
+      });
+      if (ensured) {
+        byId.set(ensured.id, { wa_id: ensured.wa_id, name: ensured.name });
+      }
+    }
+
     if (byId.size === 0) continue;
 
     const rows = [...byId.entries()].map(([contactId, c]) => ({
@@ -337,14 +391,23 @@ export async function runDripTick(): Promise<DripTickResult> {
       continue;
     }
 
-    // Stage-change guard — stop if the contact moved off the enrolled stage.
-    if (run.contact_id && run.enrolled_stage) {
+    // Stop guards — booked/visited/blocked, or stage moved off enrolled.
+    if (run.contact_id) {
       const { data: ct } = await admin
         .from("contacts")
-        .select("lsq_stage")
+        .select("lsq_stage, bot_blocked_at")
         .eq("id", run.contact_id)
         .maybeSingle();
-      if (ct && norm(ct.lsq_stage as string | null) !== norm(run.enrolled_stage)) {
+      if (ct?.bot_blocked_at) {
+        await stop("blocked");
+        continue;
+      }
+      const curStage = norm(ct?.lsq_stage as string | null);
+      if (curStage && DRIP_TERMINAL_STAGES.has(curStage)) {
+        await stop("funnel_terminal");
+        continue;
+      }
+      if (run.enrolled_stage && curStage && curStage !== norm(run.enrolled_stage)) {
         await stop("stage_changed");
         continue;
       }

@@ -1,4 +1,4 @@
-// Firebase CRM → oneinbox stage/assignee sync.
+// Firebase CRM → oneinbox stage/assignee sync + Task 2 drip enroll.
 //
 //   POST /api/ahl-crm/sync
 //   Authorization: Bearer <WEBHOOK_INTERNAL_TOKEN>
@@ -6,7 +6,7 @@
 //   {
 //     "mobileNo": "9198…",
 //     "leadUniqueId": "Lead ID - 26474",
-//     "leadStatus": "New Lead",
+//     "leadStatus": "Warm Lead",
 //     "assignedTo": "Mehjabeen",
 //     "assignedToEmail": "optional@…",
 //     "clientName": "optional"
@@ -16,6 +16,8 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { applyAhlCrmLeadToContacts } from "@/lib/ahl-crm-sync";
+import { enrollDripsForLead } from "@/lib/drip";
+import type { ParsedLsqLead } from "@/lib/lsq-webhook";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -37,7 +39,7 @@ function tokenFromRequest(req: NextRequest, bodyToken: string): boolean {
 export async function GET() {
   return NextResponse.json({
     ok: true,
-    message: "AHL CRM → oneinbox sync endpoint",
+    message: "AHL CRM → oneinbox sync + Task 2 drip enroll",
   });
 }
 
@@ -53,18 +55,54 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const mobileNo = (body.mobileNo as string) ?? null;
+  const leadUniqueId = (body.leadUniqueId as string) ?? null;
+  const leadStatus = (body.leadStatus as string) ?? null;
+  const assignedTo = (body.assignedTo as string) ?? null;
+  const assignedToEmail = (body.assignedToEmail as string) ?? null;
+  const clientName = (body.clientName as string) ?? null;
+
   const result = await applyAhlCrmLeadToContacts({
-    mobileNo: (body.mobileNo as string) ?? null,
-    leadUniqueId: (body.leadUniqueId as string) ?? null,
-    leadStatus: (body.leadStatus as string) ?? null,
-    assignedTo: (body.assignedTo as string) ?? null,
-    assignedToEmail: (body.assignedToEmail as string) ?? null,
-    clientName: (body.clientName as string) ?? null,
+    mobileNo,
+    leadUniqueId,
+    leadStatus,
+    assignedTo,
+    assignedToEmail,
+    clientName,
   });
+
+  // Task 2: enroll into stage-matched drips (Mehjabeen pilot + AHL Messaging).
+  let dripsEnrolled = 0;
+  const mobileDigits = String(mobileNo ?? "").replace(/\D/g, "");
+  if (mobileDigits.length >= 10 && leadStatus) {
+    const lead: ParsedLsqLead = {
+      mobile: mobileDigits,
+      prospect_id: leadUniqueId ? String(leadUniqueId).trim() : null,
+      stage: String(leadStatus).trim() || null,
+      lead_number: leadUniqueId ? String(leadUniqueId).trim() : null,
+      owner_name: assignedTo ? String(assignedTo).trim() : null,
+      owner_email: assignedToEmail ? String(assignedToEmail).trim() : null,
+      first_name: clientName ? String(clientName).trim() : null,
+      source: "CRM",
+      sub_source: null,
+      platform: "WhatsApp",
+      fields: {},
+    };
+    try {
+      dripsEnrolled = await enrollDripsForLead(lead);
+    } catch (e) {
+      console.warn(
+        "[ahl-crm-sync] drip enroll failed:",
+        e instanceof Error ? e.message : e,
+      );
+    }
+  }
 
   return NextResponse.json({
     ok: true,
     updated: result.updated,
     matchedIds: result.matchedIds,
+    ensuredAhlMessaging: result.ensuredAhlMessaging,
+    drips_enrolled: dripsEnrolled,
   });
 }
