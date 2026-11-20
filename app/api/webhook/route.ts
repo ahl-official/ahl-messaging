@@ -570,17 +570,32 @@ async function processWebhook(body: WAWebhookBody) {
         // Campaign attribution — stamp BEFORE kicking trigger flows so the
         // first sheet webhook already has phone + UTM (silent leads never
         // answer name/city). Prefer CTWA referral; fall back to text UTM.
+        // Always refresh on a new attributed inbound — returning leads used
+        // to keep yesterday's UTMs forever (.is utm_source null), so the
+        // sheet got stale campaign fields on "welcome back" chats.
         const attribution =
           buildReferralParams(msg.referral) ?? parseInboundAttribution(inboundText);
         if (attribution) {
+          const { data: curAttr } = await supabase
+            .from("contacts")
+            .select("utm_params")
+            .eq("id", contact.id)
+            .maybeSingle();
+          const prevAttr =
+            curAttr?.utm_params && typeof curAttr.utm_params === "object"
+              ? (curAttr.utm_params as Record<string, unknown>)
+              : {};
+          const mergedAttr: Record<string, unknown> = { ...prevAttr };
+          for (const [k, v] of Object.entries(attribution)) {
+            if (v != null && String(v).trim()) mergedAttr[k] = v;
+          }
           await supabase
             .from("contacts")
             .update({
               utm_source: attributionLabel(attribution),
-              utm_params: attribution,
+              utm_params: mergedAttr,
             })
-            .eq("id", contact.id)
-            .is("utm_source", null);
+            .eq("id", contact.id);
         }
 
         // Kick trigger flows AFTER attribution so n8n/Sheets get UTM on
