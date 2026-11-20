@@ -3,6 +3,7 @@ import { createServerClient, createServiceRoleClient } from "@/lib/supabase/serv
 import { getCredential } from "@/lib/credentials";
 import { getCurrentEffectivePermissions } from "@/lib/permissions";
 import { getMonitorEmails } from "@/lib/team";
+import { AHL_MESSAGING_BPID } from "@/lib/ahl-messaging-contact";
 import type { Contact } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -42,6 +43,8 @@ export async function GET(request: NextRequest) {
   // NULL). Server-side so the full set is covered, like mine/unreplied.
   const unassignedParam =
     request.nextUrl.searchParams.get("unassigned") === "1";
+  // "My leaks" — Mine + AHL Messaging + active Task 2 drip run.
+  const myLeaksParam = request.nextUrl.searchParams.get("my_leaks") === "1";
 
   // Resolve the caller's number-scope. Owner sees everything; everyone
   // else only sees contacts on their allowed business numbers — same
@@ -109,7 +112,7 @@ export async function GET(request: NextRequest) {
       query = query.is("lsq_owner_email", null);
     }
   }
-  if (mineParam) {
+  if (mineParam || myLeaksParam) {
     // "Mine" = leads the caller owns. That's BOTH the dashboard assignment
     // (contacts.assigned_to = my auth id) AND the CRM lead owner
     // (lsq_owner_email = my email) — most leads arrive owned in LSQ and were
@@ -119,6 +122,34 @@ export async function GET(request: NextRequest) {
     query = mineEmail
       ? query.or(`assigned_to.eq.${user.id},lsq_owner_email.eq.${mineEmail}`)
       : query.eq("assigned_to", user.id);
+  }
+
+  if (myLeaksParam) {
+    // Task 2 view: official AHL Messaging threads that have an active drip.
+    const ahlBpid = AHL_MESSAGING_BPID;
+    query = query.eq("business_phone_number_id", ahlBpid);
+    const admin = createServiceRoleClient();
+    const { data: activeRuns } = await admin
+      .from("drip_runs")
+      .select("contact_id")
+      .eq("status", "active")
+      .eq("business_phone_number_id", ahlBpid)
+      .not("contact_id", "is", null)
+      .limit(5000);
+    const ids = [
+      ...new Set(
+        (activeRuns ?? [])
+          .map((r) => r.contact_id as string | null)
+          .filter((id): id is string => !!id),
+      ),
+    ];
+    if (ids.length === 0) {
+      return NextResponse.json(
+        { contacts: [], hasMore: false, total: 0 },
+        { headers: { "Cache-Control": "no-store" } },
+      );
+    }
+    query = query.in("id", ids);
   }
 
   // LSQ-assigned-only visibility. Two layers now:

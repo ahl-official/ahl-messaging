@@ -93,6 +93,7 @@ const ALL_CHIP_KEYS = [
   "Open",
   "Closed",
   "Mine",
+  "MyLeaks",
   "Unassigned",
   "Unread",
   "Unreplied",
@@ -105,6 +106,7 @@ const ALL_CHIP_KEYS = [
 const CHIP_LABEL: Record<string, string> = {
   Open: "Active",
   OldFirst: "Old → New",
+  MyLeaks: "My leaks",
 };
 
 interface Props {
@@ -124,7 +126,7 @@ interface Props {
 }
 
 type StatusFilter = "all" | "open" | "closed";
-type AssigneeFilter = "all" | "mine" | "unassigned";
+type AssigneeFilter = "all" | "mine" | "unassigned" | "my_leaks";
 
 // Filter strip uses the same tinted-tone palette as LabelChips so the
 // chip design reads identically wherever a label appears (chat header,
@@ -216,6 +218,9 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
   // server, not just whatever's in the loaded page.
   const [mineContacts, setMineContacts] = useState<Contact[] | null>(null);
   const [mineLoading, setMineLoading] = useState(false);
+  // Task 2 — Mine + AHL Messaging + active drip run ("My leaks" chip).
+  const [myLeaksContacts, setMyLeaksContacts] = useState<Contact[] | null>(null);
+  const [myLeaksLoading, setMyLeaksLoading] = useState(false);
   // Same idea as "Mine" — the loaded page only carries a handful of
   // unassigned rows, but there can be thousands. Pull the full
   // server-filtered set so the count + list cover every unassigned chat.
@@ -428,6 +433,41 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
       cancelled = true;
     };
   }, [assigneeFilter]);
+
+  // Task 2 "My leaks" — active drip runs on AHL Messaging assigned to me.
+  useEffect(() => {
+    if (DEMO_MODE || assigneeFilter !== "my_leaks") {
+      setMyLeaksContacts(null);
+      setMyLeaksLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setMyLeaksLoading(true);
+    setMyLeaksContacts([]);
+    (async () => {
+      const all: Contact[] = [];
+      for (let off = 0; off < 40000; off += 200) {
+        const res = await fetch(`/api/contacts?my_leaks=1&offset=${off}`, {
+          cache: "no-store",
+        });
+        if (!res.ok) break;
+        const json = (await res.json()) as {
+          contacts?: Contact[];
+          hasMore?: boolean;
+        };
+        if (cancelled) return;
+        const batch = json.contacts ?? [];
+        all.push(...batch);
+        setMyLeaksContacts([...all]);
+        if (!json.hasMore || batch.length === 0) break;
+      }
+      if (!cancelled) setMyLeaksLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [assigneeFilter]);
+
   // Pull every unassigned chat when the "Unassigned" chip is on — walks
   // pages so the list + count cover all unassigned leads, not just the
   // loaded slice. Server applies the same permission scope.
@@ -994,6 +1034,9 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
       // still gates on assigned_to === currentUserId).
       const liveById = new Map(contacts.map((c) => [c.id, c]));
       source = (mineContacts ?? []).map((c) => liveById.get(c.id) ?? c);
+    } else if (assigneeFilter === "my_leaks" && !DEMO_MODE) {
+      const liveById = new Map(contacts.map((c) => [c.id, c]));
+      source = (myLeaksContacts ?? []).map((c) => liveById.get(c.id) ?? c);
     } else if (assigneeFilter === "unassigned" && !DEMO_MODE) {
       // Server-fetched unassigned set, overlaid with live rows so a chat
       // that just got assigned drops immediately (the predicate below
@@ -1059,7 +1102,7 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
           if (effective !== statusFilter) return false;
         }
         // Assignee
-        if (assigneeFilter === "mine") {
+        if (assigneeFilter === "mine" || assigneeFilter === "my_leaks") {
           if (!contactIsMine(c, currentUserId, myEmail)) return false;
         } else if (assigneeFilter === "unassigned") {
           if (c.assigned_to) return false;
@@ -1129,7 +1172,7 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
     return oldestFirst
       ? [...out].sort((a, b) => new Date(a.last_message_at ?? 0).getTime() - new Date(b.last_message_at ?? 0).getTime())
       : out;
-  }, [contacts, unrepliedContacts, stageContacts, mineContacts, unassignedContacts, serverSearchResults, query, statusFilter, assigneeFilter, unreadOnly, unrepliedOnly, oldestFirst, groupsView, stageFilter, selectedLabelIds, labels, activeNumberIds, currentUserId, myEmail, perms.allowed_number_ids, now]);
+  }, [contacts, unrepliedContacts, stageContacts, mineContacts, myLeaksContacts, unassignedContacts, serverSearchResults, query, statusFilter, assigneeFilter, unreadOnly, unrepliedOnly, oldestFirst, groupsView, stageFilter, selectedLabelIds, labels, activeNumberIds, currentUserId, myEmail, perms.allowed_number_ids, now]);
 
   // Reset the visible window to the first slice whenever the filter
   // criteria change, so narrowing/searching always starts at the top.
@@ -1326,6 +1369,24 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
             active={assigneeFilter === "mine"}
             onClick={wrap(() =>
               setAssigneeFilter(assigneeFilter === "mine" ? "all" : "mine"),
+            )}
+            disabled={!currentUserId && !DEMO_MODE}
+          />
+        );
+      case "MyLeaks":
+        return (
+          <Chip
+            label="My leaks"
+            count={
+              assigneeFilter === "my_leaks" && myLeaksContacts
+                ? myLeaksContacts.length
+                : undefined
+            }
+            active={assigneeFilter === "my_leaks"}
+            onClick={wrap(() =>
+              setAssigneeFilter(
+                assigneeFilter === "my_leaks" ? "all" : "my_leaks",
+              ),
             )}
             disabled={!currentUserId && !DEMO_MODE}
           />
@@ -1779,6 +1840,15 @@ export function ContactList({ initialContacts, selectedId, onSelect, currentUser
             <span className="inline-flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin" />
               Loading your chats…
+            </span>
+          </div>
+        ) : assigneeFilter === "my_leaks" &&
+          myLeaksLoading &&
+          filtered.length === 0 ? (
+          <div className="grid h-40 place-items-center px-4 text-center text-sm text-muted-foreground">
+            <span className="inline-flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading your leak drips…
             </span>
           </div>
         ) : assigneeFilter === "unassigned" && unassignedLoading ? (

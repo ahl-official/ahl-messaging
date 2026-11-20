@@ -21,6 +21,8 @@ interface PostBody {
   name?: string;
   business_phone_number_id?: string;
   trigger_stage?: string;
+  /** Multi-stage enroll set. When set, trigger_stage becomes the first entry. */
+  trigger_stages?: string[];
   trigger_source?: string | null;
   trigger_field?: string | null;
   trigger_value?: string | null;
@@ -89,7 +91,17 @@ export async function POST(request: NextRequest) {
 
   const name = (body.name ?? "").trim();
   const bpid = (body.business_phone_number_id ?? "").trim();
-  const stage = (body.trigger_stage ?? "").trim();
+  const stages = Array.from(
+    new Set(
+      [
+        ...(Array.isArray(body.trigger_stages) ? body.trigger_stages : []),
+        body.trigger_stage ?? "",
+      ]
+        .map((s) => String(s ?? "").trim())
+        .filter(Boolean),
+    ),
+  );
+  const stage = stages[0] ?? "";
   const steps = (body.steps ?? []).filter(Boolean);
   if (!name) return NextResponse.json({ error: "Name is required" }, { status: 400 });
   if (!bpid) return NextResponse.json({ error: "Send-from number is required" }, { status: 400 });
@@ -108,6 +120,7 @@ export async function POST(request: NextRequest) {
       name,
       business_phone_number_id: bpid,
       trigger_stage: stage,
+      trigger_stages: stages,
       trigger_source: (body.trigger_source ?? "").trim() || null,
       trigger_field: (body.trigger_field ?? "").trim() || null,
       trigger_value: (body.trigger_value ?? "").trim() || null,

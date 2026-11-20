@@ -23,6 +23,7 @@ interface PatchBody {
   name?: string;
   business_phone_number_id?: string;
   trigger_stage?: string;
+  trigger_stages?: string[];
   trigger_conditions?: Array<{ field?: string; value?: string | null }>;
   rate_limit_per_minute?: number;
   quiet_hours_start?: string | null;
@@ -67,7 +68,23 @@ export async function PATCH(
   if (typeof body.enabled === "boolean") patch.enabled = body.enabled;
   if (body.name !== undefined) patch.name = body.name.trim();
   if (body.business_phone_number_id !== undefined) patch.business_phone_number_id = body.business_phone_number_id.trim();
-  if (body.trigger_stage !== undefined) patch.trigger_stage = body.trigger_stage.trim();
+  if (body.trigger_stages !== undefined || body.trigger_stage !== undefined) {
+    const stages = Array.from(
+      new Set(
+        [
+          ...(Array.isArray(body.trigger_stages) ? body.trigger_stages : []),
+          body.trigger_stage ?? "",
+        ]
+          .map((s) => String(s ?? "").trim())
+          .filter(Boolean),
+      ),
+    );
+    if (stages.length === 0) {
+      return NextResponse.json({ error: "Trigger stage is required" }, { status: 400 });
+    }
+    patch.trigger_stage = stages[0];
+    patch.trigger_stages = stages;
+  }
   if (body.trigger_conditions !== undefined) {
     patch.trigger_conditions = body.trigger_conditions
       .map((c) => ({ field: (c.field ?? "").trim(), value: (c.value ?? "").toString().trim() }))

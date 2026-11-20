@@ -107,7 +107,7 @@ export function DripBuilder({ onClose, editId }: { onClose: () => void; editId?:
   const [name, setName] = useState("");
   const [bpid, setBpid] = useState("");
   const [numbers, setNumbers] = useState<BusinessNumber[]>([]);
-  const [triggerStage, setTriggerStage] = useState("");
+  const [triggerStages, setTriggerStages] = useState<string[]>([]);
   // schema -> selected value ("" = any non-empty). Presence of a key = that
   // field's filter is ON.
   const [conditions, setConditions] = useState<Record<string, string>>({});
@@ -136,7 +136,7 @@ export function DripBuilder({ onClose, editId }: { onClose: () => void; editId?:
   const canSave =
     name.trim().length > 0 &&
     bpid.length > 0 &&
-    triggerStage.length > 0 &&
+    triggerStages.length > 0 &&
     steps.every((s) => (s.type !== "template" ? true : s.templateName.trim().length > 0));
 
   async function save() {
@@ -147,7 +147,8 @@ export function DripBuilder({ onClose, editId }: { onClose: () => void; editId?:
       const payload = {
         name: name.trim(),
         business_phone_number_id: bpid,
-        trigger_stage: triggerStage,
+        trigger_stage: triggerStages[0],
+        trigger_stages: triggerStages,
         trigger_conditions: Object.entries(conditions).map(([field, value]) => ({
           field,
           value: value.trim() || null,
@@ -214,7 +215,7 @@ export function DripBuilder({ onClose, editId }: { onClose: () => void; editId?:
       .then((j: { stages?: string[] }) => {
         if (Array.isArray(j.stages) && j.stages.length > 0) {
           setStages(j.stages);
-          setTriggerStage((s) => s || j.stages![0]);
+          setTriggerStages((cur) => (cur.length > 0 ? cur : [j.stages![0]!]));
         }
       })
       .catch(() => {
@@ -263,6 +264,7 @@ export function DripBuilder({ onClose, editId }: { onClose: () => void; editId?:
             name: string;
             business_phone_number_id: string;
             trigger_stage: string;
+            trigger_stages?: string[] | null;
             trigger_conditions: Array<{ field?: string; value?: string | null }> | null;
             rate_limit_per_minute: number;
             quiet_hours_start: string | null;
@@ -282,7 +284,18 @@ export function DripBuilder({ onClose, editId }: { onClose: () => void; editId?:
           const d = j.drip;
           setName(d.name);
           setBpid(d.business_phone_number_id);
-          setTriggerStage(d.trigger_stage);
+          {
+            const multi = (d.trigger_stages ?? [])
+              .map((s) => String(s ?? "").trim())
+              .filter(Boolean);
+            setTriggerStages(
+              multi.length > 0
+                ? multi
+                : d.trigger_stage
+                  ? [d.trigger_stage]
+                  : [],
+            );
+          }
           setRateLimit(d.rate_limit_per_minute ?? 30);
           setQuietStart(d.quiet_hours_start ?? "");
           setQuietEnd(d.quiet_hours_end ?? "");
@@ -394,20 +407,39 @@ export function DripBuilder({ onClose, editId }: { onClose: () => void; editId?:
             </Field>
 
             <Field
-              label="Trigger lead stage"
-              hint="Is stage me aane wala har contact enroll hoga; stage badle to sequence ruk jayegi."
+              label="Trigger lead stages"
+              hint="Select one or more stages (e.g. Warm + Cold + Deferred for Leak 3). Lead enrolls if their stage matches any; leaves the set → sequence stops."
             >
-              <select
-                value={triggerStage}
-                onChange={(e) => setTriggerStage(e.target.value)}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-              >
-                {stages.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
+              <div className="max-h-40 space-y-1 overflow-y-auto rounded-md border bg-background p-2">
+                {stages.map((s) => {
+                  const on = triggerStages.includes(s);
+                  return (
+                    <label
+                      key={s}
+                      className="flex cursor-pointer items-center gap-2 rounded px-1.5 py-1 text-sm hover:bg-secondary/60"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={on}
+                        onChange={() => {
+                          setTriggerStages((prev) =>
+                            on ? prev.filter((x) => x !== s) : [...prev, s],
+                          );
+                        }}
+                        className="rounded border"
+                      />
+                      <span className={on ? "font-medium" : "text-muted-foreground"}>
+                        {s}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+              {triggerStages.length > 0 ? (
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  Active: {triggerStages.join(" · ")}
+                </p>
+              ) : null}
             </Field>
 
             <Field
@@ -1003,6 +1035,7 @@ interface DripSummary {
   name: string;
   business_phone_number_id: string;
   trigger_stage: string;
+  trigger_stages?: string[] | null;
   trigger_conditions: Array<{ field?: string; value?: string | null }> | null;
   enabled: boolean;
   step_count: number;
@@ -1145,7 +1178,10 @@ export function DripsList({
                       </div>
                       <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px]">
                         <span className="rounded-md bg-violet-50 px-1.5 py-0.5 font-medium text-violet-700 ring-1 ring-inset ring-violet-200">
-                          Stage: {d.trigger_stage}
+                          Stage:{" "}
+                          {(d.trigger_stages ?? []).length > 0
+                            ? (d.trigger_stages ?? []).join(", ")
+                            : d.trigger_stage}
                         </span>
                         {conds.map((c, i) => (
                           <span

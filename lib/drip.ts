@@ -45,6 +45,8 @@ interface DripRow {
   name: string;
   business_phone_number_id: string;
   trigger_stage: string;
+  /** Multi-stage enroll set. Empty/null → fall back to trigger_stage only. */
+  trigger_stages: string[] | null;
   trigger_source: string | null;
   trigger_field: string | null;
   trigger_value: string | null;
@@ -52,6 +54,18 @@ interface DripRow {
   enabled: boolean;
   quiet_hours_start: string | null;
   quiet_hours_end: string | null;
+}
+
+/** Stages this drip enrolls (and stays active on). */
+function dripStageSet(d: Pick<DripRow, "trigger_stage" | "trigger_stages">): Set<string> {
+  const out = new Set<string>();
+  for (const s of d.trigger_stages ?? []) {
+    const n = norm(s);
+    if (n) out.add(n);
+  }
+  const primary = norm(d.trigger_stage);
+  if (primary) out.add(primary);
+  return out;
 }
 
 interface StepRow {
@@ -79,11 +93,40 @@ interface RunRow {
 
 const norm = (s: string | null | undefined) => (s ?? "").trim().toLowerCase();
 
-/** Substitute {{name}} / {{1}} with the contact name; drop other placeholders. */
-function renderVars(s: string | null | undefined, name: string | null): string {
-  return (s ?? "").replace(/\{\{\s*([\w-]+)\s*\}\}/g, (_m, k) =>
-    k === "name" || k === "1" ? name ?? "" : "",
-  );
+/** Templates that need {{1}}=name and {{2}}=agent (Leak3 Day-3 reminder). */
+const TWO_VAR_TEMPLATES = new Set(["ahl_leak3_d3_b_reminder"]);
+
+/** Substitute {{name}}/{{1}} with contact name, {{agent}}/{{2}} with agent. */
+function renderVars(
+  s: string | null | undefined,
+  name: string | null,
+  agent: string | null = null,
+): string {
+  return (s ?? "").replace(/\{\{\s*([\w-]+)\s*\}\}/g, (_m, k) => {
+    if (k === "name" || k === "1") return name ?? "";
+    if (k === "agent" || k === "2") return agent ?? "";
+    return "";
+  });
+}
+
+async function resolveAgentName(
+  admin: ReturnType<typeof createServiceRoleClient>,
+  contactId: string | null,
+): Promise<string> {
+  if (contactId) {
+    const { data } = await admin
+      .from("contacts")
+      .select("lsq_owner_name")
+      .eq("id", contactId)
+      .maybeSingle();
+    const owner = (data?.lsq_owner_name as string | null)?.trim();
+    if (owner) return owner.split(/\s+/)[0] || owner;
+  }
+  const pilot = dripPilotOwner();
+  if (pilot && pilot !== "*" && pilot !== "all") {
+    return pilot.charAt(0).toUpperCase() + pilot.slice(1);
+  }
+  return "your counsellor";
 }
 
 // ---------------------------------------------------------------------------
@@ -104,12 +147,14 @@ export async function enrollDripsForLead(lead: ParsedLsqLead): Promise<number> {
   const { data: drips } = await admin
     .from("drip_campaigns")
     .select(
-      "id, name, business_phone_number_id, trigger_stage, trigger_source, trigger_field, trigger_value, trigger_conditions, enabled, quiet_hours_start, quiet_hours_end",
+      "id, name, business_phone_number_id, trigger_stage, trigger_stages, trigger_source, trigger_field, trigger_value, trigger_conditions, enabled, quiet_hours_start, quiet_hours_end",
     )
     .eq("enabled", true);
 
-  // Stage-matched candidates first (cheap, no LSQ call).
-  const stageDrips = (drips ?? []).filter((d) => norm(d.trigger_stage) === stage) as DripRow[];
+  // Stage-matched candidates — primary stage OR any entry in trigger_stages.
+  const stageDrips = (drips ?? []).filter((d) =>
+    dripStageSet(d as DripRow).has(stage),
+  ) as DripRow[];
   if (stageDrips.length === 0) return 0;
 
   // Every field condition across all candidate drips (new multi-condition +
@@ -253,14 +298,28 @@ function quietEndMinute(
   return inside ? b : null;
 }
 
-async function sendStep(run: RunRow, step: StepRow): Promise<string | null> {
+async function sendStep(
+  admin: ReturnType<typeof createServiceRoleClient>,
+  run: RunRow,
+  step: StepRow,
+): Promise<string | null> {
   const name = run.display_name ?? null;
+  const needsAgent =
+    (step.template_name && TWO_VAR_TEMPLATES.has(step.template_name)) ||
+    /\{\{\s*(2|agent)\s*\}\}/i.test(step.text_body ?? "") ||
+    /\{\{\s*(2|agent)\s*\}\}/i.test(step.magic_prompt ?? "");
+  const agent = needsAgent ? await resolveAgentName(admin, run.contact_id) : null;
+
   if (step.step_type === "template") {
     if (!step.template_name) throw new Error("template step missing template_name");
     const lang = step.template_language || "en";
-    const bodyComp = name
-      ? [{ type: "body", parameters: [{ type: "text", text: name }] }]
-      : undefined;
+    const params: Array<{ type: "text"; text: string }> = [];
+    if (name) params.push({ type: "text", text: name });
+    if (needsAgent && TWO_VAR_TEMPLATES.has(step.template_name)) {
+      params.push({ type: "text", text: agent || "your counsellor" });
+    }
+    const bodyComp =
+      params.length > 0 ? [{ type: "body", parameters: params }] : undefined;
     try {
       const resp = await sendTemplate(
         run.wa_id,
@@ -288,7 +347,11 @@ async function sendStep(run: RunRow, step: StepRow): Promise<string | null> {
   }
   // text + magic (v1: magic prompt is sent as plain text). Only delivers
   // inside the 24h window — templates are the reliable re-engagement path.
-  const body = renderVars(step.step_type === "magic" ? step.magic_prompt : step.text_body, name);
+  const body = renderVars(
+    step.step_type === "magic" ? step.magic_prompt : step.text_body,
+    name,
+    agent,
+  );
   if (!body.trim()) throw new Error(`${step.step_type} step has no body`);
   const resp = await sendTextMessage(run.wa_id, body, run.business_phone_number_id);
   return resp.messages?.[0]?.id ?? null;
@@ -357,7 +420,7 @@ export async function runDripTick(): Promise<DripTickResult> {
     admin
       .from("drip_campaigns")
       .select(
-        "id, name, business_phone_number_id, trigger_stage, trigger_source, enabled, quiet_hours_start, quiet_hours_end",
+        "id, name, business_phone_number_id, trigger_stage, trigger_stages, trigger_source, enabled, quiet_hours_start, quiet_hours_end",
       )
       .in("id", dripIds),
     admin.from("drip_steps").select("*").in("drip_id", dripIds).order("step_order", { ascending: true }),
@@ -407,9 +470,14 @@ export async function runDripTick(): Promise<DripTickResult> {
         await stop("funnel_terminal");
         continue;
       }
-      if (run.enrolled_stage && curStage && curStage !== norm(run.enrolled_stage)) {
-        await stop("stage_changed");
-        continue;
+      // Still in any of this drip's stages (multi-stage Leak 3 etc.) → keep going.
+      // Left the whole set (or left the single enrolled stage on legacy drips) → stop.
+      if (curStage) {
+        const allowed = dripStageSet(drip as DripRow);
+        if (allowed.size > 0 && !allowed.has(curStage)) {
+          await stop("stage_changed");
+          continue;
+        }
       }
     }
 
@@ -436,7 +504,7 @@ export async function runDripTick(): Promise<DripTickResult> {
     }
 
     try {
-      const waId = await sendStep(run, step);
+      const waId = await sendStep(admin, run, step);
       await logDripSend(admin, run, step, waId);
       result.sent++;
 
