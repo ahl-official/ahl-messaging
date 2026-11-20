@@ -54,7 +54,8 @@ export async function ahlEnsureLead(
 
 /**
  * If the contact has no CRM ids yet and AHL Firebase is configured,
- * create a lead and store the id on `contacts.lsq_lead_number`.
+ * create a lead and store the id + New Lead stage on the contact so
+ * the inbox doesn't sit blank/Unassigned until CRM sync catches up.
  * Never throws — safe to call from webhooks.
  */
 export async function ahlEnsureLeadForContact(
@@ -69,10 +70,20 @@ export async function ahlEnsureLeadForContact(
   try {
     const { data: row } = await admin
       .from("contacts")
-      .select("lsq_lead_number, lsq_prospect_id")
+      .select("lsq_lead_number, lsq_prospect_id, lsq_stage")
       .eq("id", opts.contactId)
       .maybeSingle();
-    if (row?.lsq_lead_number || row?.lsq_prospect_id) return null;
+    if (row?.lsq_lead_number || row?.lsq_prospect_id) {
+      // Already linked — still fill a missing stage so strip counts update.
+      if (!(row.lsq_stage as string | null)?.trim()) {
+        await admin
+          .from("contacts")
+          .update({ lsq_stage: "New Lead" })
+          .eq("id", opts.contactId)
+          .is("lsq_stage", null);
+      }
+      return null;
+    }
 
     const leadId = await ahlEnsureLead({
       mobileNo: opts.mobileNo,
@@ -88,7 +99,11 @@ export async function ahlEnsureLeadForContact(
 
     await admin
       .from("contacts")
-      .update({ lsq_lead_number: leadId })
+      .update({
+        lsq_lead_number: leadId,
+        lsq_stage: "New Lead",
+        lsq_last_sync_at: new Date().toISOString(),
+      })
       .eq("id", opts.contactId);
     return leadId;
   } catch (e) {

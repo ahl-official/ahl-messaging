@@ -25,11 +25,16 @@ import {
   lsqGetLeadById,
   lsqGetLeadByMobile,
   lsqUpdateLead,
+  type LsqLeadView,
 } from "@/lib/lsq";
 import { isWaIdLikelyReal } from "@/lib/evolution";
 import { getLsqEvolutionLeadCreateEnabled } from "@/lib/app-settings";
 import { countryFromCallingCode } from "@/lib/pincode";
 import { buildFbAdLeadFields, type FbAdFieldMapping } from "@/lib/utm";
+import {
+  mirrorLsqLeadOntoContact,
+  refreshContactFromLsqByPhone,
+} from "@/lib/lsq-contact-mirror";
 
 export const runtime = "nodejs";
 
@@ -166,6 +171,43 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  /** Pull stage/owner onto the inbox row so it doesn't sit Unassigned. */
+  async function mirrorLeadNow(
+    lead: LsqLeadView | null,
+    defaultStage: string | null = "New Lead",
+  ) {
+    if (!lead) return;
+    try {
+      await mirrorLsqLeadOntoContact(admin, c.id, lead, {
+        defaultStage,
+        fillNameIfEmpty: true,
+      });
+    } catch (e) {
+      console.warn(
+        "[lsq/ensure-lead] mirror failed:",
+        e instanceof Error ? e.message : e,
+      );
+    }
+  }
+
+  /** Round-robin / CRM assignment often lands a few seconds after create.
+   *  Re-pull twice so Assigned / New Lead update without opening the chat. */
+  function scheduleOwnerRefresh() {
+    for (const delayMs of [5_000, 20_000]) {
+      const t = setTimeout(() => {
+        void refreshContactFromLsqByPhone(c.id, c.wa_id, {
+          defaultStage: "New Lead",
+        }).catch((e) => {
+          console.warn(
+            "[lsq/ensure-lead] delayed refresh failed:",
+            e instanceof Error ? e.message : e,
+          );
+        });
+      }, delayMs);
+      t.unref?.();
+    }
+  }
+
   // Pull this number's lead_defaults (Source / Sub Source / etc.) so
   // they get stamped on every NEW lead from this WhatsApp number. Plus
   // the re-attribution controls (0027) so we know whether/when to also
@@ -259,6 +301,8 @@ export async function POST(request: NextRequest) {
           prospect_id: prospectId,
           error: `lead_too_old (${ageDays}d > ${updateExistingMaxAgeDays}d cap)`,
         });
+        await mirrorLeadNow(existing.lead);
+        scheduleOwnerRefresh();
         return NextResponse.json({
           ok: true,
           prospect_id: prospectId,
@@ -286,20 +330,22 @@ export async function POST(request: NextRequest) {
         );
         const upd = await lsqUpdateLead(prospectId, patchFields);
         if (!upd.ok) {
-          await persistOutcome("linked", {
-            prospect_id: prospectId,
-            error: `re_attribute_failed: ${upd.error ?? "unknown"}`,
-            fields: patchFields.map((f) => f.Attribute),
-          });
-          return NextResponse.json({
-            ok: true,
-            prospect_id: prospectId,
-            created: false,
-            fields_pushed: [],
-            note: "existing_lead_re_attribute_failed",
-            error: upd.error,
-          });
-        }
+        await persistOutcome("linked", {
+          prospect_id: prospectId,
+          error: `re_attribute_failed: ${upd.error ?? "unknown"}`,
+          fields: patchFields.map((f) => f.Attribute),
+        });
+        await mirrorLeadNow(existing.lead);
+        scheduleOwnerRefresh();
+        return NextResponse.json({
+          ok: true,
+          prospect_id: prospectId,
+          created: false,
+          fields_pushed: [],
+          note: "existing_lead_re_attribute_failed",
+          error: upd.error,
+        });
+      }
         const dropped = upd.dropped_attrs ?? [];
         const accepted = patchFields
           .map((f) => f.Attribute)
@@ -312,6 +358,8 @@ export async function POST(request: NextRequest) {
               ? `dropped_unknown_attrs: ${dropped.join(", ")} — fix the schema name in Lead defaults`
               : undefined,
         });
+        await mirrorLeadNow(existing.lead);
+        scheduleOwnerRefresh();
         return NextResponse.json({
           ok: true,
           prospect_id: prospectId,
@@ -326,6 +374,8 @@ export async function POST(request: NextRequest) {
     }
 
     await persistOutcome("linked", { prospect_id: prospectId });
+    await mirrorLeadNow(existing.lead);
+    scheduleOwnerRefresh();
     return NextResponse.json({
       ok: true,
       prospect_id: prospectId,
@@ -424,6 +474,19 @@ export async function POST(request: NextRequest) {
         ? `dropped_unknown_attrs: ${dropped.join(", ")} — fix the schema name in Lead defaults`
         : undefined,
   });
+
+  // Fresh lead — stamp New Lead + owner onto the inbox immediately.
+  const createdView = await lsqGetLeadByMobile(contact.wa_id);
+  await mirrorLeadNow(createdView.lead, "New Lead");
+  // If LSQ still has no stage (common right after create), force New Lead.
+  if (!createdView.lead?.status) {
+    await admin
+      .from("contacts")
+      .update({ lsq_stage: "New Lead" })
+      .eq("id", c.id)
+      .is("lsq_stage", null);
+  }
+  scheduleOwnerRefresh();
 
   return NextResponse.json({
     ok: true,

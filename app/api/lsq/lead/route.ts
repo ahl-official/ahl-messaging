@@ -45,43 +45,33 @@ export async function GET(request: NextRequest) {
 
   const result = await lsqGetLeadByMobile(mobile, cfg);
 
-  // Mirror the lead snapshot onto the local contact row so the inbox
-  // can render the stage badge without per-row API calls. PRIMARY ONLY
-  // — the secondary CRM is read-only and must not clobber the cache.
+  // Mirror stage + owner (+ assigned_to) onto matching contact rows so
+  // the inbox doesn't stay Unassigned until a manual refresh. PRIMARY
+  // ONLY — secondary CRM must not clobber the cache.
   if (!isSecondary && result.found && result.lead) {
     try {
       const admin = createServiceRoleClient();
-      const update: Record<string, unknown> = {
-        lsq_stage: result.lead.status,
-        lsq_lead_number: result.lead.lead_number,
-        lsq_owner_name: result.lead.owner_name,
-        lsq_owner_email: result.lead.owner_email,
-        lsq_prospect_id: result.lead.prospect_id,
-        // Source fields for the CRM-style lead table (Lead Source / Sub
-        // source / Source Medium). Read straight from the CRM lead so the
-        // table mirrors CRM instead of showing blanks.
-        lsq_source: result.lead.source,
-        lsq_sub_source: result.lead.sub_source,
-        utm_source: result.lead.source_medium,
-        lsq_synced_at: new Date().toISOString(),
-      };
-      // Mirror LSQ.FirstName → contacts.name on every refresh so the
-      // operator's manual rename in LSQ flows back to the inbox label
-      // without a round-trip through the dashboard. We only write
-      // when LSQ has a non-empty first_name and it differs from the
-      // current local name (avoids redundant writes on every refetch).
-      const lsqFirst = (result.lead.first_name ?? "").trim();
-      if (lsqFirst) {
-        const { data: existing } = await admin
-          .from("contacts")
-          .select("name")
-          .eq("wa_id", mobile)
-          .maybeSingle();
-        if (!existing || (existing.name ?? "").trim() !== lsqFirst) {
-          update.name = lsqFirst;
+      const { data: rows } = await admin
+        .from("contacts")
+        .select("id")
+        .eq("wa_id", mobile);
+      const { mirrorLsqLeadOntoContact } = await import(
+        "@/lib/lsq-contact-mirror"
+      );
+      for (const row of rows ?? []) {
+        await mirrorLsqLeadOntoContact(admin, row.id as string, result.lead!, {
+          fillNameIfEmpty: false,
+        });
+        // Keep FirstName sync even when local name already set (panel open).
+        const lsqFirst = (result.lead.first_name ?? "").trim();
+        if (lsqFirst) {
+          await admin
+            .from("contacts")
+            .update({ name: lsqFirst })
+            .eq("id", row.id as string)
+            .neq("name", lsqFirst);
         }
       }
-      await admin.from("contacts").update(update).eq("wa_id", mobile);
     } catch {
       // Non-fatal — column might not exist yet on a freshly migrated DB.
     }

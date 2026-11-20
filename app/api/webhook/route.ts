@@ -415,6 +415,16 @@ async function processWebhook(body: WAWebhookBody) {
           continue;
         }
 
+        // Optimistic stage so the strip/list don't sit blank while
+        // ensure-lead / CRM sync catch up. Only fills when still null —
+        // never overwrites Warm Lead / etc. Assignment follows from
+        // ensure-lead mirror (+ delayed refresh for round-robin).
+        void supabase
+          .from("contacts")
+          .update({ lsq_stage: "New Lead" })
+          .eq("id", contact.id)
+          .is("lsq_stage", null);
+
         // Atomic unread bump (see migration 0084) — avoids the read-modify-
         // write race where two parallel inbound messages lose an increment.
         await supabase.rpc("bump_unread", { p_contact_id: contact.id });

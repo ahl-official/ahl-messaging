@@ -117,11 +117,34 @@ export async function handleMessageUpsert(
 
     // AHL Firebase CRM — inbound 1:1 only; no-ops if env unset or lead exists.
     if (direction === "inbound" && !isGroup) {
+      void admin
+        .from("contacts")
+        .update({ lsq_stage: "New Lead" })
+        .eq("id", contact.id)
+        .is("lsq_stage", null);
+
       void ahlEnsureLeadForContact(admin, {
         contactId: contact.id,
         mobileNo: waId,
         clientName: m.pushName ?? null,
       });
+
+      const token = (process.env.WEBHOOK_INTERNAL_TOKEN || "").trim();
+      if (token) {
+        const origin =
+          process.env.INTERNAL_TICK_BASE ||
+          `http://127.0.0.1:${process.env.PORT || "3001"}`;
+        void fetch(`${origin}/api/lsq/ensure-lead`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contact_id: contact.id, token }),
+        }).catch((e) => {
+          console.error(
+            "[evolution-webhook] LSQ ensure-lead failed:",
+            e instanceof Error ? e.message : e,
+          );
+        });
+      }
     }
 
     // Idempotency: skip if we already have a row for this wa_message_id.

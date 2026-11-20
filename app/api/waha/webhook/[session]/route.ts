@@ -165,6 +165,13 @@ export async function POST(
           .from("contacts")
           .update({ unread_count: (contact.unread_count || 0) + 1 })
           .eq("id", contact.id);
+
+        // Optimistic New Lead so the list isn't blank before CRM sync.
+        void supabase
+          .from("contacts")
+          .update({ lsq_stage: "New Lead" })
+          .eq("id", contact.id)
+          .is("lsq_stage", null);
       }
 
       // Auto-create lead in AHL Firebase CRM for new inbound contacts
@@ -181,6 +188,24 @@ export async function POST(
             "[waha-webhook] ahl-crm import/ensure failed:",
             e instanceof Error ? e.message : e,
           );
+        }
+
+        // Mirror LSQ stage + assignee (same as Meta webhook ensure-lead).
+        const token = (process.env.WEBHOOK_INTERNAL_TOKEN || "").trim();
+        if (token) {
+          const origin =
+            process.env.INTERNAL_TICK_BASE ||
+            `http://127.0.0.1:${process.env.PORT || "3001"}`;
+          void fetch(`${origin}/api/lsq/ensure-lead`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contact_id: contact.id, token }),
+          }).catch((e) => {
+            console.error(
+              "[waha-webhook] LSQ ensure-lead failed:",
+              e instanceof Error ? e.message : e,
+            );
+          });
         }
       }
 
