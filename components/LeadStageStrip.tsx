@@ -874,46 +874,47 @@ export function LeadStageStrip({
           )
         : null}
 
-      {/* Right-click context menu — anchored at the click point. Single
-          action: "Hide this stage" (or "Unhide" if already hidden,
-          although we don't render hidden chevrons so this is mostly a
-          safety net). */}
-      {ctxMenu ? (
-        <div
-          onPointerDown={(e) => e.stopPropagation()}
-          style={{ left: ctxMenu.left, top: ctxMenu.top }}
-          className="fixed z-[60] w-48 overflow-hidden rounded-lg border bg-popover shadow-lg ring-1 ring-border"
-        >
-          <div className="truncate border-b px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-            {ctxMenu.stage}
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              if (ctxMenu.isHidden) unhideStage(ctxMenu.stage);
-              else hideStage(ctxMenu.stage);
-              setCtxMenu(null);
-            }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium transition hover:bg-secondary"
-          >
-            <EyeOff className="h-3.5 w-3.5 text-rose-600" />
-            {ctxMenu.isHidden ? "Unhide this stage" : "Hide this stage"}
-          </button>
-          {hidden.size > 0 ? (
-            <button
-              type="button"
-              onClick={() => {
-                unhideAll();
-                setCtxMenu(null);
-              }}
-              className="flex w-full items-center gap-2 border-t px-3 py-2 text-left text-xs font-medium text-primary transition hover:bg-primary/10"
+      {/* Right-click context menu — portal so the strip's `isolate`
+          stacking context can't trap it under an open chat window. */}
+      {ctxMenu && typeof document !== "undefined"
+        ? createPortal(
+            <div
+              onPointerDown={(e) => e.stopPropagation()}
+              style={{ left: ctxMenu.left, top: ctxMenu.top }}
+              className="fixed z-[72] w-48 overflow-hidden rounded-lg border bg-popover shadow-lg ring-1 ring-border"
             >
-              <Eye className="h-3.5 w-3.5" />
-              Unhide all ({hidden.size})
-            </button>
-          ) : null}
-        </div>
-      ) : null}
+              <div className="truncate border-b px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                {ctxMenu.stage}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (ctxMenu.isHidden) unhideStage(ctxMenu.stage);
+                  else hideStage(ctxMenu.stage);
+                  setCtxMenu(null);
+                }}
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium transition hover:bg-secondary"
+              >
+                <EyeOff className="h-3.5 w-3.5 text-rose-600" />
+                {ctxMenu.isHidden ? "Unhide this stage" : "Hide this stage"}
+              </button>
+              {hidden.size > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    unhideAll();
+                    setCtxMenu(null);
+                  }}
+                  className="flex w-full items-center gap-2 border-t px-3 py-2 text-left text-xs font-medium text-primary transition hover:bg-primary/10"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  Unhide all ({hidden.size})
+                </button>
+              ) : null}
+            </div>,
+            document.body,
+          )
+        : null}
 
       {canRight ? (
         <>
@@ -934,47 +935,56 @@ export function LeadStageStrip({
         </>
       ) : null}
 
-      {/* Per-stage action menu — chat-window filter vs list-view modal. */}
-      {menu ? (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.94, y: -5 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.13, ease: "easeOut" }}
-          onPointerDown={(e) => e.stopPropagation()}
-          style={{ left: menu.left, top: menu.top, transformOrigin: "top left" }}
-          className="fixed z-[60] w-44 rounded-xl border bg-card p-1 shadow-xl ring-1 ring-black/5"
-        >
-          <div className="truncate px-2 pb-1 pt-1 text-[9.5px] font-bold uppercase tracking-wider text-muted-foreground">
-            {menu.stage}
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              onSelect(menu.stage);
-              setMenu(null);
-            }}
-            className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[12px] font-medium transition hover:bg-secondary"
-          >
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-sky-100 text-sky-600">
-              <MessageSquare className="h-3.5 w-3.5" />
-            </span>
-            Chat window
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              onOpenList(menu.stage);
-              setMenu(null);
-            }}
-            className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[12px] font-medium transition hover:bg-secondary"
-          >
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-violet-100 text-violet-600">
-              <List className="h-3.5 w-3.5" />
-            </span>
-            List view
-          </button>
-        </motion.div>
-      ) : null}
+      {/* Per-stage action menu — portal to body. The strip root uses
+          `isolate`, so an in-tree fixed menu paints under the chat
+          column (later sibling) when a conversation is open. */}
+      {menu && typeof document !== "undefined"
+        ? createPortal(
+            <motion.div
+              initial={{ opacity: 0, scale: 0.94, y: -5 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.13, ease: "easeOut" }}
+              onPointerDown={(e) => e.stopPropagation()}
+              style={{
+                left: menu.left,
+                top: menu.top,
+                transformOrigin: "top left",
+              }}
+              className="fixed z-[72] w-44 rounded-xl border bg-card p-1 shadow-xl ring-1 ring-black/5"
+            >
+              <div className="truncate px-2 pb-1 pt-1 text-[9.5px] font-bold uppercase tracking-wider text-muted-foreground">
+                {menu.stage}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  onSelect(menu.stage);
+                  setMenu(null);
+                }}
+                className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[12px] font-medium transition hover:bg-secondary"
+              >
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-sky-100 text-sky-600">
+                  <MessageSquare className="h-3.5 w-3.5" />
+                </span>
+                Chat window
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onOpenList(menu.stage);
+                  setMenu(null);
+                }}
+                className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[12px] font-medium transition hover:bg-secondary"
+              >
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-violet-100 text-violet-600">
+                  <List className="h-3.5 w-3.5" />
+                </span>
+                List view
+              </button>
+            </motion.div>,
+            document.body,
+          )
+        : null}
       </div>
 
       {/* Right control slot — both actions stacked in one narrow column:

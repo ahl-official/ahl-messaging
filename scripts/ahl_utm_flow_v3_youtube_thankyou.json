@@ -1,0 +1,20 @@
+{
+  "name": "AHL UTM Flow - V3 (YouTube to Thank You)",
+  "description": "Copy of V2 Consultation & Payment Optimized with the tail removed: after the technical YouTube video, flow ends on the Thank You message. No urgency / slot / payment / retarget / call nodes.",
+  "based_on": "AHL UTM Flow - V2 (Consultation & Payment Optimized)",
+  "enabled_default": false,
+  "end_path": [
+    "product / patch type",
+    "YouTube technical video",
+    "Thank you (END)"
+  ],
+  "removed_from_v2": [
+    "how soon / urgency",
+    "online vs in-person",
+    "consultation slot picker",
+    "₹500 payment + Confirmed Payment",
+    "wait_reply retarget",
+    "Need more details → second YouTube",
+    "Call me first → advisor callback"
+  ]
+}

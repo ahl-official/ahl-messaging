@@ -16,6 +16,10 @@
 // /settings, /reports, etc. — the original ask from the operator was
 // "I want notifications even with Chrome minimized". The same logic
 // applies to non-inbox tabs within the dashboard.
+//
+// Assigned-agent scope: /api/contacts already respects LSQ-assigned /
+// "Mine" visibility, so Mehjabeen (etc.) only get Windows toasts for
+// chats assigned to them — which is what Task 1 handoff expects.
 
 import { useEffect } from "react";
 import { emitInboundNotification } from "@/lib/notification-events";

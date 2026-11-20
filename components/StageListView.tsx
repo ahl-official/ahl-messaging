@@ -221,7 +221,7 @@ export function StageListView({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.3, y: 10 }}
             transition={{ type: "spring", stiffness: 420, damping: 26 }}
-            className="fixed bottom-5 right-[4.5rem] z-[54] flex items-center gap-2 rounded-full border bg-card px-3.5 py-2.5 shadow-lg ring-1 ring-black/5 transition-colors hover:bg-secondary"
+            className="fixed bottom-5 right-[4.5rem] z-[72] flex items-center gap-2 rounded-full border bg-card px-3.5 py-2.5 shadow-lg ring-1 ring-black/5 transition-colors hover:bg-secondary"
           >
             <ListChecks className="h-4 w-4 text-primary" />
             <span className="max-w-[150px] truncate text-[12px] font-semibold">

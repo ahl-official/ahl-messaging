@@ -15,7 +15,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const TEMPLATE_NAME = "ahl_leak3_d1_a_book";
-const TEMPLATE_LANG = "en";
+/** Meta approved this as en_US (not en) — wrong lang → (#132001) translation missing. */
+const TEMPLATE_LANG = "en_US";
 
 const STAGES = [
   "Warm Lead",

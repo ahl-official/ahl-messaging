@@ -156,6 +156,25 @@ function knownLeadCity(ctx: RunContext): string {
 }
 
 /**
+ * Task 1 — "already a lead": confirmed inbox name and/or CRM id/stage.
+ * These contacts skip intake (name/city questionnaire) and hand off to
+ * humans on the dashboard (assigned agent gets the Windows notification).
+ */
+function isKnownLeadContact(c: {
+  name?: string | null;
+  lsq_lead_number?: string | null;
+  lsq_prospect_id?: string | null;
+  lsq_stage?: string | null;
+} | null | undefined): boolean {
+  if (!c) return false;
+  if (String(c.name ?? "").trim()) return true;
+  if (String(c.lsq_lead_number ?? "").trim()) return true;
+  if (String(c.lsq_prospect_id ?? "").trim()) return true;
+  if (String(c.lsq_stage ?? "").trim()) return true;
+  return false;
+}
+
+/**
  * Prefill name/city on a new flow run from contact + the latest prior run
  * vars so returning leads are not asked again. Does not overwrite vars
  * already set on this run.
@@ -382,22 +401,27 @@ export async function matchAndRunTriggers(params: {
     /\b(hello|hi|hii|hey|restart|start)\b/i.test(inboundText);
 
   if (isAdOrLinkPayload || isGreetingRestart) {
-    // If we already completed (or are mid) an intake flow in the last 24h:
-    //  - mid-flow → resume / keep (don't stack)
-    //  - completed + ad/link → suppress bot (no trigger, no AI)
-    //  - completed + Hi / keyword greeting → do NOT restart trigger; AI may reply
-    const recentCutoff = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
-    const { data: recentIntake } = await admin
+    // Active mid-flow (any age) — CTWA/Hi must not stack a second intake.
+    // Older code only looked at started_at within 24h, so a parked run from
+    // days ago was invisible: we cancelled it, keyword sometimes missed, and
+    // AI answered instead of the UTM flow.
+    const { data: activeMid } = await admin
       .from("trigger_runs")
       .select("id, status")
       .eq("contact_id", contactId)
-      .in("status", ["running", "waiting", "completed"])
-      .gte("started_at", recentCutoff)
+      .in("status", ["running", "waiting"])
       .order("started_at", { ascending: false })
       .limit(1);
-    if (recentIntake && recentIntake.length > 0) {
-      const st = String(recentIntake[0].status);
-      if (st === "running" || st === "waiting") {
+
+    if (activeMid && activeMid.length > 0) {
+      if (isAdOrLinkPayload) {
+        // Fresh ad/link click = restart intake from keyword flows below.
+        await admin
+          .from("trigger_runs")
+          .update({ status: "stopped", finished_at: new Date().toISOString() })
+          .eq("contact_id", contactId)
+          .in("status", ["running", "waiting"]);
+      } else {
         const resumed = await resumeWaitingRun(admin, {
           contactId,
           waId,
@@ -406,20 +430,37 @@ export async function matchAndRunTriggers(params: {
           reply,
         });
         if (resumed) return { matched: true };
-        return { matched: true }; // keep existing run; don't stack
+        return { matched: true }; // keep existing run; don't stack; don't AI
       }
+    } else {
       // completed in last 24h — never restart intake on Hi / keyword / CTWA
-      if (isAdOrLinkPayload) {
-        return { matched: true }; // repeated link: silence
+      const recentCutoff = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
+      const { data: recentDone } = await admin
+        .from("trigger_runs")
+        .select("id")
+        .eq("contact_id", contactId)
+        .eq("status", "completed")
+        .gte("started_at", recentCutoff)
+        .limit(1);
+      if (recentDone && recentDone.length > 0) {
+        if (isAdOrLinkPayload) {
+          return { matched: true }; // repeated link: silence (no AI)
+        }
+        // Task 1: known returning lead on Hi → human chat, not AI questionnaire
+        const { data: c } = await admin
+          .from("contacts")
+          .select("name, lsq_lead_number, lsq_prospect_id, lsq_stage")
+          .eq("id", contactId)
+          .maybeSingle();
+        if (isKnownLeadContact(c)) {
+          console.log(
+            `[trigger-engine] Task1 handoff (Hi after complete): known lead ${contactId}`,
+          );
+          return { matched: true };
+        }
+        return { matched: false }; // brand-new / unnamed: AI may reply
       }
-      return { matched: false }; // Hi / greeting: AI only, no trigger restart
     }
-    // No recent intake — cancel any stale parked runs so a fresh flow can start
-    await admin
-      .from("trigger_runs")
-      .update({ status: "stopped", finished_at: new Date().toISOString() })
-      .eq("contact_id", contactId)
-      .in("status", ["running", "waiting"]);
   } else {
     // 1) A flow waiting on this client's reply takes precedence over new triggers.
     const resumed = await resumeWaitingRun(admin, { contactId, waId, bpid, inboundText, reply });
@@ -515,7 +556,19 @@ export async function matchAndRunTriggers(params: {
       .gte("started_at", recentCutoff)
       .limit(1);
     if (recentDone && recentDone.length > 0) {
-      return { matched: false };
+      // Known returning lead → silence bots; inbox + Windows notify for assignee.
+      const { data: c } = await admin
+        .from("contacts")
+        .select("name, lsq_lead_number, lsq_prospect_id, lsq_stage")
+        .eq("id", contactId)
+        .maybeSingle();
+      if (isKnownLeadContact(c)) {
+        console.log(
+          `[trigger-engine] Task1 handoff (post-complete): known lead ${contactId} → human chat`,
+        );
+        return { matched: true };
+      }
+      return { matched: false }; // unknown / no name yet → AI may reply
     }
   }
 
@@ -526,6 +579,27 @@ export async function matchAndRunTriggers(params: {
     .eq("enabled", true)
     .eq("trigger_type", "keyword")
     .order("priority", { ascending: true });
+
+  // Task 1: known lead re-enquiry → do NOT restart name/city/product intake.
+  // Leave the chat open for the assigned agent (dashboard + Windows notify).
+  {
+    const { data: c } = await admin
+      .from("contacts")
+      .select("name, lsq_lead_number, lsq_prospect_id, lsq_stage")
+      .eq("id", contactId)
+      .maybeSingle();
+    if (isKnownLeadContact(c)) {
+      const wouldStartIntake = ((flows ?? []) as FlowRow[]).some(
+        (f) => !!f.start_node_id && textMatches(inboundText, f.trigger_config),
+      );
+      if (wouldStartIntake || isAdOrLinkPayload || isGreetingRestart) {
+        console.log(
+          `[trigger-engine] Task1 handoff: known lead ${contactId} skip intake → human chat`,
+        );
+        return { matched: true };
+      }
+    }
+  }
 
   for (const flow of (flows ?? []) as FlowRow[]) {
     if (!flow.start_node_id) continue;
