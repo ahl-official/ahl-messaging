@@ -125,11 +125,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ skipped: "not_in_test_patients" });
   }
 
-  // Debounce window is operator-set per number. Hard-cap at 20s — higher
-  // values made AI feel broken (~2–3 min with a slow cron wake).
+  // Debounce window is operator-set per number. Hard-cap at 5s — higher
+  // values + a dead wake path felt like 3–4 min late replies.
   const debounce = Math.max(
     0,
-    Math.min(20, Number(config.inbound_debounce_seconds ?? 8)),
+    Math.min(5, Number(config.inbound_debounce_seconds ?? 3)),
   );
   const processAt = new Date(Date.now() + debounce * 1000).toISOString();
 

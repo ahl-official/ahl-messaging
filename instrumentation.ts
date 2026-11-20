@@ -97,9 +97,8 @@ export async function register() {
   const token = (process.env.WEBHOOK_INTERNAL_TOKEN || "").trim();
   if (!token) {
     console.warn(
-      "[sweep] WEBHOOK_INTERNAL_TOKEN not set — skipping in-process sweep scheduler. AI auto-reply will only fire on inbound webhooks, not on resume-from-pause.",
+      "[sweep] WEBHOOK_INTERNAL_TOKEN not set — HTTP sweep/campaign ticks disabled. AI pending drain still runs in-process.",
     );
-    return;
   }
 
   // The in-process scheduler calls its OWN server, so it must hit localhost —
@@ -135,6 +134,22 @@ export async function register() {
   }
 
   async function processPendingTick() {
+    // Prefer in-process drain — avoids depending on localhost HTTP (wrong
+    // PORT / token / proxy) which left AI replies sitting ~3–4 minutes.
+    try {
+      const { drainPendingAutomation } = await import(
+        "@/lib/drain-pending-automation"
+      );
+      const json = await drainPendingAutomation();
+      if (json.processed && json.processed > 0) {
+        console.log(
+          `[process-pending] processed=${json.processed} skipped=${json.skipped ?? 0}`,
+        );
+      }
+      return;
+    } catch (e) {
+      logTickErr("[process-pending] in-process", e);
+    }
     try {
       const res = await fetch(`${origin}/api/automation/process-pending`, {
         method: "POST",

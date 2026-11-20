@@ -12,6 +12,18 @@ import {
 } from "@/lib/app-settings";
 import { matchAndRunTriggers } from "@/lib/trigger-engine";
 
+/** Keep floating AI-drain promises reachable so Next/PM2 don't GC them
+ *  after the webhook response returns (unref'd timers were dying → ~3–4
+ *  min stalls until an external cron picked the row up). */
+const g = globalThis as typeof globalThis & {
+  __oneinboxPendingAi?: Set<Promise<void>>;
+};
+function trackPendingAi(p: Promise<void>) {
+  const set = (g.__oneinboxPendingAi ??= new Set());
+  set.add(p);
+  void p.finally(() => set.delete(p));
+}
+
 export async function kickInboundAutomation(params: {
   contactId: string;
   waId: string;
@@ -76,11 +88,11 @@ export async function kickInboundAutomation(params: {
     return { matched: false, aiEnqueued: false };
   }
 
-  // Cap debounce hard — operators sometimes set 60–120s which feels like
-  // the bot is broken. Prefer a snappy reply; typing indicator covers the gap.
+  // Hard-cap at 5s — higher values + a dead wake path felt like 3–4 min
+  // “bot is broken”. Typing indicator covers the short wait.
   const debounce = Math.max(
     0,
-    Math.min(20, Number(config.inbound_debounce_seconds ?? 8)),
+    Math.min(5, Number(config.inbound_debounce_seconds ?? 3)),
   );
   const processAt = new Date(Date.now() + debounce * 1000).toISOString();
 
@@ -89,58 +101,56 @@ export async function kickInboundAutomation(params: {
     .update({ automation_pending_at: processAt })
     .eq("id", contactId);
 
-  // Primary: run AI in-process after debounce (no HTTP / token dependency).
-  // Backup: HTTP wake + instrumentation interval still cover other paths.
-  scheduleInProcessAi(contactId, debounce);
+  // Primary: in-process drain (no HTTP / token). Keep the promise tracked
+  // so it survives after the webhook returns 200 to Meta.
+  trackPendingAi(runAiAfterDebounce(contactId, debounce));
   scheduleProcessPendingWake(debounce);
 
   return { matched: false, aiEnqueued: true };
 }
 
-/**
- * Drain this contact's AI debounce in-process. Avoids the ~3 min stalls
- * seen when WEBHOOK_INTERNAL_TOKEN / process-pending HTTP wake failed and
- * only a slow external cron picked the row up.
- */
-function scheduleInProcessAi(contactId: string, debounceSeconds: number) {
-  const waitMs = Math.max(0, debounceSeconds) * 1000 + 250;
-  const t = setTimeout(() => {
-    void (async () => {
-      try {
-        const admin = createServiceRoleClient();
-        const nowIso = new Date().toISOString();
-        const { data: claimed } = await admin
-          .from("contacts")
-          .update({ automation_pending_at: null })
-          .eq("id", contactId)
-          .lte("automation_pending_at", nowIso)
-          .select("id");
-        if (!claimed || claimed.length === 0) return; // extended / already claimed
+async function runAiAfterDebounce(
+  contactId: string,
+  debounceSeconds: number,
+): Promise<void> {
+  const waitMs = Math.max(0, debounceSeconds) * 1000 + 150;
+  await new Promise<void>((resolve) => {
+    // Do NOT unref — unref'd timers were the ~4 min late-reply bug.
+    setTimeout(resolve, waitMs);
+  });
 
-        const { data: lastInbound } = await admin
-          .from("messages")
-          .select("id")
-          .eq("contact_id", contactId)
-          .eq("direction", "inbound")
-          .order("timestamp", { ascending: false })
-          .limit(1);
-        const triggerId = lastInbound?.[0]?.id as string | undefined;
-        if (!triggerId) return;
+  try {
+    const admin = createServiceRoleClient();
+    const nowIso = new Date().toISOString();
+    const { data: claimed } = await admin
+      .from("contacts")
+      .update({ automation_pending_at: null })
+      .eq("id", contactId)
+      .lte("automation_pending_at", nowIso)
+      .select("id");
+    if (!claimed || claimed.length === 0) return; // extended / already claimed
 
-        const { runAutomation } = await import("@/lib/automation");
-        await runAutomation({
-          contactId,
-          triggerMessageId: triggerId,
-        });
-      } catch (e) {
-        console.warn(
-          "[kick-inbound] in-process AI failed:",
-          e instanceof Error ? e.message : e,
-        );
-      }
-    })();
-  }, waitMs);
-  t.unref?.();
+    const { data: lastInbound } = await admin
+      .from("messages")
+      .select("id")
+      .eq("contact_id", contactId)
+      .eq("direction", "inbound")
+      .order("timestamp", { ascending: false })
+      .limit(1);
+    const triggerId = lastInbound?.[0]?.id as string | undefined;
+    if (!triggerId) return;
+
+    const { runAutomation } = await import("@/lib/automation");
+    await runAutomation({
+      contactId,
+      triggerMessageId: triggerId,
+    });
+  } catch (e) {
+    console.warn(
+      "[kick-inbound] in-process AI failed:",
+      e instanceof Error ? e.message : e,
+    );
+  }
 }
 
 /** Fire /api/automation/process-pending shortly after the debounce window. */
@@ -163,5 +173,6 @@ function scheduleProcessPendingWake(debounceSeconds: number) {
       /* instrumentation interval is the backup */
     });
   }, waitMs);
+  // Keep this one referenced via the fetch promise; unref OK as backup only.
   t.unref?.();
 }
