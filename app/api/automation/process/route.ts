@@ -92,7 +92,15 @@ export async function POST(request: NextRequest) {
           inboundType,
           inboundMediaUrl,
         });
-        if (matched) return NextResponse.json({ trigger: "matched" });
+        if (matched) {
+          // Drop any queued AI debounce so Task 1 / flow handoff isn't
+          // followed by a late generic AI greeting.
+          await admin
+            .from("contacts")
+            .update({ automation_pending_at: null })
+            .eq("id", contactId);
+          return NextResponse.json({ trigger: "matched" });
+        }
       } catch (e) {
         console.warn("[triggers] match failed:", e instanceof Error ? e.message : e);
       }
@@ -117,11 +125,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ skipped: "not_in_test_patients" });
   }
 
-  // Debounce window is operator-set per number. Clamp so a misconfigured
-  // value can't park a contact for hours.
+  // Debounce window is operator-set per number. Hard-cap at 20s — higher
+  // values made AI feel broken (~2–3 min with a slow cron wake).
   const debounce = Math.max(
     0,
-    Math.min(120, Number(config.inbound_debounce_seconds ?? 10)),
+    Math.min(20, Number(config.inbound_debounce_seconds ?? 8)),
   );
   const processAt = new Date(Date.now() + debounce * 1000).toISOString();
 

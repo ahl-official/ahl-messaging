@@ -1256,9 +1256,41 @@ export async function runAutomation(opts: {
     "  answer their question or take the next step. Only ask what they prefer",
     "  when you genuinely don't know it yet.",
     "- LEAD CAPTURE (when a trigger flow did not already collect it): if you",
-    "  still do not know their name, city, or WhatsApp/mobile number, ask for",
-    "  the next missing field naturally (one at a time) while still answering",
-    "  their hair questions. Never invent details.",
+    "  still do not know their name or city, ask for the next missing field",
+    "  naturally (one at a time) while still answering their hair questions.",
+    "  Never invent details. Never ask for their WhatsApp/mobile number — we",
+    "  already have it from this chat.",
+    "",
+    "# TASK 1 — RETURNING / KNOWN LEADS (CRITICAL)",
+    (() => {
+      const knownName = (contact.name ?? "").trim();
+      const crmKnown =
+        Boolean((contact.lsq_prospect_id ?? "").trim()) ||
+        Boolean((contact.lsq_stage ?? "").trim());
+      const chattedBefore = history.some((m) => m.role === "assistant");
+      const returning = crmKnown || chattedBefore;
+      if (!returning) {
+        return [
+          "- This looks like a first-touch chat — welcome them, then capture",
+          "  missing name/city one field at a time while helping.",
+          knownName
+            ? `- Inbox already shows name "${knownName}" — do NOT re-ask name; ask their hair concern or city next.`
+            : "- Ask for their real name if you don't have it yet (not their phone number).",
+        ].join("\n");
+      }
+      const nameBit = knownName ? ` Their name on file is "${knownName}".` : "";
+      return [
+        `- RETURNING LEAD.${nameBit} Do NOT ask for name, phone, or number again.`,
+        "- If they just said Hi/Hey/CTWA again: welcome them BACK in one short",
+        "  line (e.g. \"Welcome back!\" / \"Good to see you again\") and ask what",
+        "  they need help with now — their query / hair concern / appointment.",
+        "- If they already stated a clear query (appointment, concern, city,",
+        "  photos), answer that — do not re-ask name.",
+        "- If their message is unclear / gibberish / you truly cannot help:",
+        "  say a counselor will take over and offer to connect them to a human.",
+        "  Do not keep grilling them for name/city.",
+      ].join("\n");
+    })(),
     "",
     "# CTWA / AD / FIRST-TOUCH INTAKE — SOUND LIKE A REAL DM, NOT A FORM",
     "- If their message is a Facebook/Instagram ad click, CTWA payload, UTM/",
@@ -1269,18 +1301,19 @@ export async function runAutomation(opts: {
     "  then ask ONE next thing. Never fire dry form lines like \"May I know,",
     "  which city are you from?\" or \"What product are you interested in?\".",
     "- Preferred ask order when fields are missing (one per reply):",
-    "  1) real name (skip if contact.name is already set),",
+    "  1) real name (skip if contact.name is already set OR we already chatted),",
     "  2) what hair concern / goal brought them here (area, hairfall, patch,",
     "     density — NOT a product catalogue quiz),",
     "  3) city (so you can guide Mumbai / Delhi / Bangalore / video).",
     "- Good examples (vary wording every time; keep under the word limit):",
     "  \"Hey! Thanks for messaging American Hairline 🙂 What hair concern can I help with?\"",
-    "  \"Welcome! Glad you reached out. Which city are you in so I can guide you better?\"",
+    "  \"Welcome back! What can I help you with today?\"",
     "  \"Got it — Mumbai. Is it mostly front/receding, top, or overall thinning?\"",
     "- Bad examples (never send these patterns):",
     "  \"May I know, which city are you from?\"",
     "  \"What product are you interested in?\"",
     "  \"Please share your details.\"",
+    "  \"May I know your name?\" (when we already have it / already chatted)",
     "- Do NOT ask which product/package first. Diagnose concern + city, then",
     "  guide toward consult / next step. Products come after understanding need.",
   ].join("\n");
@@ -1335,7 +1368,15 @@ export async function runAutomation(opts: {
       typeof lastUser?.content === "string" ? lastUser.content : "";
     if (isCtwaOrAdTrackingPayload(lastText)) {
       const alreadyNamed = Boolean((contact.name ?? "").trim());
+      // "Welcome back" only if we already replied in this chat — a WA
+      // profile name alone is not a returning lead.
+      const returning = history.some((m) => m.role === "assistant");
       const pick = Math.floor(Math.random() * 3);
+      const returningOpeners = [
+        "Welcome back! 🙂 What can I help you with today?",
+        "Good to see you again! What do you need help with?",
+        "Hey, you're back! What would you like to know?",
+      ];
       const namedOpeners = [
         "Hey! Thanks for reaching out to American Hairline 🙂 What hair concern can I help with today?",
         "Welcome to American Hairline! Glad you messaged. Is it hairfall, receding front, or thinning on top?",
@@ -1347,7 +1388,11 @@ export async function runAutomation(opts: {
         "Hi! Thanks for getting in touch with American Hairline 🙂 What name should I use?",
       ];
       aiResp = {
-        text: alreadyNamed ? namedOpeners[pick]! : unnamedOpeners[pick]!,
+        text: returning
+          ? returningOpeners[pick]!
+          : alreadyNamed
+            ? namedOpeners[pick]!
+            : unnamedOpeners[pick]!,
         model: "ctwa-greeting",
         promptTokens: 0,
         completionTokens: 0,
@@ -1362,11 +1407,17 @@ export async function runAutomation(opts: {
   if (!aiResp && !triggerIsImage && !contact.preferred_language && !history.some((m) => m.role === "assistant")) {
     // profile_name alone does not count — new CTWA chats almost always have
     // a WA profile handle; we still need to ask for their real name.
+    // contact.name set from a prior chat / CRM → treat as known, ask query.
     const alreadyNamed = Boolean((contact.name ?? "").trim());
+    const crmKnown =
+      Boolean((contact.lsq_prospect_id ?? "").trim()) ||
+      Boolean((contact.lsq_stage ?? "").trim());
     aiResp = {
-      text: alreadyNamed
-        ? "Hello! 🙂 Welcome to American Hairline. Which language would you prefer — English or Hinglish?"
-        : "Hello! 🙂 Welcome to American Hairline. May I know your name?",
+      text: crmKnown
+        ? "Welcome back! 🙂 What can I help you with today?"
+        : alreadyNamed
+          ? "Hello! 🙂 Welcome to American Hairline. What hair concern can I help with?"
+          : "Hello! 🙂 Welcome to American Hairline. May I know your name?",
       model: "lang-greeting",
       promptTokens: 0,
       completionTokens: 0,
@@ -1778,6 +1829,21 @@ export async function runAutomation(opts: {
         e instanceof Error ? e.message : e,
       );
     });
+  } else if (isAhlSheetBusinessNumber(contact.business_phone_number_id)) {
+    // LSQ extraction off / no mappings — still push name+city to the
+    // AHL sheet when the AI conversation has them (or contact.name).
+    void pushAiCollectedToAhlSheet({
+      contactId: contact.id,
+      waId: contact.wa_id,
+      extracted: {},
+      fieldMap: new Map(),
+      history,
+    }).catch((e) => {
+      console.warn(
+        "[automation] AI→sheet (no-LSQ-path) failed:",
+        e instanceof Error ? e.message : e,
+      );
+    });
   }
 
   return { status: "success", replyMessageId: inserted.id, cleaned };
@@ -1927,14 +1993,15 @@ Output shape: a single JSON object whose keys exactly match the LSQ field names 
     fields.push({ Attribute, Value });
   }
 
-  // Sheet via n8n — when AI (not trigger) collected name+city, push the
-  // same ahl-flow-webhook payload so Flexi Funnel still gets the lead.
-  // Phone is always the WhatsApp id. Deduped until name/city/product change.
+  // Sheet via n8n — when AI (not trigger) collected name (+ city when
+  // known), push the same ahl-flow-webhook payload so Flexi Funnel still
+  // gets the lead. Phone is always the WhatsApp id.
   void pushAiCollectedToAhlSheet({
     contactId,
     waId,
     extracted,
     fieldMap,
+    history,
   }).catch((e) => {
     console.warn(
       "[automation] AI→sheet webhook failed:",
@@ -2069,15 +2136,55 @@ function pickExtractedString(
   return "";
 }
 
+/** Cheap heuristic when LSQ field mappings are empty — pull name/city from recent user lines. */
+function skimNameCityFromHistory(history: ChatMessage[]): {
+  name: string;
+  city: string;
+} {
+  let name = "";
+  let city = "";
+  const cityRe =
+    /\b(mumbai|delhi|bangalore|bengaluru|pune|hyderabad|chennai|kolkata|ahmedabad|jaipur|surat|lucknow|noida|gurgaon|gurugram|thane|navi mumbai|indore|chandigarh)\b/i;
+  for (const m of history) {
+    if (m.role !== "user") continue;
+    const text = typeof m.content === "string" ? m.content.trim() : "";
+    if (!text || text.length > 80) continue;
+    if (isCtwaOrAdTrackingPayload(text)) continue;
+    if (!city) {
+      const cm = text.match(cityRe);
+      if (cm) city = cm[1]!.replace(/\b\w/g, (c) => c.toUpperCase());
+    }
+    // Short reply after we asked for name — e.g. "Shreeya", "My name is Rahul"
+    if (!name) {
+      const named = text.match(
+        /(?:(?:my\s+)?name\s+is|i\s+am|i'm)\s+([A-Za-z][A-Za-z.'\-\s]{1,40})/i,
+      );
+      if (named?.[1]) {
+        name = named[1].trim().replace(/\s+/g, " ");
+      } else if (
+        /^[A-Za-z][A-Za-z.'\-]{1,30}(?:\s+[A-Za-z][A-Za-z.'\-]{1,30}){0,2}$/.test(
+          text,
+        ) &&
+        !/^(hi|hey|hello|heyy|ok|okay|yes|no|thanks|thank you)\b/i.test(text)
+      ) {
+        name = text;
+      }
+    }
+  }
+  return { name, city };
+}
+
 /**
- * After AI extraction has name + city, POST to n8n so the sheet gets the
- * lead even when no trigger flow webhook ran. Phone = WhatsApp wa_id.
+ * After AI has a usable name (city optional), POST to n8n so the sheet
+ * gets the lead even when no trigger flow webhook ran. Phone = wa_id.
+ * Re-pushes as `update` when city/product arrive later.
  */
 async function pushAiCollectedToAhlSheet(opts: {
   contactId: string;
   waId: string;
   extracted: Record<string, unknown>;
   fieldMap: Map<string, string>;
+  history?: ChatMessage[];
 }): Promise<void> {
   const admin = createServiceRoleClient();
   const { data: contact } = await admin
@@ -2092,15 +2199,15 @@ async function pushAiCollectedToAhlSheet(opts: {
     return;
   }
 
-  const name = pickExtractedString(
+  let name = pickExtractedString(
     opts.extracted,
     opts.fieldMap,
     "FirstName",
     "mx_FirstName",
     "name",
-  ) || String(contact.name ?? "").trim() || String(contact.profile_name ?? "").trim();
+  ) || String(contact.name ?? "").trim();
 
-  const city = pickExtractedString(
+  let city = pickExtractedString(
     opts.extracted,
     opts.fieldMap,
     "mx_Lead_City",
@@ -2108,8 +2215,23 @@ async function pushAiCollectedToAhlSheet(opts: {
     "city",
   );
 
-  // Wait until AI has both name and city (number is always wa_id).
-  if (!name || !city) {
+  // No LSQ mappings / empty extract — skim recent user turns for name/city.
+  if ((!name || !city) && opts.history && opts.history.length > 0) {
+    const skimmed = skimNameCityFromHistory(opts.history);
+    if (!name && skimmed.name) name = skimmed.name;
+    if (!city && skimmed.city) city = skimmed.city;
+  }
+
+  // Need at least a real name (not empty). City can follow in a later update.
+  // Prefer contact.name over profile_name so we don't sheet-push a WA handle
+  // alone before the client shared their real name — unless extract/skim found one.
+  if (!name) {
+    const profile = String(contact.profile_name ?? "").trim();
+    // Only fall back to profile when we also have city (stronger signal the
+    // chat progressed) — otherwise wait for AI to capture a real name.
+    if (profile && city) name = profile;
+  }
+  if (!name) {
     return;
   }
 

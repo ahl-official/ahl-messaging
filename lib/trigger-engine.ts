@@ -156,22 +156,55 @@ function knownLeadCity(ctx: RunContext): string {
 }
 
 /**
- * Task 1 — "already a lead": confirmed inbox name and/or CRM id/stage.
- * These contacts skip intake (name/city questionnaire) and hand off to
- * humans on the dashboard (assigned agent gets the Windows notification).
+ * Task 1 — CRM-backed lead (LSQ id / stage / lead number).
+ * WA profile `name` alone does NOT count — new CTWA chats often arrive
+ * with a profile handle and still need first-touch capture.
  */
-function isKnownLeadContact(c: {
-  name?: string | null;
+function isCrmKnownLead(c: {
   lsq_lead_number?: string | null;
   lsq_prospect_id?: string | null;
   lsq_stage?: string | null;
 } | null | undefined): boolean {
   if (!c) return false;
-  if (String(c.name ?? "").trim()) return true;
   if (String(c.lsq_lead_number ?? "").trim()) return true;
   if (String(c.lsq_prospect_id ?? "").trim()) return true;
   if (String(c.lsq_stage ?? "").trim()) return true;
   return false;
+}
+
+/**
+ * Task 1 — returning chat: CRM-known OR we already sent them something
+ * (AI/human/trigger). Those skip name/city re-intake; AI welcomes back
+ * and asks their query instead.
+ */
+async function isReturningLead(
+  admin: Admin,
+  contactId: string,
+  c: {
+    name?: string | null;
+    lsq_lead_number?: string | null;
+    lsq_prospect_id?: string | null;
+    lsq_stage?: string | null;
+  } | null | undefined,
+): Promise<boolean> {
+  if (isCrmKnownLead(c)) return true;
+  const { count } = await admin
+    .from("messages")
+    .select("id", { count: "exact", head: true })
+    .eq("contact_id", contactId)
+    .eq("direction", "outbound");
+  return (count ?? 0) > 0;
+}
+
+/** Hi / Hey / Hello openers — including elongated "Heyy", "Hiii", "Hello+". */
+function isGreetingOpener(text: string): boolean {
+  const t = text.trim();
+  if (!t) return false;
+  // Whole-message opener (most common: "Heyy", "Hi!", "Hello there")
+  if (/^(hey+|hi+|hii+|hello+|helo+|restart|start)\b/i.test(t)) return true;
+  // Embedded greeting word (e.g. "Hi team") — require a real word boundary
+  // so "his" / "high" do not count.
+  return /\b(hello+|hi+|hey+|hii+|restart|start)\b/i.test(t);
 }
 
 /**
@@ -397,8 +430,7 @@ export async function matchAndRunTriggers(params: {
       inboundText,
     );
   const isGreetingRestart =
-    !isAdOrLinkPayload &&
-    /\b(hello|hi|hii|hey|restart|start)\b/i.test(inboundText);
+    !isAdOrLinkPayload && isGreetingOpener(inboundText);
 
   if (isAdOrLinkPayload || isGreetingRestart) {
     // Active mid-flow (any age) — CTWA/Hi must not stack a second intake.
@@ -443,22 +475,12 @@ export async function matchAndRunTriggers(params: {
         .gte("started_at", recentCutoff)
         .limit(1);
       if (recentDone && recentDone.length > 0) {
-        if (isAdOrLinkPayload) {
-          return { matched: true }; // repeated link: silence (no AI)
-        }
-        // Task 1: known returning lead on Hi → human chat, not AI questionnaire
-        const { data: c } = await admin
-          .from("contacts")
-          .select("name, lsq_lead_number, lsq_prospect_id, lsq_stage")
-          .eq("id", contactId)
-          .maybeSingle();
-        if (isKnownLeadContact(c)) {
-          console.log(
-            `[trigger-engine] Task1 handoff (Hi after complete): known lead ${contactId}`,
-          );
-          return { matched: true };
-        }
-        return { matched: false }; // brand-new / unnamed: AI may reply
+        // Intake already done — never restart the name/city flow.
+        // Fall through to AI (welcome-back / answer their query).
+        console.log(
+          `[trigger-engine] Task1 skip re-intake (post-complete): ${contactId} → AI`,
+        );
+        return { matched: false };
       }
     }
   } else {
@@ -471,6 +493,22 @@ export async function matchAndRunTriggers(params: {
     //      the client typed something off-script), leave it be instead of
     //      starting a fresh flow from a keyword / new-contact / template trigger.
     if (await hasActiveRun(admin, contactId)) return { matched: false };
+  }
+
+  // Task 1 early gate — returning / CRM leads must NOT restart name/city
+  // intake. AI handles welcome-back + their query. matched:false → AI.
+  if (isAdOrLinkPayload || isGreetingRestart) {
+    const { data: known } = await admin
+      .from("contacts")
+      .select("name, lsq_lead_number, lsq_prospect_id, lsq_stage")
+      .eq("id", contactId)
+      .maybeSingle();
+    if (await isReturningLead(admin, contactId, known)) {
+      console.log(
+        `[trigger-engine] Task1 skip intake (early): returning lead ${contactId} → AI welcome-back`,
+      );
+      return { matched: false };
+    }
   }
 
   // 2) Template-reply flows — fire when this inbound is the first reply right
@@ -556,19 +594,12 @@ export async function matchAndRunTriggers(params: {
       .gte("started_at", recentCutoff)
       .limit(1);
     if (recentDone && recentDone.length > 0) {
-      // Known returning lead → silence bots; inbox + Windows notify for assignee.
-      const { data: c } = await admin
-        .from("contacts")
-        .select("name, lsq_lead_number, lsq_prospect_id, lsq_stage")
-        .eq("id", contactId)
-        .maybeSingle();
-      if (isKnownLeadContact(c)) {
-        console.log(
-          `[trigger-engine] Task1 handoff (post-complete): known lead ${contactId} → human chat`,
-        );
-        return { matched: true };
-      }
-      return { matched: false }; // unknown / no name yet → AI may reply
+      // Finished intake recently — do not re-fire keyword name/city flows.
+      // AI welcome-back / answer path handles the reply.
+      console.log(
+        `[trigger-engine] Task1 skip keyword re-intake (post-complete): ${contactId} → AI`,
+      );
+      return { matched: false };
     }
   }
 
@@ -580,23 +611,23 @@ export async function matchAndRunTriggers(params: {
     .eq("trigger_type", "keyword")
     .order("priority", { ascending: true });
 
-  // Task 1: known lead re-enquiry → do NOT restart name/city/product intake.
-  // Leave the chat open for the assigned agent (dashboard + Windows notify).
+  // Task 1: returning lead → do NOT restart name/city/product intake.
+  // Fall through to AI (welcome back + ask their query).
   {
     const { data: c } = await admin
       .from("contacts")
       .select("name, lsq_lead_number, lsq_prospect_id, lsq_stage")
       .eq("id", contactId)
       .maybeSingle();
-    if (isKnownLeadContact(c)) {
+    if (await isReturningLead(admin, contactId, c)) {
       const wouldStartIntake = ((flows ?? []) as FlowRow[]).some(
         (f) => !!f.start_node_id && textMatches(inboundText, f.trigger_config),
       );
       if (wouldStartIntake || isAdOrLinkPayload || isGreetingRestart) {
         console.log(
-          `[trigger-engine] Task1 handoff: known lead ${contactId} skip intake → human chat`,
+          `[trigger-engine] Task1 skip intake: returning lead ${contactId} → AI welcome-back`,
         );
-        return { matched: true };
+        return { matched: false };
       }
     }
   }

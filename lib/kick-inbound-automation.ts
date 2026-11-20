@@ -33,6 +33,8 @@ export async function kickInboundAutomation(params: {
   const inboundHasMedia =
     Boolean(inboundMediaUrl) || mediaTypes.includes(inboundType);
 
+  const admin = createServiceRoleClient();
+
   // 1) Trigger flows first — immediate reply path (no debounce).
   if (inboundText.trim() || inboundHasMedia) {
     try {
@@ -44,7 +46,14 @@ export async function kickInboundAutomation(params: {
         inboundType,
         inboundMediaUrl,
       });
-      if (matched) return { matched: true, aiEnqueued: false };
+      if (matched) {
+        // Cancel any pending AI debounce from an earlier inbound.
+        await admin
+          .from("contacts")
+          .update({ automation_pending_at: null })
+          .eq("id", contactId);
+        return { matched: true, aiEnqueued: false };
+      }
     } catch (e) {
       console.warn(
         "[kick-inbound] trigger match failed:",
@@ -54,7 +63,6 @@ export async function kickInboundAutomation(params: {
   }
 
   // 2) No flow matched → enqueue AI auto-reply (debounced).
-  const admin = createServiceRoleClient();
   const { data: config } = await admin
     .from("automation_configs")
     .select("enabled, inbound_debounce_seconds")
@@ -68,9 +76,11 @@ export async function kickInboundAutomation(params: {
     return { matched: false, aiEnqueued: false };
   }
 
+  // Cap debounce hard — operators sometimes set 60–120s which feels like
+  // the bot is broken. Prefer a snappy reply; typing indicator covers the gap.
   const debounce = Math.max(
     0,
-    Math.min(120, Number(config.inbound_debounce_seconds ?? 10)),
+    Math.min(20, Number(config.inbound_debounce_seconds ?? 8)),
   );
   const processAt = new Date(Date.now() + debounce * 1000).toISOString();
 
@@ -79,10 +89,58 @@ export async function kickInboundAutomation(params: {
     .update({ automation_pending_at: processAt })
     .eq("id", contactId);
 
-  // Don't wait for cron — wake the pending worker right after debounce.
+  // Primary: run AI in-process after debounce (no HTTP / token dependency).
+  // Backup: HTTP wake + instrumentation interval still cover other paths.
+  scheduleInProcessAi(contactId, debounce);
   scheduleProcessPendingWake(debounce);
 
   return { matched: false, aiEnqueued: true };
+}
+
+/**
+ * Drain this contact's AI debounce in-process. Avoids the ~3 min stalls
+ * seen when WEBHOOK_INTERNAL_TOKEN / process-pending HTTP wake failed and
+ * only a slow external cron picked the row up.
+ */
+function scheduleInProcessAi(contactId: string, debounceSeconds: number) {
+  const waitMs = Math.max(0, debounceSeconds) * 1000 + 250;
+  const t = setTimeout(() => {
+    void (async () => {
+      try {
+        const admin = createServiceRoleClient();
+        const nowIso = new Date().toISOString();
+        const { data: claimed } = await admin
+          .from("contacts")
+          .update({ automation_pending_at: null })
+          .eq("id", contactId)
+          .lte("automation_pending_at", nowIso)
+          .select("id");
+        if (!claimed || claimed.length === 0) return; // extended / already claimed
+
+        const { data: lastInbound } = await admin
+          .from("messages")
+          .select("id")
+          .eq("contact_id", contactId)
+          .eq("direction", "inbound")
+          .order("timestamp", { ascending: false })
+          .limit(1);
+        const triggerId = lastInbound?.[0]?.id as string | undefined;
+        if (!triggerId) return;
+
+        const { runAutomation } = await import("@/lib/automation");
+        await runAutomation({
+          contactId,
+          triggerMessageId: triggerId,
+        });
+      } catch (e) {
+        console.warn(
+          "[kick-inbound] in-process AI failed:",
+          e instanceof Error ? e.message : e,
+        );
+      }
+    })();
+  }, waitMs);
+  t.unref?.();
 }
 
 /** Fire /api/automation/process-pending shortly after the debounce window. */
