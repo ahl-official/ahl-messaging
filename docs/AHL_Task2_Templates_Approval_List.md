@@ -1,12 +1,13 @@
 # AHL Task 2 — WhatsApp Templates (Approval List)
 
 **Brand:** American Hairline  
+**Requested by:** Vinitt Sir (CEO)  
 **Channel:** WhatsApp Meta templates · Category: **Marketing** · Language: **en_US**  
 **Pilot:** Mehjabeen’s leads first  
 **Cadence:** Day 1 → A · Day 3 → B · Day 7 → B2 · Day 14 → D (then stop)  
 **Total templates:** 12  
 
-Based on Vinitt’s three Task 2 points only:
+Based on **Vinitt Sir’s (CEO)** three Task 2 points only:
 1. Qualified but didn’t book  
 2. Booked but didn’t come  
 3. Visited but didn’t order  

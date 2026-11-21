@@ -199,12 +199,13 @@ def main() -> None:
     pdf.set_text_color(40, 40, 40)
     for line in [
         "Brand: American Hairline",
+        "Requested by: Vinitt Sir (CEO)",
         "Channel: WhatsApp Meta templates | Category: Marketing | Language: en_US",
         "Pilot: Mehjabeen's leads first",
         "Cadence: Day 1 = A | Day 3 = B | Day 7 = B2 | Day 14 = D (then stop)",
         "Total templates: 12",
         "",
-        "Based on Vinitt's three Task 2 points only:",
+        "Based on Vinitt Sir's (CEO) three Task 2 points only:",
         "1) Qualified but did not book",
         "2) Booked but did not come",
         "3) Visited but did not order",
