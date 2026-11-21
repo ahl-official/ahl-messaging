@@ -18,6 +18,7 @@ import {
   AHL_MESSAGING_BPID,
   ensureAhlMessagingContact,
 } from "@/lib/ahl-messaging-contact";
+import { TASK2_TWO_VAR_TEMPLATE_NAMES } from "@/lib/task2-leak-templates";
 
 /** Pilot owner filter. Default Mehjabeen; set DRIP_PILOT_OWNER=* to enroll all. */
 function dripPilotOwner(): string {
@@ -93,8 +94,8 @@ interface RunRow {
 
 const norm = (s: string | null | undefined) => (s ?? "").trim().toLowerCase();
 
-/** Templates that need {{1}}=name and {{2}}=agent (Leak3 Day-3 reminder). */
-const TWO_VAR_TEMPLATES = new Set(["ahl_leak3_d3_b_reminder"]);
+/** Templates that need {{1}}=name and {{2}}=agent when sending via Meta. */
+const TWO_VAR_TEMPLATES = TASK2_TWO_VAR_TEMPLATE_NAMES;
 
 /** Substitute {{name}}/{{1}} with contact name, {{agent}}/{{2}} with agent. */
 function renderVars(

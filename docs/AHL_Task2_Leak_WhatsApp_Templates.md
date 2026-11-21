@@ -251,12 +251,97 @@ Over 7 days since qualified with no booking = leaking. Overdue follow-up = our l
 
 ---
 
+## BOOKED BUT DIDN'T COME (no-show)  
+**Goal:** Reschedule missed consultation.  
+**Target:** Consultation Booked + appointment date passed / no-show; not Visited / Order.
+
+### No-show · Template A — Day 1
+| Field | Value |
+|---|---|
+| **Template code** | `ahl_noshow_d1_a_reschedule` |
+| **Body** | `Hi {{1}}, we missed you at your American Hairline consultation. Shall we reschedule? Reply with 2 preferred slots and {{2}} will confirm.` |
+| **Variables** | `{{1}}` name · `{{2}}` agent |
+| **Buttons** | Reschedule · Call me · Not now |
+
+### No-show · Template B — Day 3
+| Field | Value |
+|---|---|
+| **Template code** | `ahl_noshow_d3_b_reminder` |
+| **Body** | `{{1}}, your consult slot is still open. Reply YES to lock a new time, or share a day that works better for you.` |
+| **Buttons** | YES · Share day · STOP |
+
+### No-show · Template B2 — Day 7
+| Field | Value |
+|---|---|
+| **Template code** | `ahl_noshow_d7_b2_urgency` |
+| **Body** | `Hi {{1}}, just checking in — are you still planning to visit American Hairline? Reply BOOK for a fresh slot or CALL for a quick chat.` |
+| **Buttons** | BOOK · CALL · STOP |
+
+### No-show · Template D — Day 14
+| Field | Value |
+|---|---|
+| **Template code** | `ahl_noshow_d14_d_final` |
+| **Body** | `{{1}}, last note on your missed consultation. Reply READY when you want to rebook, or STOP and we will pause messages.` |
+| **Buttons** | READY · STOP |
+
+---
+
+## VISITED BUT DIDN'T ORDER  
+**Goal:** Close after visit without order.  
+**Target:** Consultation Visited; no Order; stop if Order placed / blocked / STOP.
+
+### Visited · Template A — Day 1
+| Field | Value |
+|---|---|
+| **Template code** | `ahl_visited_d1_a_followup` |
+| **Body** | `Hi {{1}}, thank you for visiting American Hairline. This is {{2}}. Any questions on the options we showed? Happy to help you decide.` |
+| **Variables** | `{{1}}` name · `{{2}}` agent |
+| **Buttons** | Ask question · Call me · Not now |
+
+### Visited · Template B — Day 3
+| Field | Value |
+|---|---|
+| **Template code** | `ahl_visited_d3_b_reminder` |
+| **Body** | `{{1}}, many clients take a day or two after the visit. Reply YES if you want a quick callback to finalise, or share what is holding you back.` |
+| **Buttons** | YES · Share concern · STOP |
+
+### Visited · Template B2 — Day 7
+| Field | Value |
+|---|---|
+| **Template code** | `ahl_visited_d7_b2_objection` |
+| **Body** | `Hi {{1}}, if price, timing or look is the concern after your visit, tell us which one and we will share clear options. Reply PRICE, TIMING or LOOK.` |
+| **Buttons** | PRICE · TIMING · LOOK |
+
+### Visited · Template D — Day 14
+| Field | Value |
+|---|---|
+| **Template code** | `ahl_visited_d14_d_final` |
+| **Body** | `{{1}}, last follow-up after your visit. Reply READY when you want to proceed, or STOP to end messages from us.` |
+| **Buttons** | READY · STOP |
+
+---
+
+## Meta submit (One Inbox)
+```
+GET /api/admin/seed-task2-templates
+Authorization: Bearer <WEBHOOK_INTERNAL_TOKEN>
+
+# Preview only
+GET /api/admin/seed-task2-templates?dry=1&token=<TOKEN>
+
+# One group
+GET /api/admin/seed-task2-templates?group=leak3
+GET /api/admin/seed-task2-templates?group=booked_noshow
+GET /api/admin/seed-task2-templates?group=visited_noorder
+```
+
 ## Approval checklist
-- [ ] CRM / Elma approve all 13 message bodies (12 leak sequence + 1 Deferred C)  
+- [ ] CRM / Elma approve all message bodies (Leak 1–3 + Deferred C + no-show + visited)  
 - [ ] Meta category = Marketing; buttons OK  
 - [ ] Pilot = Mehjabeen only  
 - [ ] One shared message library for CRM team + AI follow-up (no duplicate sets)  
 - [ ] Confirm working hours / Sunday / holiday queue before go-live  
+- [ ] Run `seed-task2-templates` and wait for APPROVED before enabling drips  
 
 **Document for:** CRM approval + Meta template submission  
-**Aligned with:** Funnel leaks (Calls→Talk, Talk→Q, Q→Booking) + Elma schedule A/B/B2/D + Template C deferred  
+**Aligned with:** Funnel leaks (Calls→Talk, Talk→Q, Q→Booking) + Booked-no-show + Visited-no-order + Elma A/B/B2/D + Template C deferred  
