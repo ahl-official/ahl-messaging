@@ -1,9 +1,10 @@
 /**
- * AHL Task 2 — Meta marketing template catalog (CRM-approved copy).
+ * AHL Task 2 — Meta marketing templates for Vinitt’s three funnel goals:
+ *   1) Qualified but didn’t book  (Leak 3)
+ *   2) Booked but didn’t come     (no-show)
+ *   3) Visited but didn’t order
  *
  * Cadence: Day 1 → A · Day 3 → B · Day 7 → B2 · Day 14 → D
- * Plus: Deferred C, Booked-no-show, Visited-no-order.
- *
  * Submit via GET /api/admin/seed-task2-templates
  */
 
@@ -14,14 +15,8 @@ export interface Task2TemplateDef {
   name: string;
   /** Human label for dashboards / seed responses. */
   label: string;
-  /** Leak / stage bucket. */
-  group:
-    | "leak1"
-    | "leak2"
-    | "leak3"
-    | "deferred_c"
-    | "booked_noshow"
-    | "visited_noorder";
+  /** Task 2 stage bucket. */
+  group: "leak3" | "booked_noshow" | "visited_noorder";
   body: string;
   /** Sample values for {{1}}, {{2}}, … (Meta example payload). */
   examples: string[];
@@ -33,85 +28,9 @@ export interface Task2TemplateDef {
 const qr = (...labels: string[]): Task2QuickReply[] =>
   labels.map((text) => ({ type: "QUICK_REPLY" as const, text: text.slice(0, 25) }));
 
-/** All Task 2 templates to create on AHL Messaging WABA. */
+/** The 12 Task 2 templates to create on AHL Messaging WABA. */
 export const TASK2_LEAK_TEMPLATES: Task2TemplateDef[] = [
-  // ─── LEAK 1 — Calls → Talk ───────────────────────────────────────────
-  {
-    name: "ahl_leak1_d1_a_intro",
-    label: "L1 Day1 — Soft intro",
-    group: "leak1",
-    body: "Hi {{1}}, this is {{2}} from American Hairline. We tried reaching you about your hair enquiry. When is a good time for a quick 2-min call?",
-    examples: ["Rahul", "Mehjabeen"],
-    buttons: qr("Call me", "WhatsApp only", "Not now"),
-  },
-  {
-    name: "ahl_leak1_d3_b_reminder",
-    label: "L1 Day3 — Reminder",
-    group: "leak1",
-    body: "Hi {{1}}, many clients start with a short consult to find the right hairline option. Reply YES and we will call you, or share a preferred time.",
-    examples: ["Rahul"],
-    buttons: qr("YES", "Share time", "STOP"),
-  },
-  {
-    name: "ahl_leak1_d7_b2_cta",
-    label: "L1 Day7 — Direct CTA",
-    group: "leak1",
-    body: "{{1}}, we still could not connect. Are you still exploring a hair solution? Reply 1 for Call me today, 2 for WhatsApp only, 3 for Not interested.",
-    examples: ["Rahul"],
-    buttons: qr("1 Call me", "2 WhatsApp", "3 Not interested"),
-  },
-  {
-    name: "ahl_leak1_d14_d_final",
-    label: "L1 Day14 — Final",
-    group: "leak1",
-    body: "Hi {{1}}, last note from American Hairline. We will pause follow-ups for now. If you want help later, just reply and we will assist.",
-    examples: ["Rahul"],
-    buttons: qr("Call me", "STOP"),
-  },
-
-  // ─── LEAK 2 — Talk → Qualified ───────────────────────────────────────
-  {
-    name: "ahl_leak2_d1_a_qualify",
-    label: "L2 Day1 — Qualify",
-    group: "leak2",
-    body: "Hi {{1}}, thanks for speaking with {{2}} from American Hairline. To suggest the right option, please share your city, budget range, and when you can visit.",
-    examples: ["Rahul", "Mehjabeen"],
-    buttons: qr("Share details", "Call me", "Not now"),
-  },
-  {
-    name: "ahl_leak2_d3_b_reminder",
-    label: "L2 Day3 — Reminder",
-    group: "leak2",
-    body: "{{1}}, a short consult helps confirm fit, look, maintenance and cost. Reply with your city and preferred day and we will guide the next step.",
-    examples: ["Rahul"],
-    buttons: qr("Share city/day", "Call me", "STOP"),
-  },
-  {
-    name: "ahl_leak2_d7_b2_objection",
-    label: "L2 Day7 — Objection",
-    group: "leak2",
-    body: "Hi {{1}}, if cost, travel or timing was the concern, tell us which one and we can suggest a realistic plan. Reply COST, TRAVEL or TIMING.",
-    examples: ["Rahul"],
-    buttons: qr("COST", "TRAVEL", "TIMING"),
-  },
-  {
-    name: "ahl_leak2_d14_d_final",
-    label: "L2 Day14 — Final",
-    group: "leak2",
-    body: "{{1}}, we are here when you are ready. Reply READY for a callback, or STOP to end messages.",
-    examples: ["Rahul"],
-    buttons: qr("READY", "STOP"),
-  },
-  {
-    name: "ahl_leak2_deferred_c_callback",
-    label: "L2 Deferred C — Callback day",
-    group: "deferred_c",
-    body: "Hi {{1}}, as discussed we are connecting today. This is {{2}} from American Hairline. Are you available for a short call now, or should we reschedule?",
-    examples: ["Rahul", "Mehjabeen"],
-    buttons: qr("Call now", "Reschedule", "STOP"),
-  },
-
-  // ─── LEAK 3 — Qualified → Booking ────────────────────────────────────
+  // ─── 1) Qualified but didn’t book (Leak 3) ───────────────────────────
   {
     name: "ahl_leak3_d1_a_book",
     label: "L3 Day1 — Ask to book",
@@ -145,7 +64,7 @@ export const TASK2_LEAK_TEMPLATES: Task2TemplateDef[] = [
     buttons: qr("YES", "LATER", "STOP"),
   },
 
-  // ─── Booked but didn't come (no-show) ────────────────────────────────
+  // ─── 2) Booked but didn’t come (no-show) ─────────────────────────────
   {
     name: "ahl_noshow_d1_a_reschedule",
     label: "No-show Day1 — Reschedule",
@@ -179,7 +98,7 @@ export const TASK2_LEAK_TEMPLATES: Task2TemplateDef[] = [
     buttons: qr("READY", "STOP"),
   },
 
-  // ─── Visited but didn't order ────────────────────────────────────────
+  // ─── 3) Visited but didn’t order ─────────────────────────────────────
   {
     name: "ahl_visited_d1_a_followup",
     label: "Visited Day1 — Follow-up",

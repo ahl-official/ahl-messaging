@@ -1,8 +1,10 @@
-// Submit all Task 2 Meta marketing templates on AHL Messaging WABA.
+// Submit Task 2 Meta marketing templates on AHL Messaging WABA (12 total):
+//   leak3 (qualified but didn’t book) · booked_noshow · visited_noorder
 //
 //   GET /api/admin/seed-task2-templates
 //   GET /api/admin/seed-task2-templates?group=leak3
 //   GET /api/admin/seed-task2-templates?group=booked_noshow
+//   GET /api/admin/seed-task2-templates?group=visited_noorder
 //   GET /api/admin/seed-task2-templates?dry=1
 //   Authorization: Bearer <WEBHOOK_INTERNAL_TOKEN>
 //
@@ -153,7 +155,7 @@ export async function GET(req: NextRequest) {
   if (defs.length === 0) {
     return NextResponse.json(
       {
-        error: `Unknown group="${groupParam}". Use all|leak1|leak2|leak3|deferred_c|booked_noshow|visited_noorder`,
+        error: `Unknown group="${groupParam}". Use all|leak3|booked_noshow|visited_noorder`,
       },
       { status: 400 },
     );
