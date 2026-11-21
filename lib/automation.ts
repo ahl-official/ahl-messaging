@@ -482,7 +482,29 @@ export function sanitizeAiOutput(raw: string): string {
   cleaned = cleaned.replace(/\n\n+/g, "\n\n");
   // Collapse runs of spaces but preserve newlines.
   cleaned = cleaned.replace(/[ \t]{2,}/g, " ");
+  // No emojis / smileys in client-facing WhatsApp AI replies.
+  cleaned = stripEmojisFromReply(cleaned);
   return cleaned;
+}
+
+/** Remove emoji / pictograph characters (smiles, hearts, etc.) from AI text. */
+export function stripEmojisFromReply(text: string): string {
+  let t = String(text ?? "");
+  // Common smileys the model loves even when asked not to.
+  t = t.replace(/[\u{1F600}-\u{1F64F}]/gu, ""); // emoticons
+  t = t.replace(/[\u{1F300}-\u{1F5FF}]/gu, ""); // symbols & pictographs
+  t = t.replace(/[\u{1F680}-\u{1F6FF}]/gu, ""); // transport
+  t = t.replace(/[\u{1F900}-\u{1F9FF}]/gu, ""); // supplemental
+  t = t.replace(/[\u{1FA00}-\u{1FAFF}]/gu, ""); // extended-A
+  t = t.replace(/[\u{2600}-\u{26FF}]/gu, ""); // misc symbols
+  t = t.replace(/[\u{2700}-\u{27BF}]/gu, ""); // dingbats
+  t = t.replace(/[\u{FE00}-\u{FE0F}]/gu, ""); // variation selectors
+  t = t.replace(/[\u{200D}]/gu, ""); // ZWJ
+  t = t.replace(/[\u{203C}\u{2049}]/gu, "");
+  // Soften leftover double spaces / " !" after emoji removal.
+  t = t.replace(/[ \t]{2,}/g, " ");
+  t = t.replace(/ +([!?.,])/g, "$1");
+  return t.trim();
 }
 
 /** Detect replies that leak product/service pricing (rupees, EMI, package
@@ -1235,7 +1257,7 @@ export async function runAutomation(opts: {
     "- Every client must get uniquely worded messages; never reuse a stock",
     "  template line across different chats.",
     "- One point or one question per message. Sound human, not robotic.",
-    "- Vary the GREETING, sentence structure, word order and emoji — not just",
+    "- Vary the GREETING, sentence structure and word order — not just",
     "  one word. Two patients at the same step must read clearly differently.",
     `- Variation seed ${variationSeed}: deliberately choose phrasing different`,
     "  from any wording used before.",
@@ -1309,7 +1331,7 @@ export async function runAutomation(opts: {
     "     density — NOT a product catalogue quiz),",
     "  3) city (so you can guide Mumbai / Delhi / Bangalore / video).",
     "- Good examples (vary wording every time; keep under the word limit):",
-    "  \"Hey! Thanks for messaging American Hairline 🙂 What hair concern can I help with?\"",
+    "  \"Hey! Thanks for messaging American Hairline. What hair concern can I help with?\"",
     "  \"Welcome back! What can I help you with today?\"",
     "  \"Got it — Mumbai. Is it mostly front/receding, top, or overall thinning?\"",
     "- Bad examples (never send these patterns):",
@@ -1319,6 +1341,8 @@ export async function runAutomation(opts: {
     "  \"May I know your name?\" (when we already have it / already chatted)",
     "- Do NOT ask which product/package first. Diagnose concern + city, then",
     "  guide toward consult / next step. Products come after understanding need.",
+    "- NO EMOJIS / NO SMILEYS in any reply (not 🙂 😊 🙏 😍 or any other).",
+    "  Plain text only — professional and warm without pictographs.",
   ].join("\n");
 
   const messages: ChatMessage[] = [
@@ -1376,19 +1400,19 @@ export async function runAutomation(opts: {
       const returning = history.some((m) => m.role === "assistant");
       const pick = Math.floor(Math.random() * 3);
       const returningOpeners = [
-        "Welcome back! 🙂 What can I help you with today?",
+        "Welcome back! What can I help you with today?",
         "Good to see you again! What do you need help with?",
         "Hey, you're back! What would you like to know?",
       ];
       const namedOpeners = [
-        "Hey! Thanks for reaching out to American Hairline 🙂 What hair concern can I help with today?",
+        "Hey! Thanks for reaching out to American Hairline. What hair concern can I help with today?",
         "Welcome to American Hairline! Glad you messaged. Is it hairfall, receding front, or thinning on top?",
         "Hi! Thanks for tapping through. Which area bothers you most — front, top, or overall?",
       ];
       const unnamedOpeners = [
-        "Hey! Thanks for messaging American Hairline 🙂 May I know your name?",
+        "Hey! Thanks for messaging American Hairline. May I know your name?",
         "Welcome to American Hairline! Glad you reached out — what's your good name?",
-        "Hi! Thanks for getting in touch with American Hairline 🙂 What name should I use?",
+        "Hi! Thanks for getting in touch with American Hairline. What name should I use?",
       ];
       aiResp = {
         text: returning
@@ -1417,10 +1441,10 @@ export async function runAutomation(opts: {
       Boolean((contact.lsq_stage ?? "").trim());
     aiResp = {
       text: crmKnown
-        ? "Welcome back! 🙂 What can I help you with today?"
+        ? "Welcome back! What can I help you with today?"
         : alreadyNamed
-          ? "Hello! 🙂 Welcome to American Hairline. What hair concern can I help with?"
-          : "Hello! 🙂 Welcome to American Hairline. May I know your name?",
+          ? "Hello! Welcome to American Hairline. What hair concern can I help with?"
+          : "Hello! Welcome to American Hairline. May I know your name?",
       model: "lang-greeting",
       promptTokens: 0,
       completionTokens: 0,
@@ -1538,7 +1562,7 @@ export async function runAutomation(opts: {
         !/^(hi+|hey+|hello+|heyy+|ok|okay|yes|no)\b/i.test(lastText);
       cleaned = hasClearQuery
         ? `Got it, ${knownName.split(/\s+/)[0]}! Our senior consultant will reach out shortly about that. Please keep your phone handy.`
-        : `Welcome back, ${knownName.split(/\s+/)[0]}! 🙂 What can I help you with today?`;
+        : `Welcome back, ${knownName.split(/\s+/)[0]}! What can I help you with today?`;
       console.log(
         `[automation] Task1 name-reask blocked for ${contact.id} → rewritten handoff/query`,
       );
