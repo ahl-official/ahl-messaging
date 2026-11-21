@@ -16,7 +16,11 @@
 
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { getCredential } from "@/lib/credentials";
-import { parseUtm } from "@/lib/utm";
+import { parseInboundAttribution, parseUtm } from "@/lib/utm";
+
+/** Task 1 — same-campaign re-click window. Within this, "Hi! Tell me more"
+ *  with the same campaign must NOT restart intake (AI / handoff instead). */
+const TASK1_SAME_CAMPAIGN_WINDOW_MS = 12 * 60 * 60_000;
 
 type Admin = ReturnType<typeof createServiceRoleClient>;
 
@@ -331,6 +335,92 @@ function skipIdentityAskIfKnown(
   return { skip: false };
 }
 
+/** Normalize campaign fingerprint for same-campaign compares. */
+function campaignFingerprintFromBag(bag: Record<string, unknown> | null | undefined): string {
+  if (!bag) return "";
+  const lower = new Map<string, string>();
+  for (const [k, v] of Object.entries(bag)) {
+    const s = v == null ? "" : String(v).trim();
+    if (s) lower.set(k.toLowerCase(), s);
+  }
+  const campaign =
+    lower.get("campaign_name") ||
+    lower.get("campaignname") ||
+    lower.get("utm_campaign") ||
+    "";
+  const adset =
+    lower.get("adset_name") ||
+    lower.get("adsetname") ||
+    lower.get("utm_adset") ||
+    "";
+  return `${campaign}|${adset}`.toLowerCase();
+}
+
+function campaignFingerprintFromInbound(inboundText: string): string {
+  const attr = parseInboundAttribution(inboundText);
+  if (attr) return campaignFingerprintFromBag(attr);
+  return campaignFingerprintFromBag(seedVarsFromInbound(inboundText));
+}
+
+/**
+ * Last completed intake's campaign fingerprint within the Task 1 window.
+ * Used so a re-click of the same ad within 12h skips the trigger, while a
+ * different campaign (or after 12h) starts intake again.
+ */
+async function recentCompletedIntakeCampaign(
+  admin: Admin,
+  contactId: string,
+): Promise<{ runId: string; fingerprint: string } | null> {
+  const cutoff = new Date(Date.now() - TASK1_SAME_CAMPAIGN_WINDOW_MS).toISOString();
+  const { data: run } = await admin
+    .from("trigger_runs")
+    .select("id")
+    .eq("contact_id", contactId)
+    .eq("status", "completed")
+    .gte("started_at", cutoff)
+    .order("started_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (!run?.id) return null;
+
+  const { data: vars } = await admin
+    .from("trigger_run_vars")
+    .select("key, value")
+    .eq("run_id", run.id)
+    .in("key", [
+      "campaign_name",
+      "CampaignName",
+      "utm_campaign",
+      "adset_name",
+      "AdSetName",
+      "first_message",
+      "inbound_text",
+    ]);
+
+  const bag: Record<string, unknown> = {};
+  for (const row of vars ?? []) {
+    const k = String(row.key ?? "");
+    const v = String(row.value ?? "").trim();
+    if (k && v) bag[k] = v;
+  }
+  let fp = campaignFingerprintFromBag(bag);
+  if (!fp || fp === "|") {
+    const seedText = String(bag.first_message ?? bag.inbound_text ?? "");
+    if (seedText) fp = campaignFingerprintFromInbound(seedText);
+  }
+  return { runId: run.id as string, fingerprint: fp || "|" };
+}
+
+/** True when this "Hi! Tell me more" should NOT restart intake. */
+function isSameCampaignReclick(
+  inboundFp: string,
+  lastFp: string | null | undefined,
+): boolean {
+  const a = (inboundFp || "|").toLowerCase();
+  const b = (lastFp || "|").toLowerCase();
+  return a === b;
+}
+
 /** Seed run vars from the opening inbound (UTM dump / wa.me text / URL). */
 function seedVarsFromInbound(inboundText: string): Record<string, string> {
   const seedVars: Record<string, string> = {};
@@ -420,8 +510,10 @@ export async function matchAndRunTriggers(params: {
 
   const admin = createServiceRoleClient();
 
-  // Ad/CTWA/link payloads vs plain greeting restarts (Hi / Hello).
-  // "Hi! Tell me more: https://…" counts as an ad/link, not a greeting.
+  // Task 1 classification:
+  //   • "Hi! Tell me more" / CTWA / ad link  → intake trigger (keyword flow)
+  //   • Plain Hi / Hello                     → greeting (no new intake if recent)
+  //   • Anything else after intake           → AI reply or human handoff
   const isAdOrLinkPayload =
     /\b(utm_|fbclid|gclid|ctwa_clid|placement\s*=)/i.test(inboundText) ||
     inboundText.toLowerCase().includes("tell me more") ||
@@ -431,12 +523,22 @@ export async function matchAndRunTriggers(params: {
     );
   const isGreetingRestart =
     !isAdOrLinkPayload && isGreetingOpener(inboundText);
+  const inboundCampaignFp = isAdOrLinkPayload
+    ? campaignFingerprintFromInbound(inboundText)
+    : "";
 
-  if (isAdOrLinkPayload || isGreetingRestart) {
-    // Active mid-flow (any age) — CTWA/Hi must not stack a second intake.
-    // Older code only looked at started_at within 24h, so a parked run from
-    // days ago was invisible: we cancelled it, keyword sometimes missed, and
-    // AI answered instead of the UTM flow.
+  // -------------------------------------------------------------------------
+  // Task 1 gate for "Hi! Tell me more" / CTWA:
+  //   1) Start trigger on first click (or new campaign / after 12h).
+  //   2) Same campaign again within 12h → do NOT restart → AI / handoff.
+  //   3) Different campaign within 12h → restart intake.
+  // -------------------------------------------------------------------------
+  if (isAdOrLinkPayload) {
+    const recentIntake = await recentCompletedIntakeCampaign(admin, contactId);
+    const sameCampaignRecent =
+      !!recentIntake &&
+      isSameCampaignReclick(inboundCampaignFp, recentIntake.fingerprint);
+
     const { data: activeMid } = await admin
       .from("trigger_runs")
       .select("id, status")
@@ -445,15 +547,9 @@ export async function matchAndRunTriggers(params: {
       .order("started_at", { ascending: false })
       .limit(1);
 
-    if (activeMid && activeMid.length > 0) {
-      if (isAdOrLinkPayload) {
-        // Fresh ad/link click = restart intake from keyword flows below.
-        await admin
-          .from("trigger_runs")
-          .update({ status: "stopped", finished_at: new Date().toISOString() })
-          .eq("contact_id", contactId)
-          .in("status", ["running", "waiting"]);
-      } else {
+    if (sameCampaignRecent) {
+      // Same ad within 12h — never restart name/city intake.
+      if (activeMid && activeMid.length > 0) {
         const resumed = await resumeWaitingRun(admin, {
           contactId,
           waId,
@@ -462,53 +558,66 @@ export async function matchAndRunTriggers(params: {
           reply,
         });
         if (resumed) return { matched: true };
-        return { matched: true }; // keep existing run; don't stack; don't AI
+        // Keep existing run; don't stack a duplicate.
+        return { matched: true };
       }
-    } else {
-      // completed in last 24h — never restart intake on Hi / keyword / CTWA
-      const recentCutoff = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
-      const { data: recentDone } = await admin
-        .from("trigger_runs")
-        .select("id")
-        .eq("contact_id", contactId)
-        .eq("status", "completed")
-        .gte("started_at", recentCutoff)
-        .limit(1);
-      if (recentDone && recentDone.length > 0) {
-        // Intake already done — never restart the name/city flow.
-        // Fall through to AI (welcome-back / answer their query).
-        console.log(
-          `[trigger-engine] Task1 skip re-intake (post-complete): ${contactId} → AI`,
-        );
-        return { matched: false };
-      }
-    }
-  } else {
-    // 1) A flow waiting on this client's reply takes precedence over new triggers.
-    const resumed = await resumeWaitingRun(admin, { contactId, waId, bpid, inboundText, reply });
-    if (resumed) return { matched: true };
-
-    // 1.5) Don't STACK a second flow on a contact who is already mid-flow. If a
-    //      recent run is still running/waiting (e.g. parked on a buttons node and
-    //      the client typed something off-script), leave it be instead of
-    //      starting a fresh flow from a keyword / new-contact / template trigger.
-    if (await hasActiveRun(admin, contactId)) return { matched: false };
-  }
-
-  // Task 1 early gate — returning / CRM leads must NOT restart name/city
-  // intake. AI handles welcome-back + their query. matched:false → AI.
-  if (isAdOrLinkPayload || isGreetingRestart) {
-    const { data: known } = await admin
-      .from("contacts")
-      .select("name, lsq_lead_number, lsq_prospect_id, lsq_stage")
-      .eq("id", contactId)
-      .maybeSingle();
-    if (await isReturningLead(admin, contactId, known)) {
       console.log(
-        `[trigger-engine] Task1 skip intake (early): returning lead ${contactId} → AI welcome-back`,
+        `[trigger-engine] Task1 skip same-campaign re-click (<12h): ${contactId} fp="${inboundCampaignFp}" → AI`,
       );
       return { matched: false };
     }
+
+    // New / different campaign (or outside 12h) — stop any parked run so the
+    // keyword intake below can start fresh.
+    if (activeMid && activeMid.length > 0) {
+      await admin
+        .from("trigger_runs")
+        .update({ status: "stopped", finished_at: new Date().toISOString() })
+        .eq("contact_id", contactId)
+        .in("status", ["running", "waiting"]);
+    }
+    // Fall through to keyword matching (do NOT block returning leads here —
+    // a fresh "Hi! Tell me more" must start the trigger).
+  } else if (isGreetingRestart) {
+    // Plain Hi/Hey — resume mid-flow if waiting; otherwise AI (no intake restart
+    // within the 12h window after a completed intake).
+    const { data: activeMid } = await admin
+      .from("trigger_runs")
+      .select("id, status")
+      .eq("contact_id", contactId)
+      .in("status", ["running", "waiting"])
+      .order("started_at", { ascending: false })
+      .limit(1);
+    if (activeMid && activeMid.length > 0) {
+      const resumed = await resumeWaitingRun(admin, {
+        contactId,
+        waId,
+        bpid,
+        inboundText,
+        reply,
+      });
+      if (resumed) return { matched: true };
+      return { matched: true };
+    }
+    const recentIntake = await recentCompletedIntakeCampaign(admin, contactId);
+    if (recentIntake) {
+      console.log(
+        `[trigger-engine] Task1 skip greeting re-intake (<12h): ${contactId} → AI`,
+      );
+      return { matched: false };
+    }
+  } else {
+    // Other messages (reconsult, questions, photos, …):
+    // resume waiting flow if mid-intake; else AI / human (no new trigger).
+    const resumed = await resumeWaitingRun(admin, {
+      contactId,
+      waId,
+      bpid,
+      inboundText,
+      reply,
+    });
+    if (resumed) return { matched: true };
+    if (await hasActiveRun(admin, contactId)) return { matched: false };
   }
 
   // 2) Template-reply flows — fire when this inbound is the first reply right
@@ -542,12 +651,10 @@ export async function matchAndRunTriggers(params: {
     }
   }
 
-  // 2.7) First-message flows — fire when ANY contact (new or returning) opens a
-  //      NEW conversation: the message right before this inbound was more than a
-  //      session-window ago (or there is none). The recency check naturally
-  //      makes it fire once per session (the next message's previous is now
-  //      recent), so it re-fires only when the client comes back after a gap.
-  {
+  // 2.7) First-message flows — only when this is NOT a "Hi! Tell me more"
+  //      click (those use the keyword UTM intake). Session gap = 12h to match
+  //      Task 1 retarget window.
+  if (!isAdOrLinkPayload) {
     const { data: ncFlows } = await admin
       .from("trigger_flows")
       .select("id, business_phone_number_id, trigger_type, trigger_config, start_node_id, priority")
@@ -557,7 +664,6 @@ export async function matchAndRunTriggers(params: {
       .order("priority", { ascending: true });
     const fmFlow = (ncFlows ?? []).find((f) => (f as FlowRow).start_node_id) as FlowRow | undefined;
     if (fmFlow?.start_node_id) {
-      // Last 2 messages: [0] = this inbound (already stored), [1] = the previous.
       const { data: recent } = await admin
         .from("messages")
         .select("timestamp")
@@ -565,9 +671,9 @@ export async function matchAndRunTriggers(params: {
         .order("timestamp", { ascending: false })
         .limit(2);
       const prev = (recent ?? [])[1];
-      const SESSION_GAP_MS = 24 * 60 * 60_000;
       const prevMs = prev?.timestamp ? Date.parse(prev.timestamp as string) : 0;
-      const newSession = !prevMs || Date.now() - prevMs > SESSION_GAP_MS;
+      const newSession =
+        !prevMs || Date.now() - prevMs > TASK1_SAME_CAMPAIGN_WINDOW_MS;
       if (newSession) {
         await runFlow(
           admin,
@@ -582,23 +688,13 @@ export async function matchAndRunTriggers(params: {
     }
   }
 
-  // 3) Otherwise try to start a keyword flow — but not if this contact already
-  //    finished an intake in the last 24h (Hi / keyword / CTWA must not re-fire).
-  {
-    const recentCutoff = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
-    const { data: recentDone } = await admin
-      .from("trigger_runs")
-      .select("id")
-      .eq("contact_id", contactId)
-      .eq("status", "completed")
-      .gte("started_at", recentCutoff)
-      .limit(1);
-    if (recentDone && recentDone.length > 0) {
-      // Finished intake recently — do not re-fire keyword name/city flows.
-      // AI welcome-back / answer path handles the reply.
-      console.log(
-        `[trigger-engine] Task1 skip keyword re-intake (post-complete): ${contactId} → AI`,
-      );
+  // 3) Keyword intake ("Hi! Tell me more", …).
+  //    Same-campaign <12h already returned above. Other non-ad messages that
+  //    somehow reach here without matching a keyword just fall to AI.
+  if (!isAdOrLinkPayload) {
+    // Non-ad traffic: do not start keyword intake after a recent completed run.
+    const recentIntake = await recentCompletedIntakeCampaign(admin, contactId);
+    if (recentIntake) {
       return { matched: false };
     }
   }
@@ -610,27 +706,6 @@ export async function matchAndRunTriggers(params: {
     .eq("enabled", true)
     .eq("trigger_type", "keyword")
     .order("priority", { ascending: true });
-
-  // Task 1: returning lead → do NOT restart name/city/product intake.
-  // Fall through to AI (welcome back + ask their query).
-  {
-    const { data: c } = await admin
-      .from("contacts")
-      .select("name, lsq_lead_number, lsq_prospect_id, lsq_stage")
-      .eq("id", contactId)
-      .maybeSingle();
-    if (await isReturningLead(admin, contactId, c)) {
-      const wouldStartIntake = ((flows ?? []) as FlowRow[]).some(
-        (f) => !!f.start_node_id && textMatches(inboundText, f.trigger_config),
-      );
-      if (wouldStartIntake || isAdOrLinkPayload || isGreetingRestart) {
-        console.log(
-          `[trigger-engine] Task1 skip intake: returning lead ${contactId} → AI welcome-back`,
-        );
-        return { matched: false };
-      }
-    }
-  }
 
   for (const flow of (flows ?? []) as FlowRow[]) {
     if (!flow.start_node_id) continue;
