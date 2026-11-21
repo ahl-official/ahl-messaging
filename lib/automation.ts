@@ -1281,11 +1281,14 @@ export async function runAutomation(opts: {
       const nameBit = knownName ? ` Their name on file is "${knownName}".` : "";
       return [
         `- RETURNING LEAD.${nameBit} Do NOT ask for name, phone, or number again.`,
+        "- NEVER say \"confirm your full name\" / \"may I know your name\" for",
+        "  returning leads — even on reconsultation / booking / callback asks.",
         "- If they just said Hi/Hey/CTWA again: welcome them BACK in one short",
         "  line (e.g. \"Welcome back!\" / \"Good to see you again\") and ask what",
         "  they need help with now — their query / hair concern / appointment.",
-        "- If they already stated a clear query (appointment, concern, city,",
-        "  photos), answer that — do not re-ask name.",
+        "- If they already stated a clear query (appointment, reconsult,",
+        "  concern, city, photos), answer that and hand off to a counselor if",
+        "  needed — do not re-ask name.",
         "- If their message is unclear / gibberish / you truly cannot help:",
         "  say a counselor will take over and offer to connect them to a human.",
         "  Do not keep grilling them for name/city.",
@@ -1513,6 +1516,33 @@ export async function runAutomation(opts: {
   // Replaces the whole reply with a counselor handoff (does not strip mid-sentence).
   if (looksLikePriceLeak(cleaned)) {
     cleaned = PRICE_HANDOFF_REPLY;
+  }
+
+  // Task 1 hard gate — returning / known leads must NEVER be re-asked for
+  // name. The LLM sometimes ignores the system prompt on "reconsultation"
+  // turns; rewrite deterministically when we already have a name on file.
+  {
+    const knownName = (contact.name ?? "").trim();
+    const crmKnown =
+      Boolean((contact.lsq_prospect_id ?? "").trim()) ||
+      Boolean((contact.lsq_stage ?? "").trim());
+    const chattedBefore = history.some((m) => m.role === "assistant");
+    const returning = crmKnown || chattedBefore;
+    if (returning && knownName && replyAsksForName(cleaned)) {
+      const lastUser = [...history].reverse().find((m) => m.role === "user");
+      const lastText =
+        typeof lastUser?.content === "string" ? lastUser.content.trim() : "";
+      const hasClearQuery =
+        lastText.length > 0 &&
+        !isCtwaOrAdTrackingPayload(lastText) &&
+        !/^(hi+|hey+|hello+|heyy+|ok|okay|yes|no)\b/i.test(lastText);
+      cleaned = hasClearQuery
+        ? `Got it, ${knownName.split(/\s+/)[0]}! Our senior consultant will reach out shortly about that. Please keep your phone handy.`
+        : `Welcome back, ${knownName.split(/\s+/)[0]}! 🙂 What can I help you with today?`;
+      console.log(
+        `[automation] Task1 name-reask blocked for ${contact.id} → rewritten handoff/query`,
+      );
+    }
   }
 
   // Optional human-paced delay before sending. Capped at 60s — anything
@@ -1838,9 +1868,35 @@ export async function runAutomation(opts: {
       extracted: {},
       fieldMap: new Map(),
       history,
+      assistantReply: cleaned,
     }).catch((e) => {
       console.warn(
         "[automation] AI→sheet (no-LSQ-path) failed:",
+        e instanceof Error ? e.message : e,
+      );
+    });
+  }
+
+  // Always attempt a sheet push for AHL numbers after a successful AI reply
+  // when extraction ran in parallel — covers returning handoffs where LSQ
+  // extract may be empty but contact.name + concern are enough for CRM.
+  if (
+    extractionOn &&
+    isAhlSheetBusinessNumber(contact.business_phone_number_id) &&
+    ((config.field_mappings && config.field_mappings.length > 0) ||
+      (config.lead_defaults && config.lead_defaults.length > 0))
+  ) {
+    void pushAiCollectedToAhlSheet({
+      contactId: contact.id,
+      waId: contact.wa_id,
+      extracted: {},
+      fieldMap: new Map(),
+      history,
+      assistantReply: cleaned,
+      force: looksLikeHandoffOrCallbackIntent(cleaned),
+    }).catch((e) => {
+      console.warn(
+        "[automation] AI→sheet (post-reply) failed:",
         e instanceof Error ? e.message : e,
       );
     });
@@ -1995,13 +2051,15 @@ Output shape: a single JSON object whose keys exactly match the LSQ field names 
 
   // Sheet via n8n — when AI (not trigger) collected name (+ city when
   // known), push the same ahl-flow-webhook payload so Flexi Funnel still
-  // gets the lead. Phone is always the WhatsApp id.
+  // gets the lead. Phone is always the WhatsApp id. Passing assistant
+  // reply so returning handoffs still force a CRM callback row.
   void pushAiCollectedToAhlSheet({
     contactId,
     waId,
     extracted,
     fieldMap,
     history,
+    assistantReply: opts.latestAssistantReply,
   }).catch((e) => {
     console.warn(
       "[automation] AI→sheet webhook failed:",
@@ -2136,6 +2194,16 @@ function pickExtractedString(
   return "";
 }
 
+/** True when the bot reply is asking the client for their name again. */
+function replyAsksForName(text: string): boolean {
+  const t = text.toLowerCase();
+  return (
+    /\b(full\s+name|your\s+name|good\s+name|confirm\s+(your\s+)?name|may i know.*name|what('s| is) your name|name should i use)\b/i.test(
+      t,
+    ) || /\bplease\s+(confirm|share|tell).{0,40}\bname\b/i.test(t)
+  );
+}
+
 /** Cheap heuristic when LSQ field mappings are empty — pull name/city from recent user lines. */
 function skimNameCityFromHistory(history: ChatMessage[]): {
   name: string;
@@ -2148,36 +2216,72 @@ function skimNameCityFromHistory(history: ChatMessage[]): {
   for (const m of history) {
     if (m.role !== "user") continue;
     const text = typeof m.content === "string" ? m.content.trim() : "";
-    if (!text || text.length > 80) continue;
+    if (!text || text.length > 160) continue;
     if (isCtwaOrAdTrackingPayload(text)) continue;
     if (!city) {
       const cm = text.match(cityRe);
       if (cm) city = cm[1]!.replace(/\b\w/g, (c) => c.toUpperCase());
     }
     // Short reply after we asked for name — e.g. "Shreeya", "My name is Rahul"
+    // Also: "Saniya, and I want to discuss…" / "Saniya — receding hairline"
     if (!name) {
       const named = text.match(
         /(?:(?:my\s+)?name\s+is|i\s+am|i'm)\s+([A-Za-z][A-Za-z.'\-\s]{1,40})/i,
       );
       if (named?.[1]) {
         name = named[1].trim().replace(/\s+/g, " ");
-      } else if (
-        /^[A-Za-z][A-Za-z.'\-]{1,30}(?:\s+[A-Za-z][A-Za-z.'\-]{1,30}){0,2}$/.test(
-          text,
-        ) &&
-        !/^(hi|hey|hello|heyy|ok|okay|yes|no|thanks|thank you)\b/i.test(text)
-      ) {
-        name = text;
+      } else {
+        const leading = text.match(
+          /^([A-Za-z][A-Za-z.'\-]{1,30}(?:\s+[A-Za-z][A-Za-z.'\-]{1,30}){0,2})\s*[,—\-–:]/,
+        );
+        if (
+          leading?.[1] &&
+          !/^(hi|hey|hello|heyy|ok|okay|yes|no|thanks|thank you)\b/i.test(
+            leading[1],
+          )
+        ) {
+          name = leading[1].trim();
+        } else if (
+          /^[A-Za-z][A-Za-z.'\-]{1,30}(?:\s+[A-Za-z][A-Za-z.'\-]{1,30}){0,2}$/.test(
+            text,
+          ) &&
+          !/^(hi|hey|hello|heyy|ok|okay|yes|no|thanks|thank you)\b/i.test(text)
+        ) {
+          name = text;
+        }
       }
     }
   }
   return { name, city };
 }
 
+/** Latest plain user text from chat history (for sheet concern / force push). */
+function latestUserPlainText(history: ChatMessage[] | undefined): string {
+  if (!history?.length) return "";
+  for (let i = history.length - 1; i >= 0; i--) {
+    const m = history[i]!;
+    if (m.role !== "user") continue;
+    if (typeof m.content === "string") return m.content.trim();
+    if (Array.isArray(m.content)) {
+      const t = m.content.find((p) => p.type === "text");
+      if (t && t.type === "text") return t.text.trim();
+    }
+  }
+  return "";
+}
+
+function looksLikeHandoffOrCallbackIntent(text: string): boolean {
+  return /\b(reconsult|re-consult|consultation|callback|call\s*back|book|appointment|reach out|senior consultant|counsel+or will|agent will)\b/i.test(
+    text,
+  );
+}
+
 /**
  * After AI has a usable name (city optional), POST to n8n so the sheet
  * gets the lead even when no trigger flow webhook ran. Phone = wa_id.
  * Re-pushes as `update` when city/product arrive later.
+ * Returning / reconsult / handoff turns force a push so CRM agents get a
+ * fresh callback row even when name was already known.
  */
 async function pushAiCollectedToAhlSheet(opts: {
   contactId: string;
@@ -2185,12 +2289,16 @@ async function pushAiCollectedToAhlSheet(opts: {
   extracted: Record<string, unknown>;
   fieldMap: Map<string, string>;
   history?: ChatMessage[];
+  /** Latest AI reply — used to detect counselor-handoff closes. */
+  assistantReply?: string;
+  /** Bypass unchanged-signature skip (returning lead / handoff). */
+  force?: boolean;
 }): Promise<void> {
   const admin = createServiceRoleClient();
   const { data: contact } = await admin
     .from("contacts")
     .select(
-      "id, wa_id, name, profile_name, business_phone_number_id, utm_params, utm_source",
+      "id, wa_id, name, profile_name, business_phone_number_id, utm_params, utm_source, lsq_prospect_id, lsq_stage",
     )
     .eq("id", opts.contactId)
     .maybeSingle();
@@ -2244,7 +2352,23 @@ async function pushAiCollectedToAhlSheet(opts: {
     "interested_in",
   );
 
-  const sig = `${opts.waId}|${name}|${city}|${product}`.toLowerCase();
+  const inboundText = latestUserPlainText(opts.history);
+  const assistantText = (opts.assistantReply ?? "").trim();
+  const returning =
+    Boolean(String(contact.lsq_prospect_id ?? "").trim()) ||
+    Boolean(String(contact.lsq_stage ?? "").trim()) ||
+    Boolean(String(contact.name ?? "").trim());
+  const forcePush =
+    opts.force === true ||
+    looksLikeHandoffOrCallbackIntent(inboundText) ||
+    looksLikeHandoffOrCallbackIntent(assistantText);
+
+  // Include intent snippet in sig so a returning reconsult still pushes
+  // even when name/city/product are unchanged from an earlier sheet hit.
+  const intentKey = forcePush
+    ? inboundText.slice(0, 80).toLowerCase().replace(/\s+/g, " ")
+    : "";
+  const sig = `${opts.waId}|${name}|${city}|${product}|${intentKey}`.toLowerCase();
   const prevUtm =
     contact.utm_params && typeof contact.utm_params === "object"
       ? ({ ...(contact.utm_params as Record<string, unknown>) } as Record<
@@ -2252,16 +2376,22 @@ async function pushAiCollectedToAhlSheet(opts: {
           unknown
         >)
       : {};
-  if (String(prevUtm.__ai_sheet_sig ?? "") === sig) {
+  if (!forcePush && String(prevUtm.__ai_sheet_sig ?? "") === sig) {
     return; // unchanged since last AI sheet push
   }
 
   // Prefer update if we already pushed (AI or trigger) recently.
+  // Returning handoff / reconsult older than 12h → start (new retarget row
+  // for CRM agents), matching n8n smart-sync behaviour.
   let flowEvent: "start" | "update" =
     prevUtm.__ai_sheet_sig || prevUtm.__ai_sheet_pushed_at
       ? "update"
       : "start";
-  if (flowEvent === "start") {
+  if (forcePush && returning) {
+    const pushedAt = String(prevUtm.__ai_sheet_pushed_at ?? "");
+    const ageMs = pushedAt ? Date.now() - Date.parse(pushedAt) : Infinity;
+    flowEvent = Number.isFinite(ageMs) && ageMs < 12 * 60 * 60_000 ? "update" : "start";
+  } else if (flowEvent === "start") {
     const cutoff = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
     const { data: recentRuns } = await admin
       .from("trigger_runs")
@@ -2300,7 +2430,7 @@ async function pushAiCollectedToAhlSheet(opts: {
     patch_type: "",
     urgency: "",
     platform: "",
-    inbound_text: "",
+    inbound_text: inboundText.slice(0, 500),
     utm_source: String(contact.utm_source ?? utmParams.utm_source ?? ""),
     utm_medium: String(utmParams.utm_medium ?? ""),
     utm_campaign: String(
@@ -2323,6 +2453,8 @@ async function pushAiCollectedToAhlSheet(opts: {
     lead_source: "WhatsApp",
     source: "ai-assistant",
     flow_event: flowEvent,
+    returning_lead: returning,
+    handoff: forcePush,
     utm_params: utmParams,
     vars: {
       user_name: name,
@@ -2330,6 +2462,7 @@ async function pushAiCollectedToAhlSheet(opts: {
       city,
       product,
       interested_in: product,
+      inbound_text: inboundText.slice(0, 500),
     },
   };
 
@@ -2346,6 +2479,10 @@ async function pushAiCollectedToAhlSheet(opts: {
     return;
   }
 
+  const nameFromExtract = Boolean(
+    pickExtractedString(opts.extracted, opts.fieldMap, "FirstName") ||
+      skimNameCityFromHistory(opts.history ?? []).name,
+  );
   await admin
     .from("contacts")
     .update({
@@ -2354,13 +2491,11 @@ async function pushAiCollectedToAhlSheet(opts: {
         __ai_sheet_sig: sig,
         __ai_sheet_pushed_at: new Date().toISOString(),
       },
-      ...(pickExtractedString(opts.extracted, opts.fieldMap, "FirstName")
-        ? { name }
-        : {}),
+      ...(nameFromExtract && name ? { name } : {}),
     })
     .eq("id", opts.contactId);
 
   console.log(
-    `[automation] AI→sheet ${flowEvent} for ${opts.waId} name="${name}" city="${city}"`,
+    `[automation] AI→sheet ${flowEvent} for ${opts.waId} name="${name}" city="${city}" force=${forcePush}`,
   );
 }
