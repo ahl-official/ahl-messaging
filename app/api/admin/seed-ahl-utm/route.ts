@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
  * Does not create, rename, or delete any other flow.
  *
  * Order:
- *   n8n webhook (phone+UTM immediately) → Name → City → n8n → Product → …
+ *   n8n webhook (phone+UTM) → Name → City → n8n → Concern (type|voice) → Product → …
  *
  * GET /api/admin/seed-ahl-utm?bpid=<phone_number_id>
  */
@@ -89,7 +89,7 @@ export async function GET(req: Request) {
       text: "Hello, Welcome to American Hairline! We're delighted to have you here. May we know your name?",
       var_name: "user_name",
       remind_on_invalid: true,
-      invalid_reply_message: "Please tell us your name to proceed further 🙏",
+      invalid_reply_message: "Please tell us your name to proceed further.",
     },
     80,
     80,
@@ -128,6 +128,48 @@ export async function GET(req: Request) {
   // ---- 3. n8n webhook AFTER name + city (Sheets via n8n) ----
   const webhookLead = addNode("webhook", { url: webhookUrl }, 780, 80);
 
+  // ---- 3.5 Concern — type OR voice note (session interactive, not Meta template)
+  const askConcernMode = addNode(
+    "ask_button",
+    {
+      text: "Please share your hair concern. You can type it, or send a voice note.",
+      var_name: "concern_mode",
+      buttons: [
+        { label: "Type your request" },
+        { label: "Send a voice note" },
+      ],
+    },
+    960,
+    80,
+  );
+
+  const askConcernText = addNode(
+    "ask_text",
+    {
+      text: "Please type your hair concern — for example hairfall, receding front, thinning on top, or patch.",
+      var_name: "concern",
+      remind_on_invalid: true,
+      invalid_reply_message:
+        "Please type a short description of your hair concern to continue.",
+    },
+    1140,
+    20,
+  );
+
+  const askConcernVoice = addNode(
+    "ask_text",
+    {
+      text: "Please send a voice note describing your hair concern. You can also type it if you prefer.",
+      var_name: "concern",
+      // Accepts transcribed voice or typed text (long-form allowed).
+      remind_on_invalid: true,
+      invalid_reply_message:
+        "Please send a voice note or type your hair concern to continue.",
+    },
+    1140,
+    160,
+  );
+
   // ---- 4. Product ----
   const askProduct = addNode(
     "ask_button",
@@ -141,7 +183,7 @@ export async function GET(req: Request) {
         { label: "Front Hairline" },
       ],
     },
-    1140,
+    1380,
     80,
   );
 
@@ -258,8 +300,12 @@ export async function GET(req: Request) {
   makeEdge(askCity, "None of the above", askCustomCity);
   makeEdge(askCustomCity, null, webhookLead);
 
-  // After Sheets webhook → product question
-  makeEdge(webhookLead, null, askProduct);
+  // After Sheets webhook → concern (type | voice) → product
+  makeEdge(webhookLead, null, askConcernMode);
+  makeEdge(askConcernMode, "Type your request", askConcernText);
+  makeEdge(askConcernMode, "Send a voice note", askConcernVoice);
+  makeEdge(askConcernText, null, askProduct);
+  makeEdge(askConcernVoice, null, askProduct);
 
   // CRITICAL product wiring (do not cross these in the canvas):
   //   Hair Patch              → Which Hair Patch
@@ -317,7 +363,7 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     success: true,
-    message: `AHL UTM Flow reseeded on ${bpid} — webhook(phone+UTM)→name→city→n8n→product. Other flows unchanged.`,
+    message: `AHL UTM Flow reseeded on ${bpid} — webhook(phone+UTM)→name→city→n8n→concern(type|voice)→product. Other flows unchanged.`,
     flowId,
     bpid,
     nodeCount: nodes.length,

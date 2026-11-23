@@ -73,17 +73,33 @@ function textMatches(text: string, cfg: FlowRow["trigger_config"]): boolean {
   );
 }
 
-/** True when free-text looks like a real answer (name/city), not a UTM dump. */
-function isAcceptableAskTextReply(text: string): boolean {
+/** True when free-text looks like a real answer (name/city/concern), not a UTM dump. */
+function isAcceptableAskTextReply(
+  text: string,
+  opts?: { maxLen?: number },
+): boolean {
   const t = (text ?? "").trim();
   if (!t) return false;
-  if (t.length > 80) return false;
+  const maxLen = opts?.maxLen ?? 80;
+  if (t.length > maxLen) return false;
   if (/^https?:\/\//i.test(t)) return false;
   if (/\b(utm_|fbclid|gclid|ctwa_clid|placement\s*=)/i.test(t)) return false;
   if (t.includes("&") && t.includes("=")) return false;
   // Need at least 2 letters (Latin or Devanagari) — rejects "?", "1", "..."
   const letters = (t.match(/[A-Za-z\u0900-\u097F]/g) ?? []).join("");
   return letters.length >= 2;
+}
+
+function isLongFormAskVar(varName: string): boolean {
+  const n = varName.trim().toLowerCase();
+  return (
+    n === "concern" ||
+    n === "hair_concern" ||
+    n === "query" ||
+    n === "message" ||
+    n === "feedback" ||
+    n === "notes"
+  );
 }
 
 /** LP wa.me links use PascalCase (AdSetName); sheet/n8n expect snake_case. */
@@ -1237,11 +1253,17 @@ async function resumeWaitingRun(
 
   if (node.node_type === "wait_reply" || node.node_type === "ask_text" || node.node_type === "ask_file") {
     // Ask Text can require a real answer (not UTM dump / empty) before advancing.
+    const vnEarly = String(cfg.var_name ?? "").trim();
     if (node.node_type === "ask_text" && cfg.remind_on_invalid) {
-      if (!isAcceptableAskTextReply(base.inboundText)) {
+      const ok = isAcceptableAskTextReply(base.inboundText, {
+        maxLen: isLongFormAskVar(vnEarly) ? 800 : 80,
+      });
+      if (!ok) {
         const remindMsg =
           String(cfg.invalid_reply_message ?? "").trim() ||
-          "Please tell us your name to proceed further 🙏";
+          (isLongFormAskVar(vnEarly)
+            ? "Please share a short description to continue."
+            : "Please tell us your name to proceed further.");
         await sendText(
           { contactId: base.contactId, waId: base.waId, bpid: base.bpid, contact: {}, vars: {} },
           remindMsg,
@@ -1250,7 +1272,7 @@ async function resumeWaitingRun(
       }
     }
     label = null; // freeform response, follows the single default out-edge
-    const vn = String(cfg.var_name ?? "").trim();
+    const vn = vnEarly;
     if (vn && base.inboundText) {
       base.reply[vn] = base.inboundText;
       // Typed name wins over CTWA/WhatsApp profile — persist so returning

@@ -184,38 +184,64 @@ export async function POST(
     .update({ transcript: transcript || null, content: merged || null })
     .eq("id", id);
 
-  // Now that the spoken text has landed on `content`, fire the AI
-  // pipeline so the bot replies to what was actually said. The
-  // webhook deliberately skipped this step for audio messages so
-  // the bot wouldn't reply to an empty content. Fire-and-forget —
-  // the operator-facing transcript response shouldn't block on the
-  // bot's typing window.
+  // Now that the spoken text has landed on `content`, resume any parked
+  // trigger flow (e.g. UTM "Send a voice note" → ask_text) AND/OR fire
+  // the AI pipeline. Webhook skipped automation for raw audio so we
+  // wouldn't reply on empty content — kick here with the transcript.
   if (transcript) {
-    const internalToken = await getCredential("webhook_internal_token");
-    if (internalToken) {
-      const origin = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-      // Need contact_id for the automation processor — fetch from
-      // the message row we already touched.
-      const { data: refreshed } = await admin
-        .from("messages")
-        .select("contact_id")
-        .eq("id", id)
+    const { data: refreshed } = await admin
+      .from("messages")
+      .select("contact_id, media_url")
+      .eq("id", id)
+      .maybeSingle();
+    const contactId = refreshed?.contact_id as string | undefined;
+    if (contactId) {
+      const { data: contact } = await admin
+        .from("contacts")
+        .select("wa_id, business_phone_number_id")
+        .eq("id", contactId)
         .maybeSingle();
-      if (refreshed?.contact_id) {
-        void fetch(`${origin}/api/automation/process`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contact_id: refreshed.contact_id,
-            trigger_message_id: id,
-            token: internalToken,
-          }),
+      const waId = String(contact?.wa_id ?? "").trim();
+      const bpid = String(contact?.business_phone_number_id ?? "").trim();
+      if (waId && bpid) {
+        const { kickInboundAutomation } = await import(
+          "@/lib/kick-inbound-automation"
+        );
+        void kickInboundAutomation({
+          contactId,
+          waId,
+          bpid,
+          inboundText: transcript,
+          inboundType: "audio",
+          inboundMediaUrl:
+            (refreshed?.media_url as string | null) ?? m.media_url,
         }).catch((e) => {
           console.error(
-            "[transcribe] automation trigger failed:",
+            "[transcribe] kickInboundAutomation failed:",
             e instanceof Error ? e.message : e,
           );
         });
+      } else {
+        // Fallback — AI-only if contact row is incomplete.
+        const internalToken = await getCredential("webhook_internal_token");
+        if (internalToken) {
+          const origin =
+            process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+          void fetch(`${origin}/api/automation/process`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contact_id: contactId,
+              trigger_message_id: id,
+              token: internalToken,
+            }),
+          }).catch((e) => {
+            console.error(
+              "[transcribe] automation trigger failed:",
+              e instanceof Error ? e.message : e,
+            );
+          });
+        }
       }
     }
   }
