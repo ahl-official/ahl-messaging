@@ -255,6 +255,7 @@ def main() -> None:
         "- Unclear replies or human-help requests -> flag for executive review.",
         "- Pilot: Mehjabeen's leads only until CRM expands.",
     ]:
+        pdf.set_x(pdf.l_margin)
         pdf.multi_cell(0, 5, item)
 
     pdf.ln(3)
@@ -269,6 +270,7 @@ def main() -> None:
         "3. Attach to One Inbox drip campaigns (Mehjabeen pilot).",
         "4. Auto-send Day 1 -> 3 -> 7 -> 14 with stop rules above.",
     ]:
+        pdf.set_x(pdf.l_margin)
         pdf.multi_cell(0, 5, item)
 
     pdf.ln(3)
