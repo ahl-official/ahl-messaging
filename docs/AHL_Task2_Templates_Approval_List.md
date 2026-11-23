@@ -1,212 +1,232 @@
-# AHL Task 2 — WhatsApp Templates (Approval List)
+# AHL Task 2 — WhatsApp Follow-up Templates
 
+**CRM Review Version — for final approval**  
 **Brand:** American Hairline  
 **Requested by:** Vinitt Sir (CEO)  
 **Channel:** WhatsApp Meta templates · Category: **Marketing** · Language: **en_US**  
+**Number:** AHL Messaging (Meta Cloud API)  
 **Pilot:** Mehjabeen’s leads first  
-**Cadence:** Day 1 → A · Day 3 → B · Day 7 → B2 · Day 14 → D (then stop)  
+**Cadence:** Day 1 → Day 3 → Day 7 → Day 14 (then stop)  
 **Total templates:** 12  
 
-Based on **Vinitt Sir’s (CEO)** three Task 2 points only:
-1. Qualified but didn’t book  
-2. Booked but didn’t come  
-3. Visited but didn’t order  
+Based on Vinitt Sir’s (CEO) three Task 2 follow-ups:
+1. Qualified but did not book  
+2. Booked but did not come  
+3. Visited but did not order  
+
+**Note:** Internal funnel term “Leak” is **not** used in this document. Categories use the three labels above only.
 
 **Variables**
 | Token | Meaning |
 |-------|---------|
 | `{{1}}` | Client first name |
-| `{{2}}` | Agent / executive name (only where used) |
-
-**Global stop (do not send if):** Consultation Booked / Consultation Visited / Order placed (as relevant per sequence) · Lead blocked · Client replied STOP · Stage left the target set  
+| `{{2}}` | Assigned CRM executive / agent name (only where used) |
 
 ---
 
-# 1) Qualified but didn’t book (Leak 3)
+# 1) Qualified but did not book
+
+**Stage targeting**  
+Warm Lead · Cold Lead 1 · Cold Lead 2 · Deferred Lead — **qualified only**  
+Only leads who have **not yet booked** a consultation.
+
+---
 
 ## 1. `ahl_leak3_d1_a_book`
 | | |
 |---|---|
-| **Leak** | Qualified but didn’t book |
-| **Goal** | Ask for booking slots |
-| **Stages** | Warm Lead, Cold Lead 1, Cold Lead 2, Deferred Lead (Q/NQ = Q; not yet booked) |
+| **Category** | Qualified but did not book |
 | **Day** | Day 1 |
 | **Variables** | `{{1}}` name |
-| **Buttons** | Book · Share slots · Not now |
-| **Body** | Hi {{1}}, based on our discussion you are a good fit. Shall we book your consultation? Please share 2 preferred slots with day and time. |
+| **Buttons** | BOOK · SHARE SLOTS · NOT NOW |
+| **Body** | Hi {{1}}, thank you for speaking with us. Would you like to schedule your consultation? Please share two preferred slots with the day and time, and our team will help you confirm. |
 
 ---
 
 ## 2. `ahl_leak3_d3_b_reminder`
 | | |
 |---|---|
-| **Leak** | Qualified but didn’t book |
-| **Goal** | Slot urgency, low pressure |
-| **Stages** | Same as #1 |
+| **Category** | Qualified but did not book |
 | **Day** | Day 3 |
 | **Variables** | `{{1}}` name · `{{2}}` agent |
-| **Buttons** | BOOK · Call me · STOP |
-| **Body** | {{1}}, consult slots fill up for in-person and online. Reply BOOK and {{2}} will confirm a time that works for you. |
+| **Buttons** | BOOK · CALL ME · STOP |
+| **Body** | Hi {{1}}, just following up to check if you would like to schedule your consultation. Reply BOOK and {{2}} will help you confirm a suitable time. |
 
 ---
 
 ## 3. `ahl_leak3_d7_b2_objection`
 | | |
 |---|---|
-| **Leak** | Qualified but didn’t book |
-| **Goal** | Objection handler |
-| **Stages** | Same as #1 |
+| **Category** | Qualified but did not book |
 | **Day** | Day 7 |
 | **Variables** | `{{1}}` name |
 | **Buttons** | PRICE · FAMILY · TRAVEL |
-| **Body** | Hi {{1}}, if price, family approval or travel is holding the booking, tell us which one and we will help with options. Reply PRICE, FAMILY or TRAVEL. |
+| **Body** | Hi {{1}}, if price, family approval or travel is holding you back from booking your consultation, please let us know. We will be happy to help with your concerns. |
 
 ---
 
 ## 4. `ahl_leak3_d14_d_final`
 | | |
 |---|---|
-| **Leak** | Qualified but didn’t book |
-| **Goal** | Final nudge |
-| **Stages** | Same as #1 |
+| **Category** | Qualified but did not book |
 | **Day** | Day 14 |
 | **Variables** | `{{1}}` name |
 | **Buttons** | YES · LATER · STOP |
-| **Body** | {{1}}, last follow-up on your consultation. Reply YES to book, or LATER with a date and we will wait till then. |
+| **Body** | Hi {{1}}, just one last follow-up regarding your consultation. Reply YES if you would like to book, or LATER with a suitable date if you need more time. |
 
 ---
 
-# 2) Booked but didn’t come (no-show)
+# 2) Booked but did not come
+
+**Stage targeting**  
+Consultation Booked — **appointment missed / confirmed no-show**  
+Only leads with a **verified missed appointment**. Leads who have already visited must be excluded.
+
+---
 
 ## 5. `ahl_noshow_d1_a_reschedule`
 | | |
 |---|---|
-| **Leak** | Booked but didn’t come |
-| **Goal** | Reschedule missed consultation |
-| **Stages** | Consultation Booked — appointment missed / no-show (not Visited / Order) |
+| **Category** | Booked but did not come |
 | **Day** | Day 1 |
 | **Variables** | `{{1}}` name · `{{2}}` agent |
-| **Buttons** | Reschedule · Call me · Not now |
-| **Body** | Hi {{1}}, we missed you at your American Hairline consultation. Shall we reschedule? Reply with 2 preferred slots and {{2}} will confirm. |
+| **Buttons** | RESCHEDULE · CALL ME · NOT NOW |
+| **Body** | Hi {{1}}, we noticed you couldn't attend your scheduled consultation at American Hairline. Would you like to reschedule? Please share two preferred slots, and {{2}} will help you confirm. |
 
 ---
 
 ## 6. `ahl_noshow_d3_b_reminder`
 | | |
 |---|---|
-| **Leak** | Booked but didn’t come |
-| **Goal** | Reminder to rebook |
-| **Stages** | Same as #5 |
+| **Category** | Booked but did not come |
 | **Day** | Day 3 |
 | **Variables** | `{{1}}` name |
-| **Buttons** | YES · Share day · STOP |
-| **Body** | {{1}}, your consult slot is still open. Reply YES to lock a new time, or share a day that works better for you. |
+| **Buttons** | YES · PREFERRED DATE · STOP |
+| **Body** | Hi {{1}}, just checking if you would like to reschedule your missed consultation. Please share your preferred date, and our team will help you arrange a new appointment. |
 
 ---
 
 ## 7. `ahl_noshow_d7_b2_urgency`
 | | |
 |---|---|
-| **Leak** | Booked but didn’t come |
-| **Goal** | Urgency check-in |
-| **Stages** | Same as #5 |
+| **Category** | Booked but did not come |
 | **Day** | Day 7 |
 | **Variables** | `{{1}}` name |
 | **Buttons** | BOOK · CALL · STOP |
-| **Body** | Hi {{1}}, just checking in — are you still planning to visit American Hairline? Reply BOOK for a fresh slot or CALL for a quick chat. |
+| **Body** | Hi {{1}}, just checking in to see if you are still planning to visit American Hairline. Reply BOOK to schedule a new consultation or CALL if you would like to speak with our team. |
 
 ---
 
 ## 8. `ahl_noshow_d14_d_final`
 | | |
 |---|---|
-| **Leak** | Booked but didn’t come |
-| **Goal** | Final note |
-| **Stages** | Same as #5 |
+| **Category** | Booked but did not come |
 | **Day** | Day 14 |
 | **Variables** | `{{1}}` name |
 | **Buttons** | READY · STOP |
-| **Body** | {{1}}, last note on your missed consultation. Reply READY when you want to rebook, or STOP and we will pause messages. |
+| **Body** | Hi {{1}}, this is our last follow-up regarding your missed consultation. Reply READY whenever you would like to reschedule, or STOP if you do not wish to receive further messages. |
 
 ---
 
-# 3) Visited but didn’t order
+# 3) Visited but did not order
+
+**Stage targeting**  
+Consultation Visited — **no order yet**  
+Only leads with a **verified consultation visit** and no order.
+
+---
 
 ## 9. `ahl_visited_d1_a_followup`
 | | |
 |---|---|
-| **Leak** | Visited but didn’t order |
-| **Goal** | Post-visit follow-up |
-| **Stages** | Consultation Visited — no Order yet |
+| **Category** | Visited but did not order |
 | **Day** | Day 1 |
 | **Variables** | `{{1}}` name · `{{2}}` agent |
-| **Buttons** | Ask question · Call me · Not now |
-| **Body** | Hi {{1}}, thank you for visiting American Hairline. This is {{2}}. Any questions on the options we showed? Happy to help you decide. |
+| **Buttons** | ASK QUESTION · CALL ME · NOT NOW |
+| **Body** | Hi {{1}}, thank you for visiting American Hairline. This is {{2}}. We wanted to check if you have any questions about the options discussed during your consultation. We will be happy to assist you. |
 
 ---
 
 ## 10. `ahl_visited_d3_b_reminder`
 | | |
 |---|---|
-| **Leak** | Visited but didn’t order |
-| **Goal** | Soft reminder to decide |
-| **Stages** | Same as #9 |
+| **Category** | Visited but did not order |
 | **Day** | Day 3 |
 | **Variables** | `{{1}}` name |
-| **Buttons** | YES · Share concern · STOP |
-| **Body** | {{1}}, many clients take a day or two after the visit. Reply YES if you want a quick callback to finalise, or share what is holding you back. |
+| **Buttons** | YES · SHARE CONCERN · STOP |
+| **Body** | Hi {{1}}, we hope you had a good experience during your visit. Would you like a callback to discuss your options or clarify any concerns? |
 
 ---
 
 ## 11. `ahl_visited_d7_b2_objection`
 | | |
 |---|---|
-| **Leak** | Visited but didn’t order |
-| **Goal** | Objection handler |
-| **Stages** | Same as #9 |
+| **Category** | Visited but did not order |
 | **Day** | Day 7 |
 | **Variables** | `{{1}}` name |
 | **Buttons** | PRICE · TIMING · LOOK |
-| **Body** | Hi {{1}}, if price, timing or look is the concern after your visit, tell us which one and we will share clear options. Reply PRICE, TIMING or LOOK. |
+| **Body** | Hi {{1}}, if price, timing or the expected look is a concern after your consultation, please let us know. We will be happy to understand your concerns and help you with the available options. |
 
 ---
 
 ## 12. `ahl_visited_d14_d_final`
 | | |
 |---|---|
-| **Leak** | Visited but didn’t order |
-| **Goal** | Final follow-up |
-| **Stages** | Same as #9 |
+| **Category** | Visited but did not order |
 | **Day** | Day 14 |
 | **Variables** | `{{1}}` name |
 | **Buttons** | READY · STOP |
-| **Body** | {{1}}, last follow-up after your visit. Reply READY when you want to proceed, or STOP to end messages from us. |
+| **Body** | Hi {{1}}, this is our last follow-up regarding your consultation. Reply READY if you would like to proceed or discuss the next steps, or STOP if you do not wish to receive further messages. |
 
 ---
 
-## Quick index
+# Stop rules and exclusions
 
-| # | Template name | Task 2 point |
-|---|---------------|--------------|
-| 1 | `ahl_leak3_d1_a_book` | Qualified but didn’t book |
-| 2 | `ahl_leak3_d3_b_reminder` | Qualified but didn’t book |
-| 3 | `ahl_leak3_d7_b2_objection` | Qualified but didn’t book |
-| 4 | `ahl_leak3_d14_d_final` | Qualified but didn’t book |
-| 5 | `ahl_noshow_d1_a_reschedule` | Booked but didn’t come |
-| 6 | `ahl_noshow_d3_b_reminder` | Booked but didn’t come |
-| 7 | `ahl_noshow_d7_b2_urgency` | Booked but didn’t come |
-| 8 | `ahl_noshow_d14_d_final` | Booked but didn’t come |
-| 9 | `ahl_visited_d1_a_followup` | Visited but didn’t order |
-| 10 | `ahl_visited_d3_b_reminder` | Visited but didn’t order |
-| 11 | `ahl_visited_d7_b2_objection` | Visited but didn’t order |
-| 12 | `ahl_visited_d14_d_final` | Visited but didn’t order |
+- Stop the sequence when the lead moves out of its target stage or completes the next action (booking, visiting, or placing an order).  
+- **STOP** → stop automated WhatsApp messages immediately.  
+- **CALL ME / CALL** → hand over to the assigned CRM executive.  
+- **NOT NOW / LATER** → handle via CRM callback process.  
+- No duplicate or overlapping follow-up sequences for the same lead.  
+- Leads already booked, visited, or converted are excluded from earlier sequences.  
+- Unclear replies or requests for human help → flag for executive review.  
+- Pilot scope: **Mehjabeen’s leads only** until CRM expands.
 
 ---
 
-**Approval**  
-- [ ] CRM / Elma approve all 12 bodies + buttons  
-- [ ] Meta: Marketing · en_US  
-- [ ] Pilot: Mehjabeen only  
+# Quick index
 
-**File:** `docs/AHL_Task2_Templates_Approval_List.md`  
-**For:** CRM / Elma / Meta template submission approval  
+| # | Template name | Category | Day |
+|---|---------------|----------|-----|
+| 1 | `ahl_leak3_d1_a_book` | Qualified but did not book | Day 1 |
+| 2 | `ahl_leak3_d3_b_reminder` | Qualified but did not book | Day 3 |
+| 3 | `ahl_leak3_d7_b2_objection` | Qualified but did not book | Day 7 |
+| 4 | `ahl_leak3_d14_d_final` | Qualified but did not book | Day 14 |
+| 5 | `ahl_noshow_d1_a_reschedule` | Booked but did not come | Day 1 |
+| 6 | `ahl_noshow_d3_b_reminder` | Booked but did not come | Day 3 |
+| 7 | `ahl_noshow_d7_b2_urgency` | Booked but did not come | Day 7 |
+| 8 | `ahl_noshow_d14_d_final` | Booked but did not come | Day 14 |
+| 9 | `ahl_visited_d1_a_followup` | Visited but did not order | Day 1 |
+| 10 | `ahl_visited_d3_b_reminder` | Visited but did not order | Day 3 |
+| 11 | `ahl_visited_d7_b2_objection` | Visited but did not order | Day 7 |
+| 12 | `ahl_visited_d14_d_final` | Visited but did not order | Day 14 |
+
+---
+
+# Implementation (after final CRM approval)
+
+1. Submit all 12 templates to Meta as **Marketing / en_US** on **AHL Messaging**.  
+2. Wait for Meta **APPROVED** status.  
+3. Attach to One Inbox drip campaigns (Mehjabeen pilot).  
+4. Auto-send Day 1 → 3 → 7 → 14 with stop rules above.  
+
+---
+
+**CRM approval**  
+- [ ] Elma / CRM approve all 12 bodies + buttons  
+- [ ] Stage targeting confirmed  
+- [ ] Stop rules confirmed  
+- [ ] Ready for Meta submission  
+
+**Status:** Revised after CRM suggested corrections — pending final approval  
+
+**For:** Final CRM approval before Meta template creation  

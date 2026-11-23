@@ -1,24 +1,22 @@
 /**
- * AHL Task 2 — Meta marketing templates for Vinitt’s three funnel goals:
- *   1) Qualified but didn’t book  (Leak 3)
- *   2) Booked but didn’t come     (no-show)
- *   3) Visited but didn’t order
+ * AHL Task 2 — Meta marketing templates (CRM-revised wording).
  *
- * Cadence: Day 1 → A · Day 3 → B · Day 7 → B2 · Day 14 → D
+ * Three follow-ups only:
+ *   1) Qualified but did not book
+ *   2) Booked but did not come
+ *   3) Visited but did not order
+ *
+ * Cadence: Day 1 → Day 3 → Day 7 → Day 14
  * Submit via GET /api/admin/seed-task2-templates
  */
 
 export type Task2QuickReply = { type: "QUICK_REPLY"; text: string };
 
 export interface Task2TemplateDef {
-  /** Meta template name — lowercase + underscores only. */
   name: string;
-  /** Human label for dashboards / seed responses. */
   label: string;
-  /** Task 2 stage bucket. */
   group: "leak3" | "booked_noshow" | "visited_noorder";
   body: string;
-  /** Sample values for {{1}}, {{2}}, … (Meta example payload). */
   examples: string[];
   buttons: Task2QuickReply[];
   language?: string;
@@ -28,64 +26,64 @@ export interface Task2TemplateDef {
 const qr = (...labels: string[]): Task2QuickReply[] =>
   labels.map((text) => ({ type: "QUICK_REPLY" as const, text: text.slice(0, 25) }));
 
-/** The 12 Task 2 templates to create on AHL Messaging WABA. */
+/** 12 Task 2 templates — CRM-revised bodies (Elma review). */
 export const TASK2_LEAK_TEMPLATES: Task2TemplateDef[] = [
-  // ─── 1) Qualified but didn’t book (Leak 3) ───────────────────────────
+  // ─── 1) Qualified but did not book ───────────────────────────────────
   {
     name: "ahl_leak3_d1_a_book",
-    label: "L3 Day1 — Ask to book",
+    label: "Qualified Day1 — Ask to book",
     group: "leak3",
-    body: "Hi {{1}}, based on our discussion you are a good fit. Shall we book your consultation? Please share 2 preferred slots with day and time.",
+    body: "Hi {{1}}, thank you for speaking with us. Would you like to schedule your consultation? Please share two preferred slots with the day and time, and our team will help you confirm.",
     examples: ["Rahul"],
-    buttons: qr("Book", "Share slots", "Not now"),
+    buttons: qr("BOOK", "SHARE SLOTS", "NOT NOW"),
   },
   {
     name: "ahl_leak3_d3_b_reminder",
-    label: "L3 Day3 — Slot urgency",
+    label: "Qualified Day3 — Follow-up",
     group: "leak3",
-    body: "{{1}}, consult slots fill up for in-person and online. Reply BOOK and {{2}} will confirm a time that works for you.",
+    body: "Hi {{1}}, just following up to check if you would like to schedule your consultation. Reply BOOK and {{2}} will help you confirm a suitable time.",
     examples: ["Rahul", "Mehjabeen"],
-    buttons: qr("BOOK", "Call me", "STOP"),
+    buttons: qr("BOOK", "CALL ME", "STOP"),
   },
   {
     name: "ahl_leak3_d7_b2_objection",
-    label: "L3 Day7 — Objection",
+    label: "Qualified Day7 — Objection",
     group: "leak3",
-    body: "Hi {{1}}, if price, family approval or travel is holding the booking, tell us which one and we will help with options. Reply PRICE, FAMILY or TRAVEL.",
+    body: "Hi {{1}}, if price, family approval or travel is holding you back from booking your consultation, please let us know. We will be happy to help with your concerns.",
     examples: ["Rahul"],
     buttons: qr("PRICE", "FAMILY", "TRAVEL"),
   },
   {
     name: "ahl_leak3_d14_d_final",
-    label: "L3 Day14 — Final",
+    label: "Qualified Day14 — Final",
     group: "leak3",
-    body: "{{1}}, last follow-up on your consultation. Reply YES to book, or LATER with a date and we will wait till then.",
+    body: "Hi {{1}}, just one last follow-up regarding your consultation. Reply YES if you would like to book, or LATER with a suitable date if you need more time.",
     examples: ["Rahul"],
     buttons: qr("YES", "LATER", "STOP"),
   },
 
-  // ─── 2) Booked but didn’t come (no-show) ─────────────────────────────
+  // ─── 2) Booked but did not come ──────────────────────────────────────
   {
     name: "ahl_noshow_d1_a_reschedule",
     label: "No-show Day1 — Reschedule",
     group: "booked_noshow",
-    body: "Hi {{1}}, we missed you at your American Hairline consultation. Shall we reschedule? Reply with 2 preferred slots and {{2}} will confirm.",
+    body: "Hi {{1}}, we noticed you couldn't attend your scheduled consultation at American Hairline. Would you like to reschedule? Please share two preferred slots, and {{2}} will help you confirm.",
     examples: ["Rahul", "Mehjabeen"],
-    buttons: qr("Reschedule", "Call me", "Not now"),
+    buttons: qr("RESCHEDULE", "CALL ME", "NOT NOW"),
   },
   {
     name: "ahl_noshow_d3_b_reminder",
     label: "No-show Day3 — Reminder",
     group: "booked_noshow",
-    body: "{{1}}, your consult slot is still open. Reply YES to lock a new time, or share a day that works better for you.",
+    body: "Hi {{1}}, just checking if you would like to reschedule your missed consultation. Please share your preferred date, and our team will help you arrange a new appointment.",
     examples: ["Rahul"],
-    buttons: qr("YES", "Share day", "STOP"),
+    buttons: qr("YES", "PREFERRED DATE", "STOP"),
   },
   {
     name: "ahl_noshow_d7_b2_urgency",
-    label: "No-show Day7 — Urgency",
+    label: "No-show Day7 — Check-in",
     group: "booked_noshow",
-    body: "Hi {{1}}, just checking in — are you still planning to visit American Hairline? Reply BOOK for a fresh slot or CALL for a quick chat.",
+    body: "Hi {{1}}, just checking in to see if you are still planning to visit American Hairline. Reply BOOK to schedule a new consultation or CALL if you would like to speak with our team.",
     examples: ["Rahul"],
     buttons: qr("BOOK", "CALL", "STOP"),
   },
@@ -93,33 +91,33 @@ export const TASK2_LEAK_TEMPLATES: Task2TemplateDef[] = [
     name: "ahl_noshow_d14_d_final",
     label: "No-show Day14 — Final",
     group: "booked_noshow",
-    body: "{{1}}, last note on your missed consultation. Reply READY when you want to rebook, or STOP and we will pause messages.",
+    body: "Hi {{1}}, this is our last follow-up regarding your missed consultation. Reply READY whenever you would like to reschedule, or STOP if you do not wish to receive further messages.",
     examples: ["Rahul"],
     buttons: qr("READY", "STOP"),
   },
 
-  // ─── 3) Visited but didn’t order ─────────────────────────────────────
+  // ─── 3) Visited but did not order ────────────────────────────────────
   {
     name: "ahl_visited_d1_a_followup",
     label: "Visited Day1 — Follow-up",
     group: "visited_noorder",
-    body: "Hi {{1}}, thank you for visiting American Hairline. This is {{2}}. Any questions on the options we showed? Happy to help you decide.",
+    body: "Hi {{1}}, thank you for visiting American Hairline. This is {{2}}. We wanted to check if you have any questions about the options discussed during your consultation. We will be happy to assist you.",
     examples: ["Rahul", "Mehjabeen"],
-    buttons: qr("Ask question", "Call me", "Not now"),
+    buttons: qr("ASK QUESTION", "CALL ME", "NOT NOW"),
   },
   {
     name: "ahl_visited_d3_b_reminder",
-    label: "Visited Day3 — Reminder",
+    label: "Visited Day3 — Callback offer",
     group: "visited_noorder",
-    body: "{{1}}, many clients take a day or two after the visit. Reply YES if you want a quick callback to finalise, or share what is holding you back.",
+    body: "Hi {{1}}, we hope you had a good experience during your visit. Would you like a callback to discuss your options or clarify any concerns?",
     examples: ["Rahul"],
-    buttons: qr("YES", "Share concern", "STOP"),
+    buttons: qr("YES", "SHARE CONCERN", "STOP"),
   },
   {
     name: "ahl_visited_d7_b2_objection",
     label: "Visited Day7 — Objection",
     group: "visited_noorder",
-    body: "Hi {{1}}, if price, timing or look is the concern after your visit, tell us which one and we will share clear options. Reply PRICE, TIMING or LOOK.",
+    body: "Hi {{1}}, if price, timing or the expected look is a concern after your consultation, please let us know. We will be happy to understand your concerns and help you with the available options.",
     examples: ["Rahul"],
     buttons: qr("PRICE", "TIMING", "LOOK"),
   },
@@ -127,13 +125,12 @@ export const TASK2_LEAK_TEMPLATES: Task2TemplateDef[] = [
     name: "ahl_visited_d14_d_final",
     label: "Visited Day14 — Final",
     group: "visited_noorder",
-    body: "{{1}}, last follow-up after your visit. Reply READY when you want to proceed, or STOP to end messages from us.",
+    body: "Hi {{1}}, this is our last follow-up regarding your consultation. Reply READY if you would like to proceed or discuss the next steps, or STOP if you do not wish to receive further messages.",
     examples: ["Rahul"],
     buttons: qr("READY", "STOP"),
   },
 ];
 
-/** Template names that need {{1}}=name and {{2}}=agent when sending. */
 export const TASK2_TWO_VAR_TEMPLATE_NAMES: ReadonlySet<string> = new Set(
   TASK2_LEAK_TEMPLATES.filter((t) => t.examples.length >= 2).map((t) => t.name),
 );
