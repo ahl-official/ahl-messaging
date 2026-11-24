@@ -792,25 +792,28 @@ async function processWebhook(body: WAWebhookBody) {
                 .is("avatar_url", null);
             }
 
-            // Auto-transcribe inbound voice notes / audio. The
-            // transcribe route is responsible for kicking the AI
-            // pipeline AFTER Whisper completes (we deliberately did
-            // NOT fire automation/process for audio above) so the
-            // bot's history reader sees the transcribed text on its
-            // very first pass.
+            // Auto-transcribe inbound voice notes in-process (Whisper →
+            // kick trigger/AI). Do NOT HTTP-hop to localhost — that was
+            // silently failing so media_url saved but the flow never resumed.
             if (isAudioMsg && insertedRow) {
-              fetch(`${origin}/api/messages/${insertedRow.id}/transcribe`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${internalToken}`,
-                },
-              }).catch((e) => {
-                console.error(
-                  "[webhook] auto-transcribe failed:",
-                  e instanceof Error ? e.message : e,
-                );
-              });
+              void import("@/lib/transcribe-inbound-audio")
+                .then(({ transcribeInboundAudioMessage }) =>
+                  transcribeInboundAudioMessage(insertedRow.id),
+                )
+                .then((result) => {
+                  if (!result.ok) {
+                    console.error(
+                      "[webhook] auto-transcribe failed:",
+                      result.error,
+                    );
+                  }
+                })
+                .catch((e) => {
+                  console.error(
+                    "[webhook] auto-transcribe failed:",
+                    e instanceof Error ? e.message : e,
+                  );
+                });
             }
           }
         }
