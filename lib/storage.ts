@@ -20,13 +20,49 @@ const EXT_FOR_MIME: Record<string, string> = {
   "application/pdf": "pdf",
 };
 
+/** Strip parameters (`audio/ogg; codecs=opus` → `audio/ogg`). WhatsApp
+ *  voice notes always ship codecs in the mime; without this, storage
+ *  paths become `file.ogg; codecs=opus` and the upload fails → no
+ *  media_url → Whisper never runs. */
+export function normalizeMime(mime: string): string {
+  return (mime || "").split(";")[0].trim().toLowerCase();
+}
+
 export function extForMime(mime: string, fallback = "bin"): string {
-  return EXT_FOR_MIME[mime] ?? mime.split("/")[1] ?? fallback;
+  const base = normalizeMime(mime);
+  return EXT_FOR_MIME[base] ?? base.split("/")[1] ?? fallback;
 }
 
 export interface UploadedMedia {
-  path: string;       // path in bucket
-  publicUrl: string;  // permanent public URL
+  path: string; // path in bucket
+  publicUrl: string; // permanent public URL
+}
+
+let bucketReady: Promise<void> | null = null;
+
+/** Create the public media bucket once if missing (prod had none → every
+ *  inbound voice/image download failed with media_url=null). */
+async function ensureMediaBucket(
+  supabase: ReturnType<typeof createServiceRoleClient>,
+): Promise<void> {
+  if (!bucketReady) {
+    bucketReady = (async () => {
+      const { data } = await supabase.storage.listBuckets();
+      if ((data ?? []).some((b) => b.name === MEDIA_BUCKET)) return;
+      const { error } = await supabase.storage.createBucket(MEDIA_BUCKET, {
+        public: true,
+        fileSizeLimit: 50 * 1024 * 1024,
+      });
+      // Race: another process created it — ignore "already exists".
+      if (error && !/already exists|duplicate/i.test(error.message)) {
+        console.warn("[storage] createBucket:", error.message);
+      }
+    })().catch((e) => {
+      bucketReady = null;
+      throw e;
+    });
+  }
+  await bucketReady;
 }
 
 export async function uploadMediaBytes(
@@ -34,7 +70,9 @@ export async function uploadMediaBytes(
   opts: { mime: string; folder: "inbound" | "outbound"; suggestedName?: string },
 ): Promise<UploadedMedia> {
   const supabase = createServiceRoleClient();
-  const ext = extForMime(opts.mime);
+  await ensureMediaBucket(supabase);
+  const mime = normalizeMime(opts.mime) || "application/octet-stream";
+  const ext = extForMime(mime);
   const safeBase = opts.suggestedName
     ? opts.suggestedName.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 60)
     : `${Date.now()}`;
@@ -46,15 +84,13 @@ export async function uploadMediaBytes(
   const blob =
     bytes instanceof Blob
       ? bytes
-      : new Blob([bytes as ArrayBuffer], { type: opts.mime });
+      : new Blob([bytes as ArrayBuffer], { type: mime });
 
-  const { error } = await supabase.storage
-    .from(MEDIA_BUCKET)
-    .upload(path, blob, {
-      contentType: opts.mime,
-      cacheControl: "3600",
-      upsert: false,
-    });
+  const { error } = await supabase.storage.from(MEDIA_BUCKET).upload(path, blob, {
+    contentType: mime,
+    cacheControl: "3600",
+    upsert: false,
+  });
 
   if (error) throw new Error(`Storage upload failed: ${error.message}`);
 

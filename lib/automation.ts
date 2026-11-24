@@ -570,6 +570,21 @@ async function decideRun(opts: {
     return { run: false, reason: "bot blocked — off-topic / app guidelines" };
   }
 
+  // Mid-flow intake (e.g. waiting for voice note / typed concern) — never
+  // let the AI answer over a parked trigger ask. Sweep used to fire ~3min
+  // later with "I can't send voice notes" when media download failed.
+  {
+    const { data: waiting } = await admin
+      .from("trigger_runs")
+      .select("id")
+      .eq("contact_id", opts.contact.id)
+      .in("status", ["waiting", "running"])
+      .limit(1);
+    if (waiting && waiting.length > 0) {
+      return { run: false, reason: "trigger flow waiting for reply" };
+    }
+  }
+
   // 2. Human takeover guard — pause AI when a human is actively engaging
   //    with this chat. Two signals trigger the pause:
   //      (a) a recent outbound message from a real agent (not the AI), OR

@@ -35,6 +35,26 @@ interface Body {
 }
 
 export async function POST(request: NextRequest) {
+  try {
+    return await handleCreateLink(request);
+  } catch (e) {
+    console.error(
+      "[payments/create-link] unhandled:",
+      e instanceof Error ? e.stack ?? e.message : e,
+    );
+    return NextResponse.json(
+      {
+        error:
+          e instanceof Error
+            ? e.message
+            : "Payment link failed unexpectedly. Check Settings → Payments and server logs.",
+      },
+      { status: 500 },
+    );
+  }
+}
+
+async function handleCreateLink(request: NextRequest) {
   const supabase = await createServerClient();
   const {
     data: { user },

@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createHmac, timingSafeEqual } from "crypto";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { fetchPhoneNumberDetails, getApiVersion } from "@/lib/whatsapp";
-import { uploadMediaBytes } from "@/lib/storage";
+import { normalizeMime, uploadMediaBytes } from "@/lib/storage";
 import { getCredential } from "@/lib/credentials";
 import {
   getPortfolioByVerifyToken,
@@ -18,6 +18,8 @@ async function downloadInboundMedia(
   mediaId: string,
   fallbackMime: string,
   receivingPhoneNumberId: string,
+  /** Webhook payload often includes a short-lived CDN URL — use if Graph lookup fails. */
+  payloadUrl?: string | null,
 ): Promise<{ url: string; mime: string } | null> {
   // Retry the whole flow up to 5× with exponential backoff (1s / 2s /
   // 4s / 8s / 16s — total ~31s). Meta media URLs stay valid for 5
@@ -32,19 +34,23 @@ async function downloadInboundMedia(
       const token = creds?.access_token;
       if (!token) return null;
 
+      let downloadUrl = "";
+      let mimeFromMeta = "";
+
       const metaRes = await fetch(
         `https://graph.facebook.com/${apiVersion}/${mediaId}?fields=url,mime_type`,
         { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" },
       );
-      if (!metaRes.ok) {
-        if (attempt < 5) {
-          await new Promise((r) => setTimeout(r, 800 * attempt));
-          continue;
-        }
-        return null;
+      if (metaRes.ok) {
+        const meta = (await metaRes.json()) as { url?: string; mime_type?: string };
+        downloadUrl = String(meta.url ?? "").trim();
+        mimeFromMeta = String(meta.mime_type ?? "").trim();
       }
-      const meta = (await metaRes.json()) as { url?: string; mime_type?: string };
-      if (!meta.url) {
+
+      // Fallback: Meta sometimes embeds lookaside URL on the webhook body.
+      if (!downloadUrl && payloadUrl) downloadUrl = payloadUrl.trim();
+
+      if (!downloadUrl) {
         if (attempt < 5) {
           await new Promise((r) => setTimeout(r, 800 * attempt));
           continue;
@@ -52,7 +58,7 @@ async function downloadInboundMedia(
         return null;
       }
 
-      const dlRes = await fetch(meta.url, {
+      const dlRes = await fetch(downloadUrl, {
         headers: { Authorization: `Bearer ${token}` },
         cache: "no-store",
       });
@@ -64,7 +70,10 @@ async function downloadInboundMedia(
         return null;
       }
       const bytes = await dlRes.arrayBuffer();
-      const mime = meta.mime_type ?? fallbackMime;
+      const mime =
+        normalizeMime(mimeFromMeta || fallbackMime) ||
+        normalizeMime(fallbackMime) ||
+        "application/octet-stream";
 
       const { publicUrl } = await uploadMediaBytes(bytes, {
         mime,
@@ -144,11 +153,17 @@ type WAMessage = {
   timestamp: string;
   type: string;
   text?: { body: string };
-  image?: { id: string; mime_type?: string; caption?: string };
-  document?: { id: string; mime_type?: string; filename?: string; caption?: string };
-  audio?: { id: string; mime_type?: string };
-  video?: { id: string; mime_type?: string; caption?: string };
-  sticker?: { id: string; mime_type?: string; animated?: boolean };
+  image?: { id: string; mime_type?: string; caption?: string; url?: string };
+  document?: {
+    id: string;
+    mime_type?: string;
+    filename?: string;
+    caption?: string;
+    url?: string;
+  };
+  audio?: { id: string; mime_type?: string; url?: string; voice?: boolean };
+  video?: { id: string; mime_type?: string; caption?: string; url?: string };
+  sticker?: { id: string; mime_type?: string; animated?: boolean; url?: string };
   // Customer shared a location (live or static). lat/lng always present;
   // name/address are optional (only when they picked a named place).
   location?: {
@@ -434,10 +449,18 @@ async function processWebhook(body: WAWebhookBody) {
         let mediaMime: string | null = extractMime(msg);
         const mediaId = mediaIdOf(msg);
         if (mediaId) {
+          const payloadMediaUrl =
+            msg.image?.url ||
+            msg.audio?.url ||
+            msg.video?.url ||
+            msg.document?.url ||
+            msg.sticker?.url ||
+            null;
           const downloaded = await downloadInboundMedia(
             mediaId,
             mediaMime ?? "application/octet-stream",
             businessPhoneNumberId ?? "",
+            payloadMediaUrl,
           );
           if (downloaded) {
             mediaUrl = downloaded.url;

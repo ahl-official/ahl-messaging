@@ -196,12 +196,26 @@ function PaymentLinkDialog({
           clinic,
         }),
       });
-      const j = (await res.json()) as {
+      const raw = await res.text();
+      let j: {
         ok?: boolean;
         message_text?: string | null;
         qr_sent?: boolean;
         error?: string;
-      };
+      } = {};
+      try {
+        j = raw ? (JSON.parse(raw) as typeof j) : {};
+      } catch {
+        // Proxies / Next crash pages return HTML — surface a clear reason
+        // instead of "Unexpected token '<' ... is not valid JSON".
+        const looksHtml = /^\s*</.test(raw) || raw.includes("<!DOCTYPE");
+        setErr(
+          looksHtml
+            ? `Server returned HTML (HTTP ${res.status}) instead of JSON. Usually session expired, payment gateway timeout, or missing Settings → Payments credentials. Refresh and retry; if it persists check Network → create-link.`
+            : `Bad response (HTTP ${res.status}): ${raw.slice(0, 180) || "empty"}`,
+        );
+        return;
+      }
       if (!res.ok || !j.ok) {
         setErr(j.error ?? `HTTP ${res.status}`);
         return;

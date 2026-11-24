@@ -2,7 +2,8 @@
  * Inserts ONLY "AHL UTM Flow". Does not modify any other trigger_flows row.
  * Usage: node scripts/seed-ahl-utm-flow.js [optional_bpid]
  *
- * Graph: Name → City → n8n webhook → Product (correct branches) → …
+ * Graph: Name → City → n8n webhook → Product → …
+ * (Concern type/voice is on V3, not this classic UTM flow.)
  */
 const fs = require("fs");
 const path = require("path");
@@ -113,44 +114,6 @@ async function seedOne(bpid) {
 
   const webhookLead = addNode("webhook", { url: webhookUrl }, 780, 80);
 
-  const askConcernMode = addNode(
-    "ask_button",
-    {
-      text: "Please share your hair concern. You can type it, or send a voice note.",
-      var_name: "concern_mode",
-      buttons: [
-        { label: "Type your request" },
-        { label: "Send a voice note" },
-      ],
-    },
-    960,
-    80,
-  );
-  const askConcernText = addNode(
-    "ask_text",
-    {
-      text: "Please type your hair concern — for example hairfall, receding front, thinning on top, or patch.",
-      var_name: "concern",
-      remind_on_invalid: true,
-      invalid_reply_message:
-        "Please type a short description of your hair concern to continue.",
-    },
-    1140,
-    20,
-  );
-  const askConcernVoice = addNode(
-    "ask_text",
-    {
-      text: "Please send a voice note describing your hair concern. You can also type it if you prefer.",
-      var_name: "concern",
-      remind_on_invalid: true,
-      invalid_reply_message:
-        "Please send a voice note or type your hair concern to continue.",
-    },
-    1140,
-    160,
-  );
-
   const askProduct = addNode(
     "ask_button",
     {
@@ -163,7 +126,7 @@ async function seedOne(bpid) {
         { label: "Front Hairline" },
       ],
     },
-    1380,
+    960,
     80,
   );
 
@@ -260,11 +223,7 @@ async function seedOne(bpid) {
   }
   makeEdge(askCity, "None of the above", askCustomCity);
   makeEdge(askCustomCity, null, webhookLead);
-  makeEdge(webhookLead, null, askConcernMode);
-  makeEdge(askConcernMode, "Type your request", askConcernText);
-  makeEdge(askConcernMode, "Send a voice note", askConcernVoice);
-  makeEdge(askConcernText, null, askProduct);
-  makeEdge(askConcernVoice, null, askProduct);
+  makeEdge(webhookLead, null, askProduct);
 
   // CRITICAL — do not cross in the canvas
   makeEdge(askProduct, "Hair Patch", askPatchType);

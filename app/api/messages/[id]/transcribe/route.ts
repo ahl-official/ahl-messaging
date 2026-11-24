@@ -91,7 +91,80 @@ export async function POST(
     // Already transcribed — just echo. POST is idempotent.
     return NextResponse.json({ ok: true, transcript: m.transcript, cached: true });
   }
-  if (!m.media_url) {
+
+  // Prefer cached Supabase URL; if inbound download failed (common for
+  // voice notes with `audio/ogg; codecs=opus`), recover from Meta media id
+  // or the lookaside URL stashed on raw_payload.
+  let mediaUrl = m.media_url;
+  let mime = (m.media_mime_type ?? "audio/ogg").split(";")[0].trim() || "audio/ogg";
+  if (!mediaUrl) {
+    const { data: full } = await admin
+      .from("messages")
+      .select("raw_payload, business_phone_number_id")
+      .eq("id", id)
+      .maybeSingle();
+    const raw = (full?.raw_payload ?? {}) as {
+      audio?: { id?: string; url?: string; mime_type?: string };
+    };
+    const mediaId = String(raw.audio?.id ?? "").trim();
+    const payloadUrl = String(raw.audio?.url ?? "").trim();
+    const bpid = String(full?.business_phone_number_id ?? "").trim();
+    if (mediaId && bpid) {
+      try {
+        const { resolveCredsForPhoneNumberId } = await import("@/lib/portfolios");
+        const { getApiVersion } = await import("@/lib/whatsapp");
+        const { normalizeMime, uploadMediaBytes } = await import("@/lib/storage");
+        const creds = await resolveCredsForPhoneNumberId(bpid);
+        const token = creds?.access_token;
+        const apiVersion = await getApiVersion();
+        if (token) {
+          let downloadUrl = payloadUrl;
+          if (!downloadUrl) {
+            const metaRes = await fetch(
+              `https://graph.facebook.com/${apiVersion}/${mediaId}?fields=url,mime_type`,
+              { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" },
+            );
+            if (metaRes.ok) {
+              const meta = (await metaRes.json()) as {
+                url?: string;
+                mime_type?: string;
+              };
+              downloadUrl = String(meta.url ?? "").trim();
+              if (meta.mime_type) mime = normalizeMime(meta.mime_type) || mime;
+            }
+          }
+          if (downloadUrl) {
+            const dlRes = await fetch(downloadUrl, {
+              headers: { Authorization: `Bearer ${token}` },
+              cache: "no-store",
+              signal: AbortSignal.timeout(20_000),
+            });
+            if (dlRes.ok) {
+              const bytes = await dlRes.arrayBuffer();
+              mime =
+                normalizeMime(raw.audio?.mime_type ?? mime) || "audio/ogg";
+              const { publicUrl } = await uploadMediaBytes(bytes, {
+                mime,
+                folder: "inbound",
+                suggestedName: mediaId,
+              });
+              mediaUrl = publicUrl;
+              await admin
+                .from("messages")
+                .update({ media_url: mediaUrl, media_mime_type: mime })
+                .eq("id", id);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn(
+          "[transcribe] media recover failed:",
+          e instanceof Error ? e.message : e,
+        );
+      }
+    }
+  }
+  if (!mediaUrl) {
     return NextResponse.json(
       { error: "Message has no media_url to transcribe" },
       { status: 400 },
@@ -100,9 +173,8 @@ export async function POST(
 
   // Download the audio bytes from our public Supabase Storage URL.
   let buffer: Buffer;
-  let mime = m.media_mime_type ?? "audio/ogg";
   try {
-    const dl = await fetch(m.media_url, {
+    const dl = await fetch(mediaUrl, {
       cache: "no-store",
       signal: AbortSignal.timeout(20_000),
     });
@@ -112,7 +184,9 @@ export async function POST(
         { status: 502 },
       );
     }
-    if (dl.headers.get("content-type")) mime = dl.headers.get("content-type")!;
+    if (dl.headers.get("content-type")) {
+      mime = dl.headers.get("content-type")!.split(";")[0].trim() || mime;
+    }
     buffer = Buffer.from(await dl.arrayBuffer());
   } catch (e) {
     return NextResponse.json(
