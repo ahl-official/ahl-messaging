@@ -1293,8 +1293,61 @@ async function resumeWaitingRun(
       }
     }
   } else {
-    const chosen = pickButton(node, base.inboundText);
+    let chosen = pickButton(node, base.inboundText);
     console.log(`[trigger-engine] resumeWaitingRun: pickButton result="${chosen}" for reply="${base.inboundText}" on node=${node.id} type=${node.node_type}`);
+
+    // Concern mode: "Type your request" | "Send a voice note".
+    // Many clients send a voice note or type the concern WITHOUT tapping a
+    // button first — previously that left the run parked forever (or fell
+    // through to AI). Accept the freeform reply and skip ahead to product.
+    const vnBtn = String(cfg.var_name ?? "").trim().toLowerCase();
+    const isConcernMode =
+      vnBtn === "concern_mode" ||
+      (Array.isArray(cfg.buttons) &&
+        cfg.buttons.some((b: { label?: string } | string) =>
+          /voice note|type your request/i.test(
+            typeof b === "string" ? b : String(b?.label ?? ""),
+          ),
+        ));
+    if (chosen == null && isConcernMode) {
+      const isAudio =
+        base.reply.audio_received === "yes" ||
+        base.reply.last_reply_type === "audio";
+      const typedOk = isAcceptableAskTextReply(base.inboundText, { maxLen: 800 });
+      if (isAudio || typedOk) {
+        const concernText = (base.inboundText || "").trim();
+        if (concernText) base.reply.concern = concernText;
+        base.reply.concern_mode = isAudio
+          ? "Send a voice note"
+          : "Type your request";
+        const modeLabel = base.reply.concern_mode;
+        const midId = resolveNext(run.current_node_id as string, modeLabel, edges, node);
+        const mid = midId ? nodes.get(midId) : null;
+        // Prefer jumping past the follow-up ask_text straight to product when
+        // we already have the concern text (typed or Whisper transcript).
+        const productId =
+          mid && concernText
+            ? resolveNext(midId as string, null, edges, mid)
+            : midId;
+        const jumpTo = productId || midId;
+        if (jumpTo) {
+          console.log(
+            `[trigger-engine] concern_mode shortcut audio=${isAudio} → ${jumpTo}`,
+          );
+          await runFlow(
+            admin,
+            { id: run.flow_id as string },
+            { contactId: base.contactId, waId: base.waId, bpid: base.bpid },
+            jumpTo,
+            run.id as string,
+            base.reply,
+          );
+          return true;
+        }
+        chosen = modeLabel;
+      }
+    }
+
     if (chosen == null) {
       // Client typed something instead of tapping a button.
       const remindMsg = String(cfg.invalid_reply_message ?? "").trim();
@@ -1304,6 +1357,14 @@ async function resumeWaitingRun(
           remindMsg,
         );
         return true; // handled — don't fall through to start a new flow
+      }
+      // Concern mode with no usable reply — nudge instead of going silent.
+      if (isConcernMode) {
+        await sendText(
+          { contactId: base.contactId, waId: base.waId, bpid: base.bpid, contact: {}, vars: {} },
+          "Please tap Type your request or Send a voice note — or just type your hair concern / send a voice note now.",
+        );
+        return true;
       }
       return false;
     }
