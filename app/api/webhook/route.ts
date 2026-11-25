@@ -20,7 +20,7 @@ async function downloadInboundMedia(
   receivingPhoneNumberId: string,
   /** Webhook payload often includes a short-lived CDN URL — use if Graph lookup fails. */
   payloadUrl?: string | null,
-): Promise<{ url: string; mime: string } | null> {
+): Promise<{ url: string; mime: string; bytes: ArrayBuffer } | null> {
   // Retry the whole flow up to 5× with exponential backoff (1s / 2s /
   // 4s / 8s / 16s — total ~31s). Meta media URLs stay valid for 5
   // minutes so we have headroom; 3 attempts was losing photos in
@@ -80,7 +80,7 @@ async function downloadInboundMedia(
         folder: "inbound",
         suggestedName: mediaId,
       });
-      return { url: publicUrl, mime };
+      return { url: publicUrl, mime, bytes };
     } catch (e) {
       console.warn(
         `[webhook] media download attempt ${attempt} failed:`,
@@ -447,6 +447,7 @@ async function processWebhook(body: WAWebhookBody) {
         // For media types, download from Meta + cache in Supabase Storage
         let mediaUrl: string | null = null;
         let mediaMime: string | null = extractMime(msg);
+        let mediaBytes: ArrayBuffer | null = null;
         const mediaId = mediaIdOf(msg);
         if (mediaId) {
           const payloadMediaUrl =
@@ -465,6 +466,7 @@ async function processWebhook(body: WAWebhookBody) {
           if (downloaded) {
             mediaUrl = downloaded.url;
             mediaMime = downloaded.mime;
+            mediaBytes = downloaded.bytes;
           }
         }
 
@@ -793,22 +795,27 @@ async function processWebhook(body: WAWebhookBody) {
             }
           }
 
-          // Auto-transcribe inbound voice notes in-process (Whisper →
-          // kick trigger/AI). Must NOT sit inside the internalToken gate —
-          // missing token would skip Whisper entirely and leave flows
-          // parked forever after a voice note. Also no localhost HTTP hop.
+          // Auto-transcribe inbound voice notes in-process (ffmpeg→mp3 →
+          // Whisper → kick). Must NOT sit inside the internalToken gate.
+          // Pass already-downloaded bytes so we skip a second storage fetch.
           if (isAudioMsg) {
+            const audioBytes = mediaBytes;
+            const audioMime = mediaMime ?? "audio/ogg";
             void import("@/lib/transcribe-inbound-audio")
-              .then(({ transcribeInboundAudioMessage }) =>
-                transcribeInboundAudioMessage(insertedRow.id),
-              )
-              .then((result) => {
-                if (!result.ok) {
-                  console.error(
-                    "[webhook] auto-transcribe failed:",
-                    result.error,
-                  );
-                }
+              .then(({ transcribeInboundAudioMessage, trackPendingTranscribe }) => {
+                const job = transcribeInboundAudioMessage(insertedRow.id, {
+                  audioBytes: audioBytes ? Buffer.from(audioBytes) : undefined,
+                  audioMime,
+                }).then((result) => {
+                  if (!result.ok) {
+                    console.error(
+                      "[webhook] auto-transcribe failed:",
+                      result.error,
+                    );
+                  }
+                });
+                trackPendingTranscribe(job);
+                return job;
               })
               .catch((e) => {
                 console.error(

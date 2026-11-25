@@ -1,21 +1,39 @@
 // In-process Whisper for inbound WhatsApp voice notes.
 // Called from the Meta webhook (no HTTP hop to localhost — that was
 // silently failing so media_url saved but transcript/kick never ran).
+// WhatsApp OGG/Opus is converted with ffmpeg → 16 kHz mono MP3 first so
+// Whisper accepts the file reliably and replies kick sooner.
 
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { getCredential, requireCredential } from "@/lib/credentials";
+import { convertAudioForWhisper } from "@/lib/ffmpeg-convert";
 
 export type TranscribeResult =
   | { ok: true; transcript: string; cached: boolean }
   | { ok: false; error: string; status?: number };
 
+/** Keep fire-and-forget Whisper work reachable after the webhook returns. */
+const g = globalThis as typeof globalThis & {
+  __oneinboxPendingTranscribe?: Set<Promise<unknown>>;
+};
+export function trackPendingTranscribe(p: Promise<unknown>) {
+  const set = (g.__oneinboxPendingTranscribe ??= new Set());
+  set.add(p);
+  void p.finally(() => set.delete(p));
+}
+
 /**
- * Download (or recover) audio for a message, run Whisper, write
+ * Download (or recover) audio for a message, ffmpeg→mp3, run Whisper, write
  * transcript+content, then kick trigger/AI with the spoken text.
  */
 export async function transcribeInboundAudioMessage(
   messageId: string,
-  opts?: { kickIfCached?: boolean },
+  opts?: {
+    kickIfCached?: boolean;
+    /** Skip re-fetch when webhook already downloaded the voice bytes. */
+    audioBytes?: Buffer | ArrayBuffer | Uint8Array;
+    audioMime?: string;
+  },
 ): Promise<TranscribeResult> {
   const admin = createServiceRoleClient();
   const { data: msg } = await admin
@@ -39,42 +57,51 @@ export async function transcribeInboundAudioMessage(
 
   let mediaUrl = (msg.media_url as string | null) ?? null;
   let mime =
-    String(msg.media_mime_type ?? "audio/ogg").split(";")[0].trim() ||
-    "audio/ogg";
+    String(opts?.audioMime || msg.media_mime_type || "audio/ogg")
+      .split(";")[0]
+      .trim() || "audio/ogg";
 
-  if (!mediaUrl) {
-    const recovered = await recoverMediaUrl(admin, messageId, mime);
-    if (recovered) {
-      mediaUrl = recovered.url;
-      mime = recovered.mime;
+  let buffer: Buffer | null = null;
+  if (opts?.audioBytes) {
+    buffer = Buffer.isBuffer(opts.audioBytes)
+      ? opts.audioBytes
+      : Buffer.from(new Uint8Array(opts.audioBytes as ArrayBufferLike));
+  }
+
+  if (!buffer) {
+    if (!mediaUrl) {
+      const recovered = await recoverMediaUrl(admin, messageId, mime);
+      if (recovered) {
+        mediaUrl = recovered.url;
+        mime = recovered.mime;
+      }
     }
-  }
-  if (!mediaUrl) {
-    return { ok: false, error: "Message has no media_url to transcribe", status: 400 };
-  }
+    if (!mediaUrl) {
+      return { ok: false, error: "Message has no media_url to transcribe", status: 400 };
+    }
 
-  let buffer: Buffer;
-  try {
-    const dl = await fetch(mediaUrl, {
-      cache: "no-store",
-      signal: AbortSignal.timeout(20_000),
-    });
-    if (!dl.ok) {
+    try {
+      const dl = await fetch(mediaUrl, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(20_000),
+      });
+      if (!dl.ok) {
+        return {
+          ok: false,
+          error: `Audio fetch failed (HTTP ${dl.status})`,
+          status: 502,
+        };
+      }
+      const ct = dl.headers.get("content-type");
+      if (ct) mime = ct.split(";")[0].trim() || mime;
+      buffer = Buffer.from(await dl.arrayBuffer());
+    } catch (e) {
       return {
         ok: false,
-        error: `Audio fetch failed (HTTP ${dl.status})`,
+        error: e instanceof Error ? e.message : "Audio fetch error",
         status: 502,
       };
     }
-    const ct = dl.headers.get("content-type");
-    if (ct) mime = ct.split(";")[0].trim() || mime;
-    buffer = Buffer.from(await dl.arrayBuffer());
-  } catch (e) {
-    return {
-      ok: false,
-      error: e instanceof Error ? e.message : "Audio fetch error",
-      status: 502,
-    };
   }
 
   let apiKey: string;
@@ -88,14 +115,21 @@ export async function transcribeInboundAudioMessage(
     };
   }
 
-  const ext = (mime.split("/")[1] ?? "ogg").split(";")[0].trim() || "ogg";
+  // ffmpeg: WhatsApp voice (ogg/opus) → compact mp3 Whisper likes.
+  const converted = await convertAudioForWhisper(buffer, mime);
+  console.log(
+    `[transcribe] ffmpeg converted=${converted.converted} bytes=${converted.buffer.length} mime=${converted.mime}`,
+  );
+
   const form = new FormData();
   form.append(
     "file",
-    new Blob([new Uint8Array(buffer)], { type: mime }),
-    `${messageId}.${ext}`,
+    new Blob([new Uint8Array(converted.buffer)], { type: converted.mime }),
+    converted.filename,
   );
   form.append("model", "whisper-1");
+  // Faster + more stable for short WA notes (en/hi mix still works well).
+  form.append("response_format", "json");
 
   let transcript = "";
   try {
@@ -103,7 +137,7 @@ export async function transcribeInboundAudioMessage(
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}` },
       body: form,
-      signal: AbortSignal.timeout(60_000),
+      signal: AbortSignal.timeout(45_000),
     });
     const raw = await res.text();
     if (!res.ok) {
