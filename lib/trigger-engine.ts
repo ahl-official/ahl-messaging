@@ -95,6 +95,7 @@ function isLongFormAskVar(varName: string): boolean {
   return (
     n === "concern" ||
     n === "hair_concern" ||
+    n === "extra_query" ||
     n === "query" ||
     n === "message" ||
     n === "feedback" ||
@@ -1307,43 +1308,56 @@ async function resumeWaitingRun(
     let chosen = pickButton(node, base.inboundText);
     console.log(`[trigger-engine] resumeWaitingRun: pickButton result="${chosen}" for reply="${base.inboundText}" on node=${node.id} type=${node.node_type}`);
 
-    // Concern mode: "Type your request" | "Send a voice note".
-    // Many clients send a voice note or type the concern WITHOUT tapping a
-    // button first — previously that left the run parked forever (or fell
-    // through to AI). Accept the freeform reply and skip ahead to product.
+    // Post-thank-you help: Type a query | Send a voice note | Send photos | I'm all set.
+    // Accept media/text without requiring the list tap first.
     const vnBtn = String(cfg.var_name ?? "").trim().toLowerCase();
-    const isConcernMode =
-      vnBtn === "concern_mode" ||
+    const isExtraHelpMode =
+      vnBtn === "extra_help_mode" ||
       (Array.isArray(cfg.buttons) &&
         cfg.buttons.some((b: { label?: string } | string) =>
-          /voice note|type your request/i.test(
+          /send photos|i'?m all set|type a (quick )?query/i.test(
+            typeof b === "string" ? b : String(b?.label ?? ""),
+          ),
+        ) &&
+        cfg.buttons.some((b: { label?: string } | string) =>
+          /voice note/i.test(
             typeof b === "string" ? b : String(b?.label ?? ""),
           ),
         ));
-    if (chosen == null && isConcernMode) {
+    if (chosen == null && isExtraHelpMode) {
       const isAudio =
         base.reply.audio_received === "yes" ||
         base.reply.last_reply_type === "audio";
+      const isImage =
+        base.reply.images_received === "yes" ||
+        base.reply.last_reply_type === "image";
       const typedOk = isAcceptableAskTextReply(base.inboundText, { maxLen: 800 });
-      if (isAudio || typedOk) {
-        const concernText = (base.inboundText || "").trim();
-        if (concernText) base.reply.concern = concernText;
-        base.reply.concern_mode = isAudio
-          ? "Send a voice note"
-          : "Type your request";
-        const modeLabel = base.reply.concern_mode;
+      let modeLabel: string | null = null;
+      if (isAudio) {
+        modeLabel = "Send a voice note";
+        const t = (base.inboundText || "").trim();
+        if (t) base.reply.extra_query = t;
+      } else if (isImage) {
+        modeLabel = "Send photos";
+      } else if (typedOk) {
+        modeLabel = "Type a quick query";
+        base.reply.extra_query = (base.inboundText || "").trim();
+      }
+      if (modeLabel) {
+        base.reply.extra_help_mode = modeLabel;
         const midId = resolveNext(run.current_node_id as string, modeLabel, edges, node);
         const mid = midId ? nodes.get(midId) : null;
-        // Prefer jumping past the follow-up ask_text straight to product when
-        // we already have the concern text (typed or Whisper transcript).
-        const productId =
-          mid && concernText
+        // Already have query text / photo — skip the follow-up ask when possible.
+        const hasPayload =
+          Boolean(String(base.reply.extra_query || "").trim()) || isImage;
+        const doneId =
+          mid && hasPayload
             ? resolveNext(midId as string, null, edges, mid)
             : midId;
-        const jumpTo = productId || midId;
+        const jumpTo = doneId || midId;
         if (jumpTo) {
           console.log(
-            `[trigger-engine] concern_mode shortcut audio=${isAudio} → ${jumpTo}`,
+            `[trigger-engine] extra_help_mode shortcut → ${modeLabel} → ${jumpTo}`,
           );
           await runFlow(
             admin,
@@ -1369,11 +1383,10 @@ async function resumeWaitingRun(
         );
         return true; // handled — don't fall through to start a new flow
       }
-      // Concern mode with no usable reply — nudge instead of going silent.
-      if (isConcernMode) {
+      if (isExtraHelpMode) {
         await sendText(
           { contactId: base.contactId, waId: base.waId, bpid: base.bpid, contact: {}, vars: {} },
-          "Please tap Type your request or Send a voice note — or just type your hair concern / send a voice note now.",
+          "Please tap an option — or type a query, send a voice note, or send photos now. Tap I'm all set if you're done.",
         );
         return true;
       }

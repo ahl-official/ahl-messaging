@@ -137,44 +137,7 @@ export async function GET(req: Request) {
 
   const webhookAfterCity = addNode("webhook", { url: WEBHOOK_URL }, 1440, 160);
 
-  const askConcernMode = addNode(
-    "ask_button",
-    {
-      text: "Please share your hair goal or concern. You can type it, or send a voice note 🎤",
-      var_name: "concern_mode",
-      buttons: [{ label: "Type your request" }, { label: "Send a voice note" }],
-      remind_on_invalid: true,
-      invalid_reply_message:
-        "Please tap *Type your request* or *Send a voice note* — or just type / send a voice note now 😊",
-    },
-    1680,
-    160,
-  );
-  const askConcernText = addNode(
-    "ask_text",
-    {
-      text: "Please type what you're looking for — for example more volume, added length, fringes, toppers, or servicing ✨",
-      var_name: "concern",
-      remind_on_invalid: true,
-      invalid_reply_message:
-        "Please type a short note about what you need so we can guide you better.",
-    },
-    1860,
-    40,
-  );
-  const askConcernVoice = addNode(
-    "ask_text",
-    {
-      text: "Please send a voice note describing what you need 🎤 You can also type it if you prefer.",
-      var_name: "concern",
-      remind_on_invalid: true,
-      invalid_reply_message:
-        "Please send a voice note or type what you need so we can continue.",
-    },
-    1860,
-    280,
-  );
-
+  // City → product directly (voice/photos live after thank-you).
   const askInterest = addNode(
     "ask_list",
     {
@@ -188,7 +151,7 @@ export async function GET(req: Request) {
         { label: "Not Sure, Need Help!" },
       ],
     },
-    2100,
+    1780,
     160,
   );
 
@@ -242,6 +205,75 @@ export async function GET(req: Request) {
     280,
   );
 
+  const askExtraHelp = addNode(
+    "ask_list",
+    {
+      text:
+        "Before we call — anything else that would help our expert?\nYou can type a query, send a voice note, or share photos of your hair. Or tap I'm all set.",
+      var_name: "extra_help_mode",
+      buttons: [
+        { label: "Type a quick query" },
+        { label: "Send a voice note" },
+        { label: "Send photos" },
+        { label: "I'm all set" },
+      ],
+      remind_on_invalid: true,
+      invalid_reply_message:
+        "Please tap an option — or type a query / send a voice note / send photos. Tap *I'm all set* if you're done.",
+    },
+    3440,
+    280,
+  );
+  const askExtraQuery = addNode(
+    "ask_text",
+    {
+      text: "Please type your question or anything we should know ✨",
+      var_name: "extra_query",
+      remind_on_invalid: true,
+      invalid_reply_message: "Please type a short note, or send a voice note if you prefer.",
+    },
+    3780,
+    40,
+  );
+  const askExtraVoice = addNode(
+    "ask_text",
+    {
+      text: "Please send a voice note with your question 🎤 You can also type it.",
+      var_name: "extra_query",
+      remind_on_invalid: true,
+      invalid_reply_message: "Please send a voice note or type your question.",
+    },
+    3780,
+    200,
+  );
+  const askExtraPhotos = addNode(
+    "ask_file",
+    {
+      text:
+        "Please send clear photos of your hair (front / top / back if possible). We keep them confidential 📸",
+      var_name: "hair_photos",
+    },
+    3780,
+    360,
+  );
+  const extraDone = addNode(
+    "message_text",
+    {
+      text:
+        "Got it — thank you! Our Alchemane expert will use this when they call you. Talk soon 😊",
+    },
+    4120,
+    200,
+  );
+  const allSetDone = addNode(
+    "message_text",
+    {
+      text: "Perfect! We're all set. Our expert will call you shortly 😊",
+    },
+    3780,
+    520,
+  );
+
   for (const opt of interestOptions) {
     // One sheet row after final product pick — not after interest + subtype
     // (that was doubling/tripling rows for the same wa_tracking).
@@ -287,11 +319,15 @@ export async function GET(req: Request) {
   makeEdge(askCity, "Bangalore", webhookAfterCity);
   makeEdge(askCity, "Other", askCustomCity);
   makeEdge(askCustomCity, null, webhookAfterCity);
-  makeEdge(webhookAfterCity, null, askConcernMode);
-  makeEdge(askConcernMode, "Type your request", askConcernText);
-  makeEdge(askConcernMode, "Send a voice note", askConcernVoice);
-  makeEdge(askConcernText, null, askInterest);
-  makeEdge(askConcernVoice, null, askInterest);
+  makeEdge(webhookAfterCity, null, askInterest);
+  makeEdge(thanksCall, null, askExtraHelp);
+  makeEdge(askExtraHelp, "Type a quick query", askExtraQuery);
+  makeEdge(askExtraHelp, "Send a voice note", askExtraVoice);
+  makeEdge(askExtraHelp, "Send photos", askExtraPhotos);
+  makeEdge(askExtraHelp, "I'm all set", allSetDone);
+  makeEdge(askExtraQuery, null, extraDone);
+  makeEdge(askExtraVoice, null, extraDone);
+  makeEdge(askExtraPhotos, null, extraDone);
 
   const { error: nErr } = await supabase.from("trigger_nodes").insert(nodes);
   if (nErr) {
@@ -306,7 +342,7 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     success: true,
-    message: `Alchemane UTM Flow seeded on ${bpid} — name→city→sheet→concern(type|voice)→interest. Other flows unchanged.`,
+    message: `Alchemane UTM Flow seeded on ${bpid} — name→city→sheet→interest→thanks→optional(query|voice|photos). Other flows unchanged.`,
     flowId,
     bpid,
     nodes: nodes.length,
