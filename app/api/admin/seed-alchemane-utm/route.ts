@@ -27,9 +27,17 @@ export async function GET(req: Request) {
     .insert({
       business_phone_number_id: bpid,
       name: "Alchemane UTM Flow",
-      // Any new session (UTM dump / Hi / etc.) — silent leads still hit the sheet.
-      trigger_type: "first_message",
-      trigger_config: {},
+      // Same opener keywords as AHL UTM Flow.
+      trigger_type: "keyword",
+      trigger_config: {
+        match: "starts",
+        phrases: [
+          "Hi! Tell me more",
+          "Hi! Tell me more:",
+          "Tell me more",
+          "I want to know more about Hair Extensions",
+        ],
+      },
       enabled: true,
     })
     .select("id")
@@ -88,8 +96,10 @@ export async function GET(req: Request) {
     "ask_text",
     {
       text:
-        "Hey there! Welcome to Alchemane Hair Extensions ✅ We specialize in 100% natural human hair extensions and would love to help. May we know your name?",
+        "Hello! 👋 Welcome to Alchemane Hair Extensions.\nWe're delighted to connect with you! We specialise in 100% natural human hair extensions. To help you better, may we know your *Name*?",
       var_name: "user_name",
+      remind_on_invalid: true,
+      invalid_reply_message: "Please tell us your name so we can continue 😊",
     },
     420,
     160,
@@ -97,7 +107,9 @@ export async function GET(req: Request) {
 
   const thanks = addNode(
     "message_text",
-    { text: "Thanks, {{user_name}}! Let's get started." },
+    {
+      text: "Nice to meet you, {{user_name}}! 😊 Let's get you the perfect hair look.",
+    },
     760,
     160,
   );
@@ -105,7 +117,7 @@ export async function GET(req: Request) {
   const askCity = addNode(
     "ask_button",
     {
-      text: "We offer our services all across India 🇮🇳 Can you tell us which city you're from?",
+      text: "Nice to connect with you! 😊 Which city are you currently located in? (Tap below to select):",
       var_name: "city",
       buttons: [{ label: "Mumbai" }, { label: "Bangalore" }, { label: "Other" }],
     },
@@ -115,17 +127,58 @@ export async function GET(req: Request) {
 
   const askCustomCity = addNode(
     "ask_text",
-    { text: "Please mention your city here.", var_name: "city" },
+    {
+      text: "No problem! Could you please type and send the city or region you are from?",
+      var_name: "city",
+    },
     1100,
     420,
   );
 
   const webhookAfterCity = addNode("webhook", { url: WEBHOOK_URL }, 1440, 160);
 
+  const askConcernMode = addNode(
+    "ask_button",
+    {
+      text: "Please share your hair goal or concern. You can type it, or send a voice note 🎤",
+      var_name: "concern_mode",
+      buttons: [{ label: "Type your request" }, { label: "Send a voice note" }],
+      remind_on_invalid: true,
+      invalid_reply_message:
+        "Please tap *Type your request* or *Send a voice note* — or just type / send a voice note now 😊",
+    },
+    1680,
+    160,
+  );
+  const askConcernText = addNode(
+    "ask_text",
+    {
+      text: "Please type what you're looking for — for example more volume, added length, fringes, toppers, or servicing ✨",
+      var_name: "concern",
+      remind_on_invalid: true,
+      invalid_reply_message:
+        "Please type a short note about what you need so we can guide you better.",
+    },
+    1860,
+    40,
+  );
+  const askConcernVoice = addNode(
+    "ask_text",
+    {
+      text: "Please send a voice note describing what you need 🎤 You can also type it if you prefer.",
+      var_name: "concern",
+      remind_on_invalid: true,
+      invalid_reply_message:
+        "Please send a voice note or type what you need so we can continue.",
+    },
+    1860,
+    280,
+  );
+
   const askInterest = addNode(
     "ask_list",
     {
-      text: "What are you looking for today?",
+      text: "To guide you to the right Alchemane specialist, which option would you like to explore today? 👇",
       var_name: "interested_in",
       buttons: [
         { label: "Permanent Extensions" },
@@ -135,7 +188,7 @@ export async function GET(req: Request) {
         { label: "Not Sure, Need Help!" },
       ],
     },
-    1780,
+    2100,
     160,
   );
 
@@ -144,7 +197,7 @@ export async function GET(req: Request) {
     {
       label: "Permanent Extensions",
       y: 0,
-      prompt: "Which permanent extension style are you interested in?",
+      prompt: "Great choice! Which permanent extension style are you interested in? (Tap below):",
       choices: [
         "Keratin Bond Extensions",
         "Micro Ring Extensions",
@@ -156,19 +209,19 @@ export async function GET(req: Request) {
     {
       label: "Clip-in Hair Extensions",
       y: 140,
-      prompt: "Which clip-in option are you looking for?",
+      prompt: "Great choice! Which clip-in option are you looking for? (Tap below):",
       choices: ["Full Head", "Fringes", "Silk Hair Toppers", "U-Shape Clip-in"],
     },
     {
       label: "Fringes & Toppers",
       y: 280,
-      prompt: "Which fringes or toppers option do you prefer?",
+      prompt: "Great choice! Which fringes or toppers option do you prefer? (Tap below):",
       choices: ["Silk Toppers", "Front Fringes", "U-Shape Toppers"],
     },
     {
       label: "Extensions Servicing",
       y: 420,
-      prompt: "Which servicing do you need?",
+      prompt: "Got it! Which servicing do you need? (Tap below):",
       choices: ["Re-taping", "Re-bonding", "Washing Deep Conditioning"],
     },
     {
@@ -183,9 +236,9 @@ export async function GET(req: Request) {
     "message_text",
     {
       text:
-        "Thanks, {{user_name}}! Our expert will call you shortly 📞 We'll help you choose the perfect hair extensions.",
+        "Thank you, {{user_name}}! 🙏 We have received your request.\n\nOne of our Alchemane experts will call you shortly to help you choose the perfect hair extensions.",
     },
-    2800,
+    3100,
     280,
   );
 
@@ -193,14 +246,14 @@ export async function GET(req: Request) {
     // One sheet row after final product pick — not after interest + subtype
     // (that was doubling/tripling rows for the same wa_tracking).
     if (opt.choices.length === 0) {
-      const wh = addNode("webhook", { url: WEBHOOK_URL }, 2120, opt.y);
+      const wh = addNode("webhook", { url: WEBHOOK_URL }, 2440, opt.y);
       const help = addNode(
         "message_text",
         {
           text:
-            "No worries — our expert will understand your needs and guide you on the best option.",
+            "No worries at all! 😊 Our expert will understand your needs and guide you to the best option.",
         },
-        2460,
+        2780,
         opt.y,
       );
       makeEdge(askInterest, opt.label, wh);
@@ -212,14 +265,14 @@ export async function GET(req: Request) {
     const askSubtype = addNode(
       "ask_list",
       {
-        text: opt.prompt,
+        text: opt.prompt as string,
         var_name: "product_choice",
         buttons: opt.choices.map((label) => ({ label })),
       },
-      2120,
+      2440,
       opt.y,
     );
-    const whChoice = addNode("webhook", { url: WEBHOOK_URL }, 2460, opt.y);
+    const whChoice = addNode("webhook", { url: WEBHOOK_URL }, 2780, opt.y);
     makeEdge(askInterest, opt.label, askSubtype);
     for (const choice of opt.choices) {
       makeEdge(askSubtype, choice, whChoice);
@@ -234,7 +287,11 @@ export async function GET(req: Request) {
   makeEdge(askCity, "Bangalore", webhookAfterCity);
   makeEdge(askCity, "Other", askCustomCity);
   makeEdge(askCustomCity, null, webhookAfterCity);
-  makeEdge(webhookAfterCity, null, askInterest);
+  makeEdge(webhookAfterCity, null, askConcernMode);
+  makeEdge(askConcernMode, "Type your request", askConcernText);
+  makeEdge(askConcernMode, "Send a voice note", askConcernVoice);
+  makeEdge(askConcernText, null, askInterest);
+  makeEdge(askConcernVoice, null, askInterest);
 
   const { error: nErr } = await supabase.from("trigger_nodes").insert(nodes);
   if (nErr) {
@@ -249,7 +306,7 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     success: true,
-    message: `Alchemane UTM Flow seeded on ${bpid} — first-message webhook (phone+UTM) then lists. Other flows unchanged.`,
+    message: `Alchemane UTM Flow seeded on ${bpid} — name→city→sheet→concern(type|voice)→interest. Other flows unchanged.`,
     flowId,
     bpid,
     nodes: nodes.length,

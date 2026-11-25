@@ -791,30 +791,31 @@ async function processWebhook(body: WAWebhookBody) {
                 .eq("id", contact.id)
                 .is("avatar_url", null);
             }
+          }
 
-            // Auto-transcribe inbound voice notes in-process (Whisper →
-            // kick trigger/AI). Do NOT HTTP-hop to localhost — that was
-            // silently failing so media_url saved but the flow never resumed.
-            if (isAudioMsg && insertedRow) {
-              void import("@/lib/transcribe-inbound-audio")
-                .then(({ transcribeInboundAudioMessage }) =>
-                  transcribeInboundAudioMessage(insertedRow.id),
-                )
-                .then((result) => {
-                  if (!result.ok) {
-                    console.error(
-                      "[webhook] auto-transcribe failed:",
-                      result.error,
-                    );
-                  }
-                })
-                .catch((e) => {
+          // Auto-transcribe inbound voice notes in-process (Whisper →
+          // kick trigger/AI). Must NOT sit inside the internalToken gate —
+          // missing token would skip Whisper entirely and leave flows
+          // parked forever after a voice note. Also no localhost HTTP hop.
+          if (isAudioMsg) {
+            void import("@/lib/transcribe-inbound-audio")
+              .then(({ transcribeInboundAudioMessage }) =>
+                transcribeInboundAudioMessage(insertedRow.id),
+              )
+              .then((result) => {
+                if (!result.ok) {
                   console.error(
                     "[webhook] auto-transcribe failed:",
-                    e instanceof Error ? e.message : e,
+                    result.error,
                   );
-                });
-            }
+                }
+              })
+              .catch((e) => {
+                console.error(
+                  "[webhook] auto-transcribe failed:",
+                  e instanceof Error ? e.message : e,
+                );
+              });
           }
         }
 

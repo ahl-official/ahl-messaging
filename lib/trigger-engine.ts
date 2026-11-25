@@ -1255,6 +1255,17 @@ async function resumeWaitingRun(
     // Ask Text can require a real answer (not UTM dump / empty) before advancing.
     const vnEarly = String(cfg.var_name ?? "").trim();
     if (node.node_type === "ask_text" && cfg.remind_on_invalid) {
+      const isAudioReply =
+        base.reply.audio_received === "yes" ||
+        base.reply.last_reply_type === "audio";
+      // Voice arrived but Whisper transcript not ready yet — stay parked
+      // quietly; transcribe-inbound-audio will kick again with the text.
+      if (isAudioReply && !String(base.inboundText ?? "").trim()) {
+        console.log(
+          `[trigger-engine] ask_text waiting for Whisper transcript node=${node.id}`,
+        );
+        return true;
+      }
       const ok = isAcceptableAskTextReply(base.inboundText, {
         maxLen: isLongFormAskVar(vnEarly) ? 800 : 80,
       });
