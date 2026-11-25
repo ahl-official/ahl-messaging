@@ -1308,19 +1308,22 @@ async function resumeWaitingRun(
     let chosen = pickButton(node, base.inboundText);
     console.log(`[trigger-engine] resumeWaitingRun: pickButton result="${chosen}" for reply="${base.inboundText}" on node=${node.id} type=${node.node_type}`);
 
-    // Post-thank-you help: Type a query | Send a voice note | Send photos | I'm all set.
-    // Accept media/text without requiring the list tap first.
+    // Post-photos query step: Type | Send a voice note | I'm all set.
+    // Accept typed text / voice without requiring the button tap first.
     const vnBtn = String(cfg.var_name ?? "").trim().toLowerCase();
     const isExtraHelpMode =
       vnBtn === "extra_help_mode" ||
       (Array.isArray(cfg.buttons) &&
         cfg.buttons.some((b: { label?: string } | string) =>
-          /send photos|i'?m all set|type a (quick )?query/i.test(
+          /^type$/i.test(typeof b === "string" ? b : String(b?.label ?? "")),
+        ) &&
+        cfg.buttons.some((b: { label?: string } | string) =>
+          /voice note/i.test(
             typeof b === "string" ? b : String(b?.label ?? ""),
           ),
         ) &&
         cfg.buttons.some((b: { label?: string } | string) =>
-          /voice note/i.test(
+          /i'?m all set/i.test(
             typeof b === "string" ? b : String(b?.label ?? ""),
           ),
         ));
@@ -1328,28 +1331,21 @@ async function resumeWaitingRun(
       const isAudio =
         base.reply.audio_received === "yes" ||
         base.reply.last_reply_type === "audio";
-      const isImage =
-        base.reply.images_received === "yes" ||
-        base.reply.last_reply_type === "image";
       const typedOk = isAcceptableAskTextReply(base.inboundText, { maxLen: 800 });
       let modeLabel: string | null = null;
       if (isAudio) {
         modeLabel = "Send a voice note";
         const t = (base.inboundText || "").trim();
         if (t) base.reply.extra_query = t;
-      } else if (isImage) {
-        modeLabel = "Send photos";
       } else if (typedOk) {
-        modeLabel = "Type a quick query";
+        modeLabel = "Type";
         base.reply.extra_query = (base.inboundText || "").trim();
       }
       if (modeLabel) {
         base.reply.extra_help_mode = modeLabel;
         const midId = resolveNext(run.current_node_id as string, modeLabel, edges, node);
         const mid = midId ? nodes.get(midId) : null;
-        // Already have query text / photo — skip the follow-up ask when possible.
-        const hasPayload =
-          Boolean(String(base.reply.extra_query || "").trim()) || isImage;
+        const hasPayload = Boolean(String(base.reply.extra_query || "").trim());
         const doneId =
           mid && hasPayload
             ? resolveNext(midId as string, null, edges, mid)
@@ -1386,7 +1382,7 @@ async function resumeWaitingRun(
       if (isExtraHelpMode) {
         await sendText(
           { contactId: base.contactId, waId: base.waId, bpid: base.bpid, contact: {}, vars: {} },
-          "Please tap an option — or type a query, send a voice note, or send photos now. Tap I'm all set if you're done.",
+          "Please tap Type, Send a voice note, or I'm all set — or just type / send a voice note now.",
         );
         return true;
       }

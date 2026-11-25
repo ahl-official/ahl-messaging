@@ -1,9 +1,7 @@
 /**
  * Patch "AHL UTM Flow - V3 (YouTube to Thank You)":
- * 1) Remove mid-funnel concern Type|Voice (reconnect city sheet → product)
- * 2) After Thank You, add optional: Type a query | Voice | Photos | I'm all set
- *
- * Does not touch classic "AHL UTM Flow".
+ * 1) Remove mid-funnel concern Type|Voice (city sheet → product)
+ * 2) After Thank You → ask photos → Type | Voice note | I'm all set
  *
  * Usage: node scripts/patch-ahl-utm-v3-post-thanks-extra.mjs
  */
@@ -79,7 +77,22 @@ async function deleteNodesByVar(varNames) {
   return ids.length;
 }
 
-// --- 1) Strip mid-funnel concern ---
+async function deleteNodesByTextIncludes(snippets) {
+  const { nodes } = await loadGraph();
+  const ids = nodes
+    .filter((n) => {
+      const t = String(n.config?.text || "");
+      return snippets.some((s) => t.includes(s));
+    })
+    .map((n) => n.id);
+  if (!ids.length) return 0;
+  await sb.from("trigger_edges").delete().eq("flow_id", flowId).in("from_node_id", ids);
+  await sb.from("trigger_edges").delete().eq("flow_id", flowId).in("to_node_id", ids);
+  await sb.from("trigger_nodes").delete().in("id", ids);
+  return ids.length;
+}
+
+// 1) Strip mid-funnel concern
 {
   const removed = await deleteNodesByVar(["concern_mode", "concern"]);
   if (removed) console.log("Removed mid-funnel concern nodes:", removed);
@@ -97,14 +110,12 @@ if (!product) {
   process.exit(1);
 }
 
-// Ensure city-sheet webhook → product (repair if concern left a gap)
 const intoProduct = edges.filter(
   (e) =>
     e.to_node_id === product.id &&
     (e.branch_label == null || e.branch_label === ""),
 );
 if (intoProduct.length === 0) {
-  // Find webhook that used to lead into concern / product — prefer last sheet webhook before product by x
   const webhooks = nodes
     .filter((n) => n.node_type === "webhook")
     .sort((a, b) => Number(a.position?.x ?? 0) - Number(b.position?.x ?? 0));
@@ -131,40 +142,20 @@ if (intoProduct.length === 0) {
   console.log("Product inbound default edges OK:", intoProduct.length);
 }
 
-// --- 2) Post thank-you optional block ---
-({ nodes, edges } = await loadGraph());
-
-// Clear prior post-thanks enrichment if re-run
+// 2) Replace any prior post-thanks block
 {
-  const removed = await deleteNodesByVar([
-    "extra_help_mode",
-    "extra_query",
-    "hair_photos",
+  const a = await deleteNodesByVar(["extra_help_mode", "extra_query", "hair_photos"]);
+  const b = await deleteNodesByTextIncludes([
+    "Before we call — anything else",
+    "Any question you'd like to share before we call",
+    "To help our expert prepare for the call, please send clear photos",
+    "Please send clear photos of your hair",
+    "Got it — thank you! Our AHL expert",
+    "Perfect! We're all set. Our expert will call you shortly",
+    "Please send a voice note with your question",
+    "Please type your question",
   ]);
-  // Also drop prior closing messages we tagged via text
-  const { nodes: n3 } = await loadGraph();
-  const closerIds = n3
-    .filter((n) => {
-      const t = String(n.config?.text || "");
-      return (
-        t.includes("Before we call — anything else") ||
-        t.includes("Got it — thank you! Our AHL expert") ||
-        t.includes("Got it — thank you! Our Alchemane expert") ||
-        t.includes("Perfect! We're all set. Our expert will call") ||
-        t.includes("Please send a voice note with your question") ||
-        t.includes("Please type your question or anything we should know") ||
-        t.includes("Please send clear photos of your hair")
-      );
-    })
-    .map((n) => n.id);
-  if (closerIds.length) {
-    await sb.from("trigger_edges").delete().eq("flow_id", flowId).in("from_node_id", closerIds);
-    await sb.from("trigger_edges").delete().eq("flow_id", flowId).in("to_node_id", closerIds);
-    await sb.from("trigger_nodes").delete().in("id", closerIds);
-    console.log("Removed prior post-thanks nodes:", closerIds.length + removed);
-  } else if (removed) {
-    console.log("Removed prior extra_help vars:", removed);
-  }
+  if (a || b) console.log("Cleared prior post-thanks nodes:", a + b);
 }
 
 ({ nodes, edges } = await loadGraph());
@@ -179,7 +170,6 @@ if (!thankYou) {
   process.exit(1);
 }
 
-// Drop any existing out-edges from thank you (was END)
 await sb
   .from("trigger_edges")
   .delete()
@@ -190,47 +180,58 @@ const tx = Number(thankYou.position?.x ?? 2800);
 const ty = Number(thankYou.position?.y ?? 50);
 const maxSort = Math.max(0, ...nodes.map((n) => Number(n.sort_order) || 0));
 
+const askExtraPhotos = randomUUID();
 const askExtraHelp = randomUUID();
 const askExtraQuery = randomUUID();
 const askExtraVoice = randomUUID();
-const askExtraPhotos = randomUUID();
 const extraDone = randomUUID();
 const allSetDone = randomUUID();
 
 const newNodes = [
   {
-    id: askExtraHelp,
+    id: askExtraPhotos,
     flow_id: flowId,
-    node_type: "ask_list",
+    node_type: "ask_file",
     config: {
       text:
-        "Before we call — anything else that would help our expert?\nYou can type a query, send a voice note, or share photos. Or tap I'm all set.",
+        "To help our expert prepare for the call, please send clear photos of your hair (front / top / back if possible). We keep them confidential.",
+      var_name: "hair_photos",
+    },
+    position: { x: tx + 280, y: ty },
+    sort_order: maxSort + 1,
+  },
+  {
+    id: askExtraHelp,
+    flow_id: flowId,
+    node_type: "ask_button",
+    config: {
+      text:
+        "Any question you'd like to share before we call? You can type it, send a voice note, or tap I'm all set.",
       var_name: "extra_help_mode",
       buttons: [
-        { label: "Type a quick query" },
+        { label: "Type" },
         { label: "Send a voice note" },
-        { label: "Send photos" },
         { label: "I'm all set" },
       ],
       remind_on_invalid: true,
       invalid_reply_message:
-        "Please tap an option — or type a query / send a voice note / send photos. Tap I'm all set if you're done.",
+        "Please tap Type, Send a voice note, or I'm all set — or just type / send a voice note now.",
     },
-    position: { x: tx + 280, y: ty },
-    sort_order: maxSort + 1,
+    position: { x: tx + 560, y: ty },
+    sort_order: maxSort + 2,
   },
   {
     id: askExtraQuery,
     flow_id: flowId,
     node_type: "ask_text",
     config: {
-      text: "Please type your question or anything we should know.",
+      text: "Please type your question.",
       var_name: "extra_query",
       remind_on_invalid: true,
       invalid_reply_message: "Please type a short note, or send a voice note if you prefer.",
     },
-    position: { x: tx + 560, y: ty - 120 },
-    sort_order: maxSort + 2,
+    position: { x: tx + 840, y: ty - 100 },
+    sort_order: maxSort + 3,
   },
   {
     id: askExtraVoice,
@@ -242,19 +243,7 @@ const newNodes = [
       remind_on_invalid: true,
       invalid_reply_message: "Please send a voice note or type your question.",
     },
-    position: { x: tx + 560, y: ty },
-    sort_order: maxSort + 3,
-  },
-  {
-    id: askExtraPhotos,
-    flow_id: flowId,
-    node_type: "ask_file",
-    config: {
-      text:
-        "Please send clear photos of your hair (front / top / back if possible). We keep them confidential.",
-      var_name: "hair_photos",
-    },
-    position: { x: tx + 560, y: ty + 120 },
+    position: { x: tx + 840, y: ty + 40 },
     sort_order: maxSort + 4,
   },
   {
@@ -265,7 +254,7 @@ const newNodes = [
       text:
         "Got it — thank you! Our AHL expert will use this when they call you. Talk soon.",
     },
-    position: { x: tx + 840, y: ty },
+    position: { x: tx + 1120, y: ty - 40 },
     sort_order: maxSort + 5,
   },
   {
@@ -275,7 +264,7 @@ const newNodes = [
     config: {
       text: "Perfect! We're all set. Our expert will call you shortly.",
     },
-    position: { x: tx + 560, y: ty + 240 },
+    position: { x: tx + 840, y: ty + 180 },
     sort_order: maxSort + 6,
   },
 ];
@@ -290,6 +279,12 @@ const newEdges = [
   {
     flow_id: flowId,
     from_node_id: thankYou.id,
+    to_node_id: askExtraPhotos,
+    branch_label: null,
+  },
+  {
+    flow_id: flowId,
+    from_node_id: askExtraPhotos,
     to_node_id: askExtraHelp,
     branch_label: null,
   },
@@ -297,19 +292,13 @@ const newEdges = [
     flow_id: flowId,
     from_node_id: askExtraHelp,
     to_node_id: askExtraQuery,
-    branch_label: "Type a quick query",
+    branch_label: "Type",
   },
   {
     flow_id: flowId,
     from_node_id: askExtraHelp,
     to_node_id: askExtraVoice,
     branch_label: "Send a voice note",
-  },
-  {
-    flow_id: flowId,
-    from_node_id: askExtraHelp,
-    to_node_id: askExtraPhotos,
-    branch_label: "Send photos",
   },
   {
     flow_id: flowId,
@@ -329,12 +318,6 @@ const newEdges = [
     to_node_id: extraDone,
     branch_label: null,
   },
-  {
-    flow_id: flowId,
-    from_node_id: askExtraPhotos,
-    to_node_id: extraDone,
-    branch_label: null,
-  },
 ];
 
 const { error: insE } = await sb.from("trigger_edges").insert(newEdges);
@@ -349,11 +332,7 @@ console.log(
       ok: true,
       flow: FLOW_NAME,
       flowId,
-      changes: [
-        "removed mid-funnel concern Type|Voice",
-        "city sheet → product",
-        "thank you → optional query|voice|photos|all set",
-      ],
+      path: "thank you → photos → Type | Voice note | I'm all set",
     },
     null,
     2,
