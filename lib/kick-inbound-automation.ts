@@ -75,25 +75,46 @@ export async function kickInboundAutomation(params: {
   }
 
   // 2) No flow matched → enqueue AI auto-reply (debounced).
+  const aiEnqueued = await enqueueAiAutoReply({ contactId, waId, bpid });
+  return { matched: false, aiEnqueued };
+}
+
+/**
+ * Enqueue the AI advisor for this contact (debounced). Used when intake is
+ * done and the client just shared a freeform query / voice note — the flow
+ * must release so AI can answer, guide, or hand off to a human.
+ */
+export async function enqueueAiAutoReply(params: {
+  contactId: string;
+  waId: string;
+  bpid: string;
+  /** Smaller debounce for post-intake query replies (default 1s). */
+  debounceSeconds?: number;
+}): Promise<boolean> {
+  const { contactId, waId, bpid } = params;
+  const admin = createServiceRoleClient();
+
   const { data: config } = await admin
     .from("automation_configs")
     .select("enabled, inbound_debounce_seconds")
     .eq("business_phone_number_id", bpid)
     .maybeSingle();
 
-  if (!config?.enabled) return { matched: false, aiEnqueued: false };
+  if (!config?.enabled) return false;
 
   const testPatients = await getAutomationTestContactNumbers();
   if (!isAutomationTestContactAllowed(waId, testPatients)) {
-    return { matched: false, aiEnqueued: false };
+    return false;
   }
 
-  // Hard-cap at 5s — higher values + a dead wake path felt like 3–4 min
-  // “bot is broken”. Typing indicator covers the short wait.
-  const debounce = Math.max(
+  const configured = Math.max(
     0,
     Math.min(5, Number(config.inbound_debounce_seconds ?? 3)),
   );
+  const debounce =
+    params.debounceSeconds != null
+      ? Math.max(0, Math.min(5, params.debounceSeconds))
+      : configured;
   const processAt = new Date(Date.now() + debounce * 1000).toISOString();
 
   await admin
@@ -101,12 +122,9 @@ export async function kickInboundAutomation(params: {
     .update({ automation_pending_at: processAt })
     .eq("id", contactId);
 
-  // Primary: in-process drain (no HTTP / token). Keep the promise tracked
-  // so it survives after the webhook returns 200 to Meta.
   trackPendingAi(runAiAfterDebounce(contactId, debounce));
   scheduleProcessPendingWake(debounce);
-
-  return { matched: false, aiEnqueued: true };
+  return true;
 }
 
 async function runAiAfterDebounce(

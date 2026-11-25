@@ -1303,6 +1303,12 @@ async function resumeWaitingRun(
             }
           });
       }
+      // Post-thanks freeform query / voice → end intake and let AI guide
+      // (prices / confidential / off-topic → human handoff inside AI).
+      if (vn.toLowerCase() === "extra_query" && base.inboundText.trim()) {
+        await completeRunAndReleaseToAi(admin, run, base);
+        return true;
+      }
     }
   } else {
     let chosen = pickButton(node, base.inboundText);
@@ -1343,23 +1349,22 @@ async function resumeWaitingRun(
       }
       if (modeLabel) {
         base.reply.extra_help_mode = modeLabel;
-        const midId = resolveNext(run.current_node_id as string, modeLabel, edges, node);
-        const mid = midId ? nodes.get(midId) : null;
         const hasPayload = Boolean(String(base.reply.extra_query || "").trim());
-        const doneId =
-          mid && hasPayload
-            ? resolveNext(midId as string, null, edges, mid)
-            : midId;
-        const jumpTo = doneId || midId;
-        if (jumpTo) {
+        // Already typed / voiced the question on this message → AI answers it.
+        if (hasPayload) {
           console.log(
-            `[trigger-engine] extra_help_mode shortcut → ${modeLabel} → ${jumpTo}`,
+            `[trigger-engine] extra_help_mode shortcut → AI (${modeLabel})`,
           );
+          await completeRunAndReleaseToAi(admin, run, base);
+          return true;
+        }
+        const midId = resolveNext(run.current_node_id as string, modeLabel, edges, node);
+        if (midId) {
           await runFlow(
             admin,
             { id: run.flow_id as string },
             { contactId: base.contactId, waId: base.waId, bpid: base.bpid },
-            jumpTo,
+            midId,
             run.id as string,
             base.reply,
           );
@@ -1822,6 +1827,34 @@ async function persistVars(admin: Admin, runId: string, vars: Record<string, str
   await admin
     .from("trigger_run_vars")
     .upsert(keys.map((k) => ({ run_id: runId, key: k, value: vars[k] })), { onConflict: "run_id,key" });
+}
+
+/** Finish the intake run and hand the latest query to the AI advisor. */
+async function completeRunAndReleaseToAi(
+  admin: Admin,
+  run: { id: string; flow_id: string },
+  base: { contactId: string; waId: string; bpid: string; inboundText: string; reply: Record<string, string> },
+): Promise<void> {
+  await persistVars(admin, run.id as string, base.reply);
+  await admin
+    .from("trigger_runs")
+    .update({
+      status: "completed",
+      finished_at: new Date().toISOString(),
+      current_node_id: null,
+    })
+    .eq("id", run.id);
+
+  const { enqueueAiAutoReply } = await import("@/lib/kick-inbound-automation");
+  const ok = await enqueueAiAutoReply({
+    contactId: base.contactId,
+    waId: base.waId,
+    bpid: base.bpid,
+    debounceSeconds: 1,
+  });
+  console.log(
+    `[trigger-engine] post-intake release → AI enqueued=${ok} contact=${base.contactId}`,
+  );
 }
 
 function interpolate(text: string, ctx: RunContext): string {

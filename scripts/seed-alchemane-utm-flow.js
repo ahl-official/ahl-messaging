@@ -236,7 +236,7 @@ async function seedOne(bpid) {
   const askExtraQuery = addNode(
     "ask_text",
     {
-      text: "Please type your question ✨",
+      text: "Please type your question — our advisor will reply with guidance ✨",
       var_name: "extra_query",
       remind_on_invalid: true,
       invalid_reply_message: "Please type a short note, or send a voice note if you prefer.",
@@ -247,7 +247,7 @@ async function seedOne(bpid) {
   const askExtraVoice = addNode(
     "ask_text",
     {
-      text: "Please send a voice note with your question 🎤 You can also type it.",
+      text: "Please send a voice note with your question — our advisor will reply with guidance 🎤 You can also type it.",
       var_name: "extra_query",
       remind_on_invalid: true,
       invalid_reply_message: "Please send a voice note or type your question.",
@@ -255,15 +255,8 @@ async function seedOne(bpid) {
     4120,
     280,
   );
-  const extraDone = addNode(
-    "message_text",
-    {
-      text:
-        "Got it — thank you! Our Alchemane expert will use this when they call you. Talk soon 😊",
-    },
-    4460,
-    180,
-  );
+  // Type / voice answers are released to AI (no static "got it" — AI guides
+  // or hands off for prices / confidential / off-topic).
   const allSetDone = addNode(
     "message_text",
     {
@@ -324,8 +317,7 @@ async function seedOne(bpid) {
   makeEdge(askExtraHelp, "Type", askExtraQuery);
   makeEdge(askExtraHelp, "Send a voice note", askExtraVoice);
   makeEdge(askExtraHelp, "I'm all set", allSetDone);
-  makeEdge(askExtraQuery, null, extraDone);
-  makeEdge(askExtraVoice, null, extraDone);
+  // askExtraQuery / askExtraVoice have no out-edge — engine completes + AI.
 
   const { error: nErr } = await supabase.from("trigger_nodes").insert(nodes);
   if (nErr) throw nErr;

@@ -533,6 +533,60 @@ export function looksLikePriceLeak(text: string): boolean {
 const PRICE_HANDOFF_REPLY =
   "Pricing depends on your case — our counselor shares exact details on a call or consultation. Would you like me to arrange that for you?";
 
+const HUMAN_HANDOFF_REPLY =
+  "That's something our specialist should cover with you personally — I've flagged your chat for a human counselor who will take over shortly. Please keep your phone handy.";
+
+/** User asks that must not be answered by AI — hand to a human. */
+export function looksLikeHumanHandoffAsk(text: string): boolean {
+  const t = String(text ?? "").toLowerCase();
+  if (!t.trim()) return false;
+  if (
+    /\b(price|pricing|cost|costs|kitna|paisa|charges?|fee|fees|emi|discount|offer rate|package (rate|cost|price)|how much|kya rate)\b/i.test(
+      t,
+    )
+  ) {
+    return true;
+  }
+  if (
+    /\b(confidential|internal (process|policy)|company secret|trade secret|salary|margin|profit|gst invoice detail|legal notice|sue|lawsuit)\b/i.test(
+      t,
+    )
+  ) {
+    return true;
+  }
+  if (
+    /\b(home address of|personal number of|owner'?s (phone|number|whatsapp)|staff salary|employee (list|phone))\b/i.test(
+      t,
+    )
+  ) {
+    return true;
+  }
+  return false;
+}
+
+async function flagContactForHumanHandoff(
+  admin: ReturnType<typeof createServiceRoleClient>,
+  contactId: string,
+  reason: string,
+): Promise<void> {
+  try {
+    await admin
+      .from("contacts")
+      .update({
+        // Stage cue for CRM / inbox so agents pick up price & confidential asks.
+        lsq_stage: "WhatsApp - Human Handoff",
+        status: "open",
+      })
+      .eq("id", contactId);
+    console.log(`[automation] human handoff flagged contact=${contactId} reason=${reason}`);
+  } catch (e) {
+    console.warn(
+      "[automation] handoff flag failed:",
+      e instanceof Error ? e.message : e,
+    );
+  }
+}
+
 // =====================================================================
 // Should we run automation for this incoming message?
 //
@@ -1223,7 +1277,16 @@ export async function runAutomation(opts: {
     "   connect them or book. Also: never invent success rates, medical",
     "   guarantees, doctor names, or package details.",
     "",
-    "6. PROFESSIONAL TONE. Warm, concise, 2–5 short sentences, WhatsApp",
+    "6. HUMAN HANDOVER for deep / confidential / out-of-scope asks. If the",
+    "   client asks for exact pricing packages, internal company process,",
+    "   confidential business details, staff personal info, medical diagnosis,",
+    "   legal/financial advice, or anything you cannot answer from public",
+    "   product guidance — do NOT invent an answer. In 1–2 short lines say a",
+    "   human specialist / counselor will take over and help on a call, then",
+    "   stop probing. For normal product guidance (how extensions work, care,",
+    "   what photos help, city/clinic logistics) answer helpfully yourself.",
+    "",
+    "7. PROFESSIONAL TONE. Warm, concise, 2–5 short sentences, WhatsApp",
     "   register. End with one clear next step (consultation slot, photo",
     "   request, etc.) when natural.",
     "",
@@ -1555,6 +1618,20 @@ export async function runAutomation(opts: {
   // Replaces the whole reply with a counselor handoff (does not strip mid-sentence).
   if (looksLikePriceLeak(cleaned)) {
     cleaned = PRICE_HANDOFF_REPLY;
+    await flagContactForHumanHandoff(admin, contact.id, "price_leak_in_ai_reply");
+  }
+
+  // User asked for prices / confidential / deep company detail → force handoff.
+  {
+    const lastUser = [...history].reverse().find((m) => m.role === "user");
+    const lastText =
+      typeof lastUser?.content === "string" ? lastUser.content.trim() : "";
+    if (looksLikeHumanHandoffAsk(lastText)) {
+      cleaned = looksLikePriceLeak(cleaned) || /\b(price|cost|kitna|paisa|emi)\b/i.test(lastText)
+        ? PRICE_HANDOFF_REPLY
+        : HUMAN_HANDOFF_REPLY;
+      await flagContactForHumanHandoff(admin, contact.id, "user_asked_handoff_topic");
+    }
   }
 
   // Task 1 hard gate — returning / known leads must NEVER be re-asked for

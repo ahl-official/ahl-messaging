@@ -184,7 +184,6 @@ const askExtraPhotos = randomUUID();
 const askExtraHelp = randomUUID();
 const askExtraQuery = randomUUID();
 const askExtraVoice = randomUUID();
-const extraDone = randomUUID();
 const allSetDone = randomUUID();
 
 const newNodes = [
@@ -225,7 +224,7 @@ const newNodes = [
     flow_id: flowId,
     node_type: "ask_text",
     config: {
-      text: "Please type your question.",
+      text: "Please type your question — our advisor will reply with guidance.",
       var_name: "extra_query",
       remind_on_invalid: true,
       invalid_reply_message: "Please type a short note, or send a voice note if you prefer.",
@@ -238,24 +237,13 @@ const newNodes = [
     flow_id: flowId,
     node_type: "ask_text",
     config: {
-      text: "Please send a voice note with your question. You can also type it.",
+      text: "Please send a voice note with your question — our advisor will reply with guidance. You can also type it.",
       var_name: "extra_query",
       remind_on_invalid: true,
       invalid_reply_message: "Please send a voice note or type your question.",
     },
     position: { x: tx + 840, y: ty + 40 },
     sort_order: maxSort + 4,
-  },
-  {
-    id: extraDone,
-    flow_id: flowId,
-    node_type: "message_text",
-    config: {
-      text:
-        "Got it — thank you! Our AHL expert will use this when they call you. Talk soon.",
-    },
-    position: { x: tx + 1120, y: ty - 40 },
-    sort_order: maxSort + 5,
   },
   {
     id: allSetDone,
@@ -265,7 +253,7 @@ const newNodes = [
       text: "Perfect! We're all set. Our expert will call you shortly.",
     },
     position: { x: tx + 840, y: ty + 180 },
-    sort_order: maxSort + 6,
+    sort_order: maxSort + 5,
   },
 ];
 
@@ -306,19 +294,8 @@ const newEdges = [
     to_node_id: allSetDone,
     branch_label: "I'm all set",
   },
-  {
-    flow_id: flowId,
-    from_node_id: askExtraQuery,
-    to_node_id: extraDone,
-    branch_label: null,
-  },
-  {
-    flow_id: flowId,
-    from_node_id: askExtraVoice,
-    to_node_id: extraDone,
-    branch_label: null,
-  },
 ];
+// Type / voice nodes have no out-edge — trigger-engine completes + AI.
 
 const { error: insE } = await sb.from("trigger_edges").insert(newEdges);
 if (insE) {
