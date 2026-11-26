@@ -15,12 +15,18 @@ export interface AhlEnsureLeadInput {
 
 type Admin = ReturnType<typeof createServiceRoleClient>;
 
+/** API key — prefer AHL_CRM_API_KEY; AHL_CRM_TOKEN is an accepted alias. */
+function ahlCrmApiKey(): string {
+  return (
+    process.env.AHL_CRM_API_KEY?.trim() ||
+    process.env.AHL_CRM_TOKEN?.trim() ||
+    ""
+  );
+}
+
 /** True when AHL Firebase CRM env is configured. */
 export function isAhlCrmConfigured(): boolean {
-  return !!(
-    process.env.AHL_CRM_LEADS_URL?.trim() &&
-    process.env.AHL_CRM_API_KEY?.trim()
-  );
+  return !!(process.env.AHL_CRM_LEADS_URL?.trim() && ahlCrmApiKey());
 }
 
 /** Create a lead in AHL CRM. Returns the CRM lead id, or null if skipped/failed. */
@@ -28,7 +34,7 @@ export async function ahlEnsureLead(
   input: AhlEnsureLeadInput,
 ): Promise<string | null> {
   const url = process.env.AHL_CRM_LEADS_URL?.trim();
-  const key = process.env.AHL_CRM_API_KEY?.trim();
+  const key = ahlCrmApiKey();
   if (!url || !key) return null;
 
   const res = await fetch(url, {

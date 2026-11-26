@@ -47,6 +47,26 @@ export async function kickInboundAutomation(params: {
 
   const admin = createServiceRoleClient();
 
+  // 0) Booking / slot / call signals → auto Task for CRM agent (Mantasha
+  //    pilot via DRIP_PILOT_OWNER). Fire-and-forget; never blocks flows.
+  if (inboundText.trim()) {
+    void import("@/lib/booking-auto-task")
+      .then(({ maybeCreateBookingTask }) =>
+        maybeCreateBookingTask({
+          contactId,
+          waId,
+          bpid,
+          inboundText,
+        }),
+      )
+      .catch((e) => {
+        console.warn(
+          "[kick-inbound] booking-auto-task failed:",
+          e instanceof Error ? e.message : e,
+        );
+      });
+  }
+
   // 1) Trigger flows first — immediate reply path (no debounce).
   if (inboundText.trim() || inboundHasMedia) {
     try {
