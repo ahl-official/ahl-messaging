@@ -138,24 +138,30 @@ export async function enrollDripsForLead(lead: ParsedLsqLead): Promise<number> {
 
   const admin = createServiceRoleClient();
 
-  const enrollSelectWithStages =
-    "id, name, business_phone_number_id, trigger_stage, trigger_stages, trigger_source, trigger_field, trigger_value, trigger_conditions, enabled, quiet_hours_start, quiet_hours_end";
-  const enrollSelectBase =
-    "id, name, business_phone_number_id, trigger_stage, trigger_source, trigger_field, trigger_value, trigger_conditions, enabled, quiet_hours_start, quiet_hours_end";
-  let enrollDripsRes = await admin
-    .from("drip_campaigns")
-    .select(enrollSelectWithStages)
-    .eq("enabled", true);
-  if (
-    enrollDripsRes.error &&
-    /trigger_stages/i.test(enrollDripsRes.error.message || "")
-  ) {
-    enrollDripsRes = await admin
+  // Prefer trigger_stages; fall back if the column is absent on older DBs.
+  let drips: DripRow[] | null = null;
+  {
+    const withStages = await admin
       .from("drip_campaigns")
-      .select(enrollSelectBase)
+      .select(
+        "id, name, business_phone_number_id, trigger_stage, trigger_stages, trigger_source, trigger_field, trigger_value, trigger_conditions, enabled, quiet_hours_start, quiet_hours_end",
+      )
       .eq("enabled", true);
+    if (
+      withStages.error &&
+      /trigger_stages/i.test(withStages.error.message || "")
+    ) {
+      const base = await admin
+        .from("drip_campaigns")
+        .select(
+          "id, name, business_phone_number_id, trigger_stage, trigger_source, trigger_field, trigger_value, trigger_conditions, enabled, quiet_hours_start, quiet_hours_end",
+        )
+        .eq("enabled", true);
+      drips = (base.data ?? []) as DripRow[];
+    } else {
+      drips = (withStages.data ?? []) as DripRow[];
+    }
   }
-  const drips = enrollDripsRes.data;
 
   // Stage-matched candidates — primary stage OR any entry in trigger_stages.
   const stageDrips = (drips ?? []).filter((d) =>
@@ -421,31 +427,39 @@ export async function runDripTick(): Promise<DripTickResult> {
   if (runs.length === 0) return result;
 
   // Load the drips + steps these runs reference.
-  // Prefer trigger_stages when the migration is applied; fall back if the
-  // column is missing so ticks don't treat every run as drip_disabled.
+  // Prefer trigger_stages; fall back if the column is missing so ticks don't
+  // treat every run as drip_disabled.
   const dripIds = [...new Set(runs.map((r) => r.drip_id))];
-  const dripSelectWithStages =
-    "id, name, business_phone_number_id, trigger_stage, trigger_stages, trigger_source, enabled, quiet_hours_start, quiet_hours_end";
-  const dripSelectBase =
-    "id, name, business_phone_number_id, trigger_stage, trigger_source, enabled, quiet_hours_start, quiet_hours_end";
-  let dripsRes = await admin
-    .from("drip_campaigns")
-    .select(dripSelectWithStages)
-    .in("id", dripIds);
-  if (dripsRes.error && /trigger_stages/i.test(dripsRes.error.message || "")) {
-    dripsRes = await admin
+  let drips: DripRow[] | null = null;
+  {
+    const withStages = await admin
       .from("drip_campaigns")
-      .select(dripSelectBase)
+      .select(
+        "id, name, business_phone_number_id, trigger_stage, trigger_stages, trigger_source, enabled, quiet_hours_start, quiet_hours_end",
+      )
       .in("id", dripIds);
+    if (
+      withStages.error &&
+      /trigger_stages/i.test(withStages.error.message || "")
+    ) {
+      const base = await admin
+        .from("drip_campaigns")
+        .select(
+          "id, name, business_phone_number_id, trigger_stage, trigger_source, enabled, quiet_hours_start, quiet_hours_end",
+        )
+        .in("id", dripIds);
+      drips = (base.data ?? []) as DripRow[];
+    } else {
+      drips = (withStages.data ?? []) as DripRow[];
+    }
   }
   const { data: steps } = await admin
     .from("drip_steps")
     .select("*")
     .in("drip_id", dripIds)
     .order("step_order", { ascending: true });
-  const drips = dripsRes.data;
   const dripById = new Map<string, DripRow>();
-  for (const d of (drips ?? []) as DripRow[]) dripById.set(d.id, d);
+  for (const d of drips ?? []) dripById.set(d.id, d);
   const stepsByDrip = new Map<string, StepRow[]>();
   for (const s of (steps ?? []) as StepRow[]) {
     const arr = stepsByDrip.get(s.drip_id) ?? stepsByDrip.set(s.drip_id, []).get(s.drip_id)!;
