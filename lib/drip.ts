@@ -35,12 +35,6 @@ function ownerMatchesPilot(ownerName: string | null | undefined): boolean {
   return owner.split(/\s+/)[0] === pilot;
 }
 
-/** Stages that must never receive Task 2 follow-ups (Vinitt stop rule). */
-const DRIP_TERMINAL_STAGES = new Set([
-  "consultation booked",
-  "consultation visited",
-]);
-
 interface DripRow {
   id: string;
   name: string;
@@ -137,10 +131,9 @@ export async function enrollDripsForLead(lead: ParsedLsqLead): Promise<number> {
   const stage = norm(lead.stage);
   if (!stage) return 0;
 
-  // Nobody booked / visited gets enrolled (global stop).
-  if (DRIP_TERMINAL_STAGES.has(stage)) return 0;
-
-  // Task 2 pilot: only Mehjabeen's leads (override with DRIP_PILOT_OWNER=*).
+  // Stage matching on each drip decides who enrolls (Qualified ≠ Booked ≠ Visited).
+  // Task 2 pilot: only the configured owner (default Mehjabeen; set
+  // DRIP_PILOT_OWNER=Mantashaa for her pilot, or * for everyone).
   if (!ownerMatchesPilot(lead.owner_name)) return 0;
 
   const admin = createServiceRoleClient();
@@ -467,12 +460,8 @@ export async function runDripTick(): Promise<DripTickResult> {
         continue;
       }
       const curStage = norm(ct?.lsq_stage as string | null);
-      if (curStage && DRIP_TERMINAL_STAGES.has(curStage)) {
-        await stop("funnel_terminal");
-        continue;
-      }
-      // Still in any of this drip's stages (multi-stage Leak 3 etc.) → keep going.
-      // Left the whole set (or left the single enrolled stage on legacy drips) → stop.
+      // Still in this drip's stage set → keep going. Left it (e.g. Warm → Booked
+      // on a Qualified drip, or Booked → Visited on a Noshow drip) → stop.
       if (curStage) {
         const allowed = dripStageSet(drip as DripRow);
         if (allowed.size > 0 && !allowed.has(curStage)) {
