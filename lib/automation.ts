@@ -152,6 +152,7 @@ interface ContactRow {
   lsq_stage: string | null;
   offtopic_strikes: number | null;
   bot_blocked_at: string | null;
+  bot_blocked_reason: string | null;
   preferred_language: string | null;
 }
 
@@ -169,6 +170,8 @@ export const AI_SENDER_EMAIL = "ai-assistant";
 // for that contact (silent thereafter; a human can still reply).
 // =====================================================================
 export const OFFTOPIC_BLOCK_REASON = "off_topic_guidelines";
+/** Soft mute after AI/counselor handoff — clears when a human agent replies. */
+export const HANDOFF_BLOCK_REASON = "human_handoff";
 const OFFTOPIC_WARN_LIMIT = 3; // warnings before block
 
 const OFFTOPIC_WARNINGS = {
@@ -576,6 +579,9 @@ async function flagContactForHumanHandoff(
         // Stage cue for CRM / inbox so agents pick up price & confidential asks.
         lsq_stage: "WhatsApp - Human Handoff",
         status: "open",
+        // Soft-mute AI until a human agent sends a message on this chat.
+        bot_blocked_at: new Date().toISOString(),
+        bot_blocked_reason: HANDOFF_BLOCK_REASON,
       })
       .eq("id", contactId);
     console.log(`[automation] human handoff flagged contact=${contactId} reason=${reason}`);
@@ -617,11 +623,72 @@ async function decideRun(opts: {
   const config = configRow as ConfigRow;
   if (!config.enabled) return { run: false, reason: "automation disabled for number" };
 
-  // Off-topic block — client pushed personal/casual chat past the warning
-  // limit, so the bot is muted for this contact. A human can still reply
-  // manually; the bot stays silent until an agent clears the block.
+  // Bot mute — two flavours:
+  //   • off_topic / manual → stay silent until an agent clears the block
+  //   • human_handoff → stay silent UNTIL a human agent replies, then
+  //     auto-clear so AI can resume under normal takeover rules
   if (opts.contact.bot_blocked_at) {
-    return { run: false, reason: "bot blocked — off-topic / app guidelines" };
+    const blockReason = (opts.contact.bot_blocked_reason ?? "").trim();
+    if (blockReason === HANDOFF_BLOCK_REASON) {
+      const { data: humanAfterHandoff } = await admin
+        .from("messages")
+        .select("id")
+        .eq("contact_id", opts.contact.id)
+        .eq("direction", "outbound")
+        .gt("timestamp", opts.contact.bot_blocked_at)
+        .neq("sent_by_email", AI_SENDER_EMAIL)
+        .limit(1);
+      if (humanAfterHandoff && humanAfterHandoff.length > 0) {
+        await admin
+          .from("contacts")
+          .update({ bot_blocked_at: null, bot_blocked_reason: null })
+          .eq("id", opts.contact.id);
+        // Fall through — AI may run again (human_takeover_minutes still applies).
+      } else {
+        return {
+          run: false,
+          reason: "human handoff — waiting for agent reply",
+        };
+      }
+    } else {
+      return { run: false, reason: "bot blocked — off-topic / app guidelines" };
+    }
+  }
+
+  // Legacy handoffs that only flipped stage (before soft-mute was added).
+  if (
+    !opts.contact.bot_blocked_at &&
+    (opts.contact.lsq_stage ?? "").trim().toLowerCase() ===
+      "whatsapp - human handoff"
+  ) {
+    const { data: anyHumanOut } = await admin
+      .from("messages")
+      .select("id, timestamp")
+      .eq("contact_id", opts.contact.id)
+      .eq("direction", "outbound")
+      .neq("sent_by_email", AI_SENDER_EMAIL)
+      .order("timestamp", { ascending: false })
+      .limit(1);
+    const { data: lastAi } = await admin
+      .from("messages")
+      .select("id, timestamp")
+      .eq("contact_id", opts.contact.id)
+      .eq("direction", "outbound")
+      .eq("sent_by_email", AI_SENDER_EMAIL)
+      .order("timestamp", { ascending: false })
+      .limit(1);
+    const humanTs = anyHumanOut?.[0]?.timestamp
+      ? new Date(anyHumanOut[0].timestamp as string).getTime()
+      : 0;
+    const aiTs = lastAi?.[0]?.timestamp
+      ? new Date(lastAi[0].timestamp as string).getTime()
+      : 0;
+    if (!humanTs || humanTs < aiTs) {
+      return {
+        run: false,
+        reason: "human handoff stage — waiting for agent reply",
+      };
+    }
   }
 
   // Mid-flow intake (e.g. waiting for voice note / typed concern) — never
@@ -904,7 +971,7 @@ export async function runAutomation(opts: {
   const { data: contactData } = await admin
     .from("contacts")
     .select(
-      "id, wa_id, business_phone_number_id, assigned_to, profile_name, name, last_human_typing_at, lsq_prospect_id, lsq_stage, offtopic_strikes, bot_blocked_at, preferred_language",
+      "id, wa_id, business_phone_number_id, assigned_to, profile_name, name, last_human_typing_at, lsq_prospect_id, lsq_stage, offtopic_strikes, bot_blocked_at, bot_blocked_reason, preferred_language",
     )
     .eq("id", opts.contactId)
     .maybeSingle();
