@@ -120,11 +120,10 @@ export async function GET(req: Request) {
     "ask_text",
     {
       text:
-        "Hello! 👋 Welcome to *Alchemane Hair Extensions*.\nWe're so glad you're here — we help women find natural-looking length, volume and coverage with 100% human hair.\n\nMay I please have your *name*?",
+        "Hello! Welcome to *Alchemane Hair Extensions*.\nWe're glad you're here — we help women find natural-looking length, volume and coverage with 100% human hair.\n\nMay I please have your *name*?",
       var_name: "user_name",
       remind_on_invalid: true,
-      invalid_reply_message:
-        "Please share your name so we can continue 😊",
+      invalid_reply_message: "Please share your name so we can continue.",
     },
     X.name,
     200,
@@ -134,7 +133,7 @@ export async function GET(req: Request) {
   const askCity = addNode(
     "ask_button",
     {
-      text: "Lovely to meet you, {{user_name}} 💕 Which city are you in right now?",
+      text: "Nice to meet you, {{user_name}}. Which city are you in right now?",
       var_name: "city",
       buttons: [
         { label: "Mumbai" },
@@ -149,7 +148,7 @@ export async function GET(req: Request) {
   const askCustomCity = addNode(
     "ask_text",
     {
-      text: "No problem! Please type the city or area you’re in 😊",
+      text: "No problem. Please type the city or area you are in.",
       var_name: "city",
     },
     X.cityOther,
@@ -167,7 +166,7 @@ export async function GET(req: Request) {
   const askInterest = addNode(
     "ask_list",
     {
-      text: "What would you like help with today, {{user_name}}? Pick the option that feels closest 👇",
+      text: "What would you like help with today, {{user_name}}? Please choose the option that feels closest:",
       var_name: "interested_in",
       buttons: [
         { label: "Permanent Extensions" },
@@ -229,7 +228,7 @@ export async function GET(req: Request) {
     "message_text",
     {
       text:
-        "Thank you, {{user_name}}! 💕 We have received your request.\n\nTo help our expert prepare for the call, please send clear photos of your hair (front / top / back if possible). We keep them confidential 📸\n\nOne of our Alchemane experts will call you shortly to help you choose the perfect hair extensions.",
+        "Thank you, {{user_name}}. We have received your request.\n\nTo help our expert prepare for the call, please send clear photos of your hair (front / top / back if possible). We keep them confidential.\n\nOne of our Alchemane experts will call you shortly to help you choose the right hair extensions.",
     },
     X.thanks,
     320,
@@ -257,7 +256,7 @@ export async function GET(req: Request) {
   const askExtraQuery = addNode(
     "ask_text",
     {
-      text: "Please type your question — our advisor will reply with guidance ✨",
+      text: "Please type your question — our advisor will reply with guidance.",
       var_name: "extra_query",
       remind_on_invalid: true,
       invalid_reply_message:
@@ -270,7 +269,7 @@ export async function GET(req: Request) {
   const askExtraVoice = addNode(
     "ask_text",
     {
-      text: "Please send a voice note with your question — our advisor will reply with guidance 🎤 You can also type it.",
+      text: "Please send a voice note with your question — our advisor will reply with guidance. You can also type it.",
       var_name: "extra_query",
       remind_on_invalid: true,
       invalid_reply_message: "Please send a voice note or type your question.",
@@ -282,7 +281,7 @@ export async function GET(req: Request) {
   const allSetDone = addNode(
     "message_text",
     {
-      text: "Perfect! We're all set. Our expert will call you shortly 😊",
+      text: "Perfect — we're all set. Our expert will call you shortly 😊",
     },
     X.allSet,
     560,
@@ -294,7 +293,7 @@ export async function GET(req: Request) {
         "message_text",
         {
           text:
-            "That's completely okay 😊 Our expert will listen to what you need and guide you gently to the best option for you.",
+            "That's completely okay. Our expert will listen to what you need and guide you to the best option for you.",
         },
         X.subtype,
         opt.y,
