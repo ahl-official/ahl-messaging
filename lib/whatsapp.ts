@@ -63,7 +63,9 @@ async function postToGraph(
   const json = (await res.json()) as SendMessageResponse & MetaErrorPayload;
   if (!res.ok) {
     const msg = json.error?.message || `WhatsApp API ${res.status}`;
-    throw new Error(msg);
+    const code = json.error?.code;
+    // Prefix (#code) so drip/campaign classifiers can hard-stop vs retry.
+    throw new Error(code != null ? `(#${code}) ${msg}` : msg);
   }
   return json;
 }

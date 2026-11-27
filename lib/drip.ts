@@ -19,6 +19,7 @@ import {
   ensureAhlMessagingContact,
 } from "@/lib/ahl-messaging-contact";
 import { TASK2_TWO_VAR_TEMPLATE_NAMES } from "@/lib/task2-leak-templates";
+import { resolveAssigneeFromContact } from "@/lib/booking-auto-task";
 
 /** Pilot owner filter. Default Mehjabeen; set DRIP_PILOT_OWNER=* to enroll all. */
 function dripPilotOwner(): string {
@@ -84,6 +85,232 @@ interface RunRow {
   display_name: string | null;
   enrolled_stage: string | null;
   next_step_order: number;
+  /** Attempts for the current step. Reset when the step advances. */
+  step_send_attempts?: number | null;
+  stop_reason?: string | null;
+}
+
+/** Max Meta send tries per step. Fail #1 → retry same template after 24h; fail #2 → stop. */
+const MAX_STEP_SEND_ATTEMPTS = 2;
+const STEP_RETRY_DELAY_MS = 24 * 60 * 60 * 1000;
+
+const RETRY_COLS = [
+  "step_send_attempts",
+  "last_send_error",
+  "last_sent_step_order",
+  "last_sent_attempts",
+  "last_failed_wa_message_id",
+] as const;
+
+/** Permanent / non-transient Meta codes — stop immediately, no day-2 retry. */
+const HARD_META_CODES = new Set([
+  100, // Invalid parameter
+  131021, // Recipient cannot be sender
+  131026, // Undeliverable / not on WhatsApp
+  131031, // Business eligibility / payment
+  131049, // Marketing / ecosystem restriction (common Task2 reject)
+  131051, // Unsupported message type
+  132001, // Template name does not exist
+  132015, // Template paused
+  132016, // Template disabled
+  133010, // Account not registered
+  130472, // User in experiment / restricted
+]);
+
+const HARD_META_MESSAGE =
+  /undeliverable|not a valid whatsapp|does not exist|template.*paused|template.*disabled|experiment|not registered|invalid parameter|unsupported message|marketing messages? (lite|limit)|ecosystem/i;
+
+export function parseMetaErrorCode(err: string): number | null {
+  const m = err.match(/\(\#(\d{3,5})\)|code[\s:]+(\d{3,5})/i);
+  if (!m) return null;
+  const n = parseInt(m[1] || m[2] || "", 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+/** Hard = stop now. Soft = retry after 24h (max 2 attempts). */
+export function isHardMetaDripFailure(err: string): boolean {
+  const code = parseMetaErrorCode(err);
+  if (code != null && HARD_META_CODES.has(code)) return true;
+  return HARD_META_MESSAGE.test(err);
+}
+
+function priorStepAttempts(run: RunRow): number {
+  if (typeof run.step_send_attempts === "number") return run.step_send_attempts;
+  return /^retry_after_fail:/i.test(run.stop_reason || "") ? 1 : 0;
+}
+
+async function createDripFailureTask(
+  admin: ReturnType<typeof createServiceRoleClient>,
+  run: RunRow,
+  errMsg: string,
+  templateName: string | null,
+): Promise<void> {
+  if (!run.contact_id) return;
+  try {
+    const { data: contact } = await admin
+      .from("contacts")
+      .select(
+        "id, name, profile_name, assigned_to, lsq_owner_email, lsq_owner_name, wa_id",
+      )
+      .eq("id", run.contact_id)
+      .maybeSingle();
+    if (!contact) return;
+
+    const assignee = await resolveAssigneeFromContact(admin, {
+      assigned_to: (contact.assigned_to as string | null) ?? null,
+      lsq_owner_email: (contact.lsq_owner_email as string | null) ?? null,
+      lsq_owner_name: (contact.lsq_owner_name as string | null) ?? null,
+    });
+    if (!assignee) {
+      console.warn(
+        `[drip] fail task skipped — no assignee for contact ${run.contact_id}`,
+      );
+      return;
+    }
+
+    const clientName =
+      ((contact.name as string | null) ?? "").trim() ||
+      ((contact.profile_name as string | null) ?? "").trim() ||
+      run.display_name ||
+      run.wa_id;
+
+    const title =
+      `Drip template failed — ${clientName}`.slice(0, 200);
+    const description = [
+      `Auto-created from drip send failure.`,
+      `Client: ${clientName}`,
+      `Phone: ${run.wa_id}`,
+      `Template: ${templateName || "(unknown)"}`,
+      `Step: ${run.next_step_order}`,
+      `Error: ${errMsg}`,
+      `Action: Call / check WhatsApp quality, then mark Done.`,
+    ].join("\n");
+
+    const since = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
+    const { data: existing } = await admin
+      .from("tasks")
+      .select("id, title, description")
+      .eq("contact_id", run.contact_id)
+      .in("status", ["open", "in_progress"])
+      .gte("created_at", since)
+      .limit(10);
+
+    const prior = (
+      (existing ?? []) as Array<{
+        id: string;
+        title: string;
+        description: string | null;
+      }>
+    ).find((t) => {
+      const tl = t.title.toLowerCase();
+      return (
+        tl.startsWith("drip template failed") ||
+        (t.description || "").startsWith("Auto-created from drip send failure.")
+      );
+    });
+
+    const due = new Date(Date.now() + 5.5 * 3600_000);
+    due.setUTCHours(18, 29, 59, 999);
+    const dueAt = new Date(due.getTime() - 5.5 * 3600_000).toISOString();
+
+    if (prior) {
+      await admin
+        .from("tasks")
+        .update({
+          title,
+          description,
+          priority: "high",
+          assigned_to: assignee.memberId,
+          due_at: dueAt,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", prior.id);
+      return;
+    }
+
+    await admin.from("tasks").insert({
+      title,
+      description,
+      status: "open",
+      priority: "high",
+      assigned_to: assignee.memberId,
+      created_by: null,
+      contact_id: run.contact_id,
+      business_phone_number_id: run.business_phone_number_id || null,
+      due_at: dueAt,
+    });
+  } catch (e) {
+    console.warn(
+      "[drip] fail task create failed:",
+      e instanceof Error ? e.message : e,
+    );
+  }
+}
+
+/**
+ * Apply hard-stop or 24h retry for a failed drip step. Creates CRM task on final fail.
+ * Returns whether the run was marked failed.
+ */
+async function applyDripStepFailure(
+  admin: ReturnType<typeof createServiceRoleClient>,
+  run: RunRow,
+  errMsgRaw: string,
+  templateName: string | null,
+  opts?: { waMessageId?: string | null; stepOrder?: number },
+): Promise<"retried" | "failed"> {
+  const errMsg = errMsgRaw.slice(0, 300);
+  const hard = isHardMetaDripFailure(errMsg);
+  const attempts = priorStepAttempts(run) + 1;
+  const stepOrder = opts?.stepOrder ?? run.next_step_order;
+
+  if (hard || attempts >= MAX_STEP_SEND_ATTEMPTS) {
+    console.warn(
+      `[drip] stop run=${run.id} step=${stepOrder} hard=${hard} attempt=${attempts}/${MAX_STEP_SEND_ATTEMPTS}: ${errMsg}`,
+    );
+    await updateDripRun(admin, run.id, {
+      status: "failed",
+      next_step_order: stepOrder,
+      step_send_attempts: attempts,
+      last_send_error: errMsg,
+      stop_reason: (hard ? `hard_fail:${errMsg}` : errMsg).slice(0, 300),
+      last_failed_wa_message_id: opts?.waMessageId || null,
+      updated_at: new Date().toISOString(),
+    });
+    await createDripFailureTask(admin, { ...run, next_step_order: stepOrder }, errMsg, templateName);
+    return "failed";
+  }
+
+  console.warn(
+    `[drip] retry in 24h run=${run.id} step=${stepOrder} attempt=${attempts}/${MAX_STEP_SEND_ATTEMPTS}: ${errMsg}`,
+  );
+  await updateDripRun(admin, run.id, {
+    status: "active",
+    next_step_order: stepOrder,
+    step_send_attempts: attempts,
+    last_send_error: errMsg,
+    stop_reason: `retry_after_fail:${errMsg}`.slice(0, 300),
+    next_run_at: new Date(Date.now() + STEP_RETRY_DELAY_MS).toISOString(),
+    last_failed_wa_message_id: opts?.waMessageId || null,
+    updated_at: new Date().toISOString(),
+  });
+  return "retried";
+}
+
+/** Update drip_runs; if migration 0130 cols are missing, retry without them. */
+async function updateDripRun(
+  admin: ReturnType<typeof createServiceRoleClient>,
+  runId: string,
+  patch: Record<string, unknown>,
+): Promise<void> {
+  const { error } = await admin.from("drip_runs").update(patch).eq("id", runId);
+  if (!error) return;
+  if (!RETRY_COLS.some((c) => (error.message || "").includes(c))) {
+    throw error;
+  }
+  const stripped = { ...patch };
+  for (const c of RETRY_COLS) delete stripped[c];
+  const { error: e2 } = await admin.from("drip_runs").update(stripped).eq("id", runId);
+  if (e2) throw e2;
 }
 
 const norm = (s: string | null | undefined) => (s ?? "").trim().toLowerCase();
@@ -412,17 +639,38 @@ export async function runDripTick(): Promise<DripTickResult> {
   const result: DripTickResult = { scanned: 0, sent: 0, completed: 0, stopped: 0, failed: 0 };
 
   const nowIso = new Date().toISOString();
-  const { data: due } = await admin
-    .from("drip_runs")
-    .select(
-      "id, drip_id, contact_id, wa_id, business_phone_number_id, display_name, enrolled_stage, next_step_order",
-    )
-    .eq("status", "active")
-    .lte("next_run_at", nowIso)
-    .order("next_run_at", { ascending: true })
-    .limit(50);
+  // Prefer step_send_attempts; fall back if migration 0130 not applied yet.
+  let due: RunRow[] | null = null;
+  {
+    const withAttempts = await admin
+      .from("drip_runs")
+      .select(
+        "id, drip_id, contact_id, wa_id, business_phone_number_id, display_name, enrolled_stage, next_step_order, step_send_attempts, stop_reason",
+      )
+      .eq("status", "active")
+      .lte("next_run_at", nowIso)
+      .order("next_run_at", { ascending: true })
+      .limit(50);
+    if (
+      withAttempts.error &&
+      /step_send_attempts/i.test(withAttempts.error.message || "")
+    ) {
+      const base = await admin
+        .from("drip_runs")
+        .select(
+          "id, drip_id, contact_id, wa_id, business_phone_number_id, display_name, enrolled_stage, next_step_order, stop_reason",
+        )
+        .eq("status", "active")
+        .lte("next_run_at", nowIso)
+        .order("next_run_at", { ascending: true })
+        .limit(50);
+      due = (base.data ?? []) as RunRow[];
+    } else {
+      due = (withAttempts.data ?? []) as RunRow[];
+    }
+  }
 
-  const runs = (due ?? []) as RunRow[];
+  const runs = due ?? [];
   result.scanned = runs.length;
   if (runs.length === 0) return result;
 
@@ -538,9 +786,16 @@ export async function runDripTick(): Promise<DripTickResult> {
       result.sent++;
 
       const next = all.find((s) => s.step_order === run.next_step_order + 1);
+      const sentAttempts = priorStepAttempts(run);
       const patch: Record<string, unknown> = {
         last_sent_at: new Date().toISOString(),
+        last_sent_step_order: run.next_step_order,
+        // Preserve attempt count for delivery-fail; next step starts at 0.
+        last_sent_attempts: sentAttempts,
         updated_at: new Date().toISOString(),
+        step_send_attempts: 0,
+        last_send_error: null,
+        stop_reason: null,
       };
       if (next) {
         patch.next_step_order = next.step_order;
@@ -549,19 +804,93 @@ export async function runDripTick(): Promise<DripTickResult> {
         patch.status = "completed";
         result.completed++;
       }
-      await admin.from("drip_runs").update(patch).eq("id", run.id);
+      await updateDripRun(admin, run.id, patch);
     } catch (e) {
-      await admin
-        .from("drip_runs")
-        .update({
-          status: "failed",
-          stop_reason: (e instanceof Error ? e.message : "send failed").slice(0, 300),
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", run.id);
-      result.failed++;
+      const errMsg = e instanceof Error ? e.message : "send failed";
+      const outcome = await applyDripStepFailure(
+        admin,
+        run,
+        errMsg,
+        step.template_name ?? null,
+      );
+      if (outcome === "failed") result.failed++;
     }
   }
 
   return result;
+}
+
+/**
+ * Meta accepted the send then reported delivery failed. Re-queue the same
+ * drip step after 24h (or hard-stop + CRM task). Dedupes by wa_message_id.
+ */
+export async function handleDripOutboundDeliveryFailed(opts: {
+  waMessageId: string;
+  contactId: string;
+  errorMessage: string | null;
+  templateName?: string | null;
+}): Promise<{ handled: boolean; reason?: string }> {
+  const admin = createServiceRoleClient();
+  const errMsg = (opts.errorMessage || "delivery failed").slice(0, 300);
+  const since = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+
+  const { data: runs } = await admin
+    .from("drip_runs")
+    .select(
+      "id, drip_id, contact_id, wa_id, business_phone_number_id, display_name, enrolled_stage, next_step_order, step_send_attempts, stop_reason, last_sent_step_order, last_sent_attempts, last_failed_wa_message_id, last_sent_at, status",
+    )
+    .eq("contact_id", opts.contactId)
+    .in("status", ["active", "completed"])
+    .gte("last_sent_at", since)
+    .order("last_sent_at", { ascending: false })
+    .limit(5);
+
+  const run = ((runs ?? []) as Array<
+    RunRow & {
+      last_sent_step_order?: number | null;
+      last_sent_attempts?: number | null;
+      last_failed_wa_message_id?: string | null;
+      status?: string;
+    }
+  >)[0];
+
+  if (!run) return { handled: false, reason: "no_recent_drip_run" };
+  if (run.last_failed_wa_message_id === opts.waMessageId) {
+    return { handled: false, reason: "already_handled" };
+  }
+
+  const stepOrder =
+    typeof run.last_sent_step_order === "number"
+      ? run.last_sent_step_order
+      : Math.max(1, (run.next_step_order || 1) - 1);
+
+  let templateName = opts.templateName ?? null;
+  if (!templateName) {
+    const { data: steps } = await admin
+      .from("drip_steps")
+      .select("template_name, step_order")
+      .eq("drip_id", run.drip_id)
+      .eq("step_order", stepOrder)
+      .maybeSingle();
+    templateName = (steps?.template_name as string | null) ?? null;
+  }
+
+  // Continue the attempt counter from the accepted send (not the next step's 0).
+  const runForFail: RunRow = {
+    ...run,
+    next_step_order: stepOrder,
+    step_send_attempts:
+      typeof run.last_sent_attempts === "number"
+        ? run.last_sent_attempts
+        : priorStepAttempts(run),
+  };
+
+  const outcome = await applyDripStepFailure(
+    admin,
+    runForFail,
+    errMsg,
+    templateName,
+    { waMessageId: opts.waMessageId, stepOrder },
+  );
+  return { handled: true, reason: outcome };
 }

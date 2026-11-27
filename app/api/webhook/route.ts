@@ -899,7 +899,7 @@ async function processWebhook(body: WAWebhookBody) {
 
         const { data: existing } = await supabase
           .from("messages")
-          .select("status, id")
+          .select("status, id, contact_id, type, template_name, direction")
           .eq("wa_message_id", status.id)
           .maybeSingle();
 
@@ -940,6 +940,30 @@ async function processWebhook(body: WAWebhookBody) {
           console.log(
             `[webhook] ✓ status ${existing.status ?? "—"} → ${status.status} for ${status.id}`,
           );
+
+          // Drip: Meta accepted send then delivery failed → 24h retry / hard-stop + task.
+          if (
+            status.status === "failed" &&
+            existing.direction === "outbound" &&
+            existing.contact_id &&
+            (existing.type === "template" || Boolean(existing.template_name))
+          ) {
+            void import("@/lib/drip")
+              .then(({ handleDripOutboundDeliveryFailed }) =>
+                handleDripOutboundDeliveryFailed({
+                  waMessageId: status.id,
+                  contactId: existing.contact_id as string,
+                  errorMessage: errMsg,
+                  templateName: (existing.template_name as string | null) ?? null,
+                }),
+              )
+              .catch((e) => {
+                console.warn(
+                  "[webhook] drip delivery-fail handler:",
+                  e instanceof Error ? e.message : e,
+                );
+              });
+          }
 
           // If this status update is for the LATEST message of the contact,
           // mirror the new status onto the contact row so the contact list's

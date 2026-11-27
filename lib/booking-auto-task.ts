@@ -93,7 +93,7 @@ async function contactHasActiveDrip(
   return Boolean(data?.id);
 }
 
-async function resolveAssigneeFromContact(
+export async function resolveAssigneeFromContact(
   admin: Admin,
   contact: {
     assigned_to: string | null;
