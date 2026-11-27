@@ -47,7 +47,7 @@ const REPLACEMENTS = [
   ],
   [
     "What product are you interested in?",
-    "Got it 🙂 What would you like help with?",
+    "Got it. What would you like help with?",
   ],
 ];
 

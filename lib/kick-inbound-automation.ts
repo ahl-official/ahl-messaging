@@ -47,8 +47,9 @@ export async function kickInboundAutomation(params: {
 
   const admin = createServiceRoleClient();
 
-  // 0) Booking / slot / call signals → auto Task for CRM agent (Mantasha
-  //    pilot via DRIP_PILOT_OWNER). Fire-and-forget; never blocks flows.
+  // 0) Booking / slot / call signals → auto Task only for drip-enrolled
+  //    assigned contacts (no Mantashaa dump for random inbound).
+  //    Fire-and-forget; never blocks flows.
   if (inboundText.trim()) {
     void import("@/lib/booking-auto-task")
       .then(({ maybeCreateBookingTask }) =>

@@ -46,10 +46,10 @@ const nodes = [
     id: getId('ask_name'),
     node_type: 'ask_text',
     config: {
-      text: "Hello! 👋 Welcome to American Hairline.\nWe're delighted to connect with you! To help you with the right specialist, may we know your *Name*?",
+      text: "Hello! Welcome to American Hairline.\nWe're delighted to connect with you! To help you with the right specialist, may we know your *Name*?",
       var_name: 'name',
       remind_on_invalid: true,
-      invalid_reply_message: 'Please share your name so we can assist you better 🙏'
+      invalid_reply_message: 'Please share your name so we can assist you better.'
     },
     position: { x: 350, y: 200 }
   },
@@ -68,7 +68,7 @@ const nodes = [
     id: getId('ask_city'),
     node_type: 'ask_list',
     config: {
-      text: 'Nice to connect with you! 😊 Which city are you currently located in? (Tap below to select):',
+      text: 'Nice to connect with you! Which city are you currently located in? (Tap below to select):',
       var_name: 'city',
       buttons: [
         { label: 'Mumbai' },
@@ -109,7 +109,7 @@ const nodes = [
     id: getId('ask_product'),
     node_type: 'ask_button',
     config: {
-      text: 'To guide you to the right hair specialist, which hair solution would you like to explore today? 👇',
+      text: 'To guide you to the right hair specialist, which hair solution would you like to explore today?',
       var_name: 'product',
       buttons: [
         { label: 'Hair Patch' },
@@ -143,7 +143,7 @@ const nodes = [
     id: getId('send_tech_video'),
     node_type: 'message_text',
     config: {
-      text: `Awesome! Before we proceed, take a quick look at this 2-minute technical video explaining how our natural hair systems work:\n\n🎬 *Watch Video:* ${TECH_VIDEO_URL}\n\n(This will give you a clear view of our seamless technique and results!)`
+      text: `Awesome! Before we proceed, take a quick look at this 2-minute technical video explaining how our natural hair systems work:\n\n*Watch Video:* ${TECH_VIDEO_URL}\n\n(This will give you a clear view of our seamless technique and results!)`
     },
     position: { x: 1950, y: 200 }
   },
@@ -170,7 +170,7 @@ const nodes = [
     id: getId('ask_platform'),
     node_type: 'ask_button',
     config: {
-      text: 'Which consultation format would be most comfortable for you? 👇',
+      text: 'Which consultation format would be most comfortable for you?',
       var_name: 'platform',
       buttons: [
         { label: 'Book Online Consult' },
@@ -194,7 +194,7 @@ const nodes = [
     id: getId('ask_time_slot'),
     node_type: 'ask_list',
     config: {
-      text: 'Perfect! Please choose your preferred consultation time slot:\n(Nominal ₹500 fee, 100% adjusted in your final service package) 🗓️',
+      text: 'Perfect! Please choose your preferred consultation time slot:\n(Nominal ₹500 fee, 100% adjusted in your final service package)',
       var_name: 'consultation_slot',
       buttons: [
         { label: 'Tomorrow - 12:00 PM' },
@@ -211,7 +211,7 @@ const nodes = [
     id: getId('send_payment_link'),
     node_type: 'message_buttons',
     config: {
-      text: `Your consultation slot is tentatively reserved! ⏳\n\nTo lock your appointment pass, please complete the ₹500 consultation fee using the link below:\n👉 ${RAZORPAY_PAYMENT_URL}\n\n(100% adjusted against your final package. Supports GPay, PhonePe, Paytm & UPI)\n\nOnce completed, tap below:`,
+      text: `Your consultation slot is tentatively reserved!\n\nTo lock your appointment pass, please complete the ₹500 consultation fee using the link below:\n${RAZORPAY_PAYMENT_URL}\n\n(100% adjusted against your final package. Supports GPay, PhonePe, Paytm & UPI)\n\nOnce completed, tap below:`,
       var_name: 'payment_status',
       buttons: [
         { label: 'Confirmed Payment' }
@@ -234,7 +234,7 @@ const nodes = [
     id: getId('msg_payment_confirmed'),
     node_type: 'message_text',
     config: {
-      text: 'Thank you! 🙏 We have received your appointment confirmation request. Our team will verify your payment details shortly.\n\nTo help our senior hair specialist study your hair loss pattern before your session, please share 1-2 clear photos of your scalp (top, front & crown) here. All photos remain 100% confidential. 📸'
+      text: 'Thank you! We have received your appointment confirmation request. Our team will verify your payment details shortly.\n\nTo help our senior hair specialist study your hair loss pattern before your session, please share 1-2 clear photos of your scalp (top, front & crown) here. All photos remain 100% confidential.'
     },
     position: { x: 3980, y: 150 }
   },
@@ -265,7 +265,7 @@ const nodes = [
     id: getId('send_more_info_video'),
     node_type: 'message_text',
     config: {
-      text: `Here is our detailed technical video explaining non-surgical hair replacement:\n👉 ${TECH_VIDEO_URL}\n\nWhenever you are ready, you can book your slot anytime!`
+      text: `Here is our detailed technical video explaining non-surgical hair replacement:\n${TECH_VIDEO_URL}\n\nWhenever you are ready, you can book your slot anytime!`
     },
     position: { x: 4300, y: 250 }
   },

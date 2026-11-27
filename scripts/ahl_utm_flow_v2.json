@@ -32,10 +32,10 @@
         "id": "9b76a1d2-aa02-448e-9d47-6a98b222bb49",
         "node_type": "ask_text",
         "config": {
-          "text": "Hello! 👋 Welcome to American Hairline.\nWe're delighted to connect with you! To help you with the right specialist, may we know your *Name*?",
+          "text": "Hello! Welcome to American Hairline.\nWe're delighted to connect with you! To help you with the right specialist, may we know your *Name*?",
           "var_name": "name",
           "remind_on_invalid": true,
-          "invalid_reply_message": "Please share your name so we can assist you better 🙏"
+          "invalid_reply_message": "Please share your name so we can assist you better."
         },
         "position": {
           "x": 350,
@@ -58,7 +58,7 @@
         "id": "9ef7e176-53a9-42c2-8872-8834ed544905",
         "node_type": "ask_list",
         "config": {
-          "text": "Nice to connect with you! 😊 Which city are you currently located in? (Tap below to select):",
+          "text": "Nice to connect with you! Which city are you currently located in? (Tap below to select):",
           "var_name": "city",
           "buttons": [
             {
@@ -126,7 +126,7 @@
         "id": "2d928ce4-e90a-40bd-b238-cf28e4d3e58f",
         "node_type": "ask_button",
         "config": {
-          "text": "To guide you to the right hair specialist, which hair solution would you like to explore today? 👇",
+          "text": "To guide you to the right hair specialist, which hair solution would you like to explore today?",
           "var_name": "product",
           "buttons": [
             {
@@ -212,7 +212,7 @@
         "id": "edc01d99-3f47-4c66-a5ae-f13f743dead3",
         "node_type": "ask_button",
         "config": {
-          "text": "Which consultation format would be most comfortable for you? 👇",
+          "text": "Which consultation format would be most comfortable for you?",
           "var_name": "platform",
           "buttons": [
             {
@@ -270,7 +270,7 @@
         "id": "821901d9-8e88-478d-be05-b9539ca60ee3",
         "node_type": "message_buttons",
         "config": {
-          "text": "Your consultation slot is tentatively reserved! ⏳\n\nTo lock your appointment pass, please complete the ₹500 consultation fee using the link below:\n👉 https://rzp.io/rzp/ahl-consultation-wa\n\n(100% adjusted against your final package. Supports GPay, PhonePe, Paytm & UPI)\n\nOnce completed, tap below:",
+          "text": "Your consultation slot is tentatively reserved!\n\nTo lock your appointment pass, please complete the ₹500 consultation fee using the link below:\nhttps://rzp.io/rzp/ahl-consultation-wa\n\n(100% adjusted against your final package. Supports GPay, PhonePe, Paytm & UPI)\n\nOnce completed, tap below:",
           "var_name": "payment_status",
           "buttons": [
             {
@@ -299,7 +299,7 @@
         "id": "4abba94e-bad1-4e52-9972-4b6f24787d32",
         "node_type": "message_text",
         "config": {
-          "text": "Thank you! 🙏 We have received your appointment confirmation request. Our team will verify your payment details shortly.\n\nTo help our senior hair specialist study your hair loss pattern before your session, please share 1-2 clear photos of your scalp (top, front & crown) here. All photos remain 100% confidential. 📸"
+          "text": "Thank you! We have received your appointment confirmation request. Our team will verify your payment details shortly.\n\nTo help our senior hair specialist study your hair loss pattern before your session, please share 1-2 clear photos of your scalp (top, front & crown) here. All photos remain 100% confidential."
         },
         "position": {
           "x": 3980,
@@ -341,7 +341,7 @@
         "id": "8579bcb0-f326-43a4-a8cc-41ffe036b2b2",
         "node_type": "message_text",
         "config": {
-          "text": "Here is our detailed technical video explaining non-surgical hair replacement:\n👉 https://youtu.be/B7kamqdiJSY?si=GzSAwvGucX1Lvues\n\nWhenever you are ready, you can book your slot anytime!"
+          "text": "Here is our detailed technical video explaining non-surgical hair replacement:\nhttps://youtu.be/B7kamqdiJSY?si=GzSAwvGucX1Lvues\n\nWhenever you are ready, you can book your slot anytime!"
         },
         "position": {
           "x": 4300,

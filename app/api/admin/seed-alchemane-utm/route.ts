@@ -129,16 +129,23 @@ export async function GET(req: Request) {
     200,
   );
 
-  // No second “nice to meet you” — go straight to city.
+  // City list matches AHL (list + None of the above).
   const askCity = addNode(
-    "ask_button",
+    "ask_list",
     {
-      text: "Nice to meet you, {{user_name}}. Which city are you in right now?",
+      text: "Nice to meet you, {{user_name}}. Which city are you currently located in? (Tap below to select):",
       var_name: "city",
       buttons: [
         { label: "Mumbai" },
         { label: "Bangalore" },
-        { label: "Other" },
+        { label: "Hyderabad" },
+        { label: "Delhi" },
+        { label: "Pune" },
+        { label: "Kolkata" },
+        { label: "Chennai" },
+        { label: "Jaipur" },
+        { label: "Lucknow" },
+        { label: "None of the above" },
       ],
     },
     X.city,
@@ -148,7 +155,7 @@ export async function GET(req: Request) {
   const askCustomCity = addNode(
     "ask_text",
     {
-      text: "No problem. Please type the city or area you are in.",
+      text: "No problem. Please type the city or region you are from.",
       var_name: "city",
     },
     X.cityOther,
@@ -322,9 +329,20 @@ export async function GET(req: Request) {
   makeEdge(webhookLast, null, thanksCall);
   makeEdge(webhookFirst, null, askName);
   makeEdge(askName, null, askCity);
-  makeEdge(askCity, "Mumbai", webhookAfterCity);
-  makeEdge(askCity, "Bangalore", webhookAfterCity);
-  makeEdge(askCity, "Other", askCustomCity);
+  for (const city of [
+    "Mumbai",
+    "Bangalore",
+    "Hyderabad",
+    "Delhi",
+    "Pune",
+    "Kolkata",
+    "Chennai",
+    "Jaipur",
+    "Lucknow",
+  ]) {
+    makeEdge(askCity, city, webhookAfterCity);
+  }
+  makeEdge(askCity, "None of the above", askCustomCity);
   makeEdge(askCustomCity, null, webhookAfterCity);
   makeEdge(webhookAfterCity, null, askInterest);
   makeEdge(thanksCall, null, askExtraHelp);
